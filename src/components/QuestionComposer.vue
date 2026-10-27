@@ -1,0 +1,13 @@
+<script setup>
+import {ref,nextTick,onUnmounted,watch} from 'vue'
+import {api} from '../lib/api'
+import {subjects} from '../data/quiz'
+import PixelDecor from './PixelDecor.vue'
+const dialog=ref(null),subject=ref(''),title=ref(''),content=ref(''),busy=ref(false),error=ref(''),success=ref('');let requestKey=crypto.randomUUID()
+watch([subject,title,content],()=>{if(!busy.value)requestKey=crypto.randomUUID()},{flush:'sync'})
+async function open(){success.value='';error.value='';await nextTick();dialog.value.showModal()}
+function close(){if(!busy.value)dialog.value.close()}
+async function send(){if(busy.value)return;error.value='';if(!subject.value||!title.value.trim()||!content.value.trim()){error.value='과목·제목·질문 내용을 모두 입력해 주세요.';return}busy.value=true;try{await api('/messages',{method:'POST',body:{subject:subject.value,title:title.value,content:content.value,requestKey}});success.value='관리자에게 쪽지를 보냈어요. 답장은 마이 리틀 펫 → 내 쪽지함에서 확인해 주세요.';dialog.value.close();subject.value='';title.value='';content.value='';requestKey=crypto.randomUUID()}catch(e){error.value=e.message}finally{busy.value=false}}
+onUnmounted(()=>dialog.value?.close())
+</script>
+<template><div class="question-composer"><button class="question-launch" @click="open"><PixelDecor kind="box" class="question-box-icon"/>질문있어요!</button><p v-if="success" role="status" class="mail-success">{{success}}</p><dialog ref="dialog" class="question-dialog" aria-labelledby="question-dialog-title" @cancel.prevent="close"><div class="mail-dialog-top"><p class="eyebrow">PRIVATE MESSAGE TO TEACHER</p><button class="text-button" aria-label="쪽지 작성 닫기" :disabled="busy" @click="close">✕</button></div><div class="question-title-art"><PixelDecor kind="box"/><h2 id="question-dialog-title">질문있어요!</h2></div><p>관리자에게만 보이는 비공개 쪽지입니다.</p><form @submit.prevent="send"><fieldset :disabled="busy" class="mail-form-fields"><label for="question-subject">과목</label><select id="question-subject" v-model="subject" required><option value="" disabled>과목 선택</option><option v-for="s in subjects" :key="s.id" :value="s.id">{{s.name}}</option></select><label for="question-title">제목</label><input id="question-title" v-model="title" required maxlength="100" placeholder="어떤 점이 궁금한가요?"/><label for="question-content">질문 내용</label><textarea id="question-content" v-model="content" required maxlength="5000" rows="7" placeholder="궁금한 내용을 자세히 적어 주세요."/><small>{{content.length}} / 5000자</small><p v-if="error" role="alert" class="account-error">{{error}}</p><div class="toolbar"><button type="submit" :disabled="!subject||!title.trim()||!content.trim()">{{busy?'전송 중…':'관리자에게 전송'}}</button><button type="button" class="light" @click="close">취소</button></div></fieldset></form></dialog></div></template>

@@ -1,0 +1,15 @@
+<script setup>
+import {ref,watch,onMounted,onUnmounted,nextTick} from 'vue'
+import * as echarts from 'echarts/core'
+import {BarChart} from 'echarts/charts'
+import {GridComponent,TooltipComponent,LegendComponent} from 'echarts/components'
+import {CanvasRenderer} from 'echarts/renderers'
+echarts.use([BarChart,GridComponent,TooltipComponent,LegendComponent,CanvasRenderer])
+const props=defineProps({rows:{type:Array,default:()=>[]},title:{type:String,default:'학습 현황 차트'},names:{type:String,default:'name'},timeKey:{type:String,default:'totalSeconds'}}),visible=ref(true),progressEl=ref(null),timeEl=ref(null);let progress,time,observer,alive=true
+function dispose(){observer?.disconnect();progress?.dispose();time?.dispose();progress=null;time=null}
+async function draw(){await nextTick();if(!alive||!visible.value||!progressEl.value)return;dispose();progress=echarts.init(progressEl.value);time=echarts.init(timeEl.value);const palette=getComputedStyle(document.documentElement),primary=palette.getPropertyValue('--rpg-mid').trim()||'#3e9ed3',deep=palette.getPropertyValue('--rpg-edge').trim()||'#315685',ink=palette.getPropertyValue('--rpg-ink').trim()||'#20395d';const names=props.rows.map(r=>r[props.names]??r.name??r.nickname),base={backgroundColor:'transparent',textStyle:{fontFamily:'Galmuri11, monospace',color:ink},tooltip:{trigger:'axis',confine:true},grid:{left:115,right:30,top:30,bottom:30,containLabel:false},yAxis:{type:'category',data:names,inverse:true,axisLabel:{width:105,overflow:'truncate'}},xAxis:{type:'value',splitLine:{lineStyle:{color:palette.getPropertyValue('--rpg-soft').trim()||'#dcf4ff'}}}};
+progress.setOption({...base,xAxis:{...base.xAxis,max:100,axisLabel:{formatter:'{value}%'}},series:[{name:'공개 진도 진행률',type:'bar',data:props.rows.map(r=>({value:r.percent??0,completed:r.completed??0,total:r.total??0})),itemStyle:{color:primary},barMaxWidth:26,label:{show:true,position:'right',formatter:p=>p.value+'%'}}]});
+time.setOption({...base,xAxis:{...base.xAxis,name:'분',minInterval:1,min:0,max:Math.max(1,...props.rows.map(r=>Math.ceil((r[props.timeKey]??0)/60)))},series:[{name:'누적 공부시간 (분)',type:'bar',data:props.rows.map(r=>Math.round((r[props.timeKey]??0)/60*10)/10),itemStyle:{color:deep},barMaxWidth:26}]});observer=new ResizeObserver(()=>{progress?.resize();time?.resize()});observer.observe(progressEl.value);observer.observe(timeEl.value)}
+watch(()=>props.rows,draw,{deep:true});watch(visible,v=>v?draw():dispose());onMounted(draw);onUnmounted(()=>{alive=false;dispose()})
+</script>
+<template><section class="panel learning-charts"><div class="chart-heading"><h2>{{title}}</h2><button class="light" @click="visible=!visible">{{visible?'차트 닫기 ✕':'차트 다시 열기'}}</button></div><template v-if="visible"><p v-if="!rows.length">표시할 학습 기록이 없어요.</p><div class="chart-grid"><div><h3>공개 진도 진행률</h3><div ref="progressEl" class="learning-chart" role="img" aria-label="공개 진도 진행률 막대 차트"/></div><div><h3>누적 공부시간</h3><div ref="timeEl" class="learning-chart" role="img" aria-label="누적 공부시간 막대 차트"/></div></div><p class="chart-note">공개된 항목을 기준으로 계산합니다. 상세 수치와 완료 수는 아래 목록에서 확인하세요.</p></template></section></template>

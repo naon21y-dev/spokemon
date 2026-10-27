@@ -1,0 +1,25 @@
+<script setup>
+import {ref,onMounted,watch} from 'vue'
+import {useRoute,useRouter} from 'vue-router'
+import {unitTitle} from '../data/curriculum'
+import {subjects} from '../data/quiz'
+import {api} from '../lib/api'
+import {useArcade} from '../stores/arcade'
+import {useLearning} from '../stores/learning'
+import SourceBadge from '../components/SourceBadge.vue'
+import CommunityRunner from '../components/CommunityRunner.vue'
+import ManualProblemEditor from '../components/ManualProblemEditor.vue'
+const s=useArcade(),study=useLearning(),route=useRoute(),router=useRouter(),mode=ref('list'),items=ref([]),selected=ref(null),session=ref(null),busy=ref(false),error=ref(''),message=ref(''),subject=ref(''),mine=ref(false),editing=ref(null),editorKey=ref(0)
+async function load(){try{const result=await api('/workshop?'+new URLSearchParams({...(subject.value?{subject:subject.value}:{}),...(mine.value?{mine:'1'}:{}),...(route.query.creator?{creator:route.query.creator}:{})}));items.value=result.items}catch(e){error.value=e.message}}
+async function act(fn){if(busy.value)return;busy.value=true;error.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
+function create(){editing.value=null;editorKey.value++;mode.value='edit';error.value='';message.value=''}
+function edit(id){act(async()=>{editing.value=await api('/workshop/'+id+'/edit');editorKey.value++;mode.value='edit'})}
+async function saved(results){message.value=results.length+'개 문제를 저장했어요!';mode.value='list';await router.replace('/workshop');await load()}
+function detail(id){return act(async()=>{selected.value=await api('/workshop/'+id);mode.value='detail'})}
+function start(id){act(async()=>{session.value=await api('/workshop/'+id+'/start',{method:'POST'});mode.value='play'})}
+function moderate(p){act(async()=>{await api('/workshop/'+p.id+'/moderate',{method:'POST',body:{published:!p.published}});await load()})}
+async function list(){mode.value='list';await router.replace('/workshop');await load()}
+watch([subject,mine],load);watch(()=>route.query.creator,()=>{mode.value='list';load()});watch(()=>route.query.post,value=>{if(value&&!busy.value)detail(value);else if(!value&&mode.value==='detail')mode.value='list'})
+onMounted(async()=>{if(s.user.role==='student')await study.load();await load();if(route.query.post)await detail(route.query.post)})
+</script>
+<template><section class="workshop-page"><div class="workshop-heading"><div><p class="eyebrow">COMMUNITY QUEST LAB</p><h1>문제 제작소</h1></div><button v-if="s.user.role==='student'&&mode!=='edit'" @click="create">＋ 문제 만들기</button><button v-if="mode!=='list'" class="light" @click="list">목록으로</button></div><p v-if="error" class="notice" role="alert">{{error}}</p><p v-if="message" class="notice" role="status">{{message}}</p><CommunityRunner v-if="mode==='play'&&session" :key="session.id" :initial="session" @exit="list"/><ManualProblemEditor v-else-if="mode==='edit'" :key="editorKey" :initial="editing" :catalog="study.catalog" @saved="saved" @cancel="list"/><section v-else-if="mode==='detail'&&selected" class="panel"><SourceBadge v-bind="selected"/><h2>{{selected.title}}</h2><p>{{selected.prompt}}</p><p>{{selected.unit===0?'미정':unitTitle(selected.subject,selected.unit)}} · 버전 {{selected.version}}</p><p>제작자 본인 미지급 · 다른 학생은 원본당 최초 정답 보상 · 일일 한도 적용</p><button v-if="s.user.role==='student'&&selected.published" :disabled="busy" @click="start(selected.postId)">문제 풀기</button><button v-if="selected.creatorId===s.user.id" class="light" :disabled="busy" @click="edit(selected.postId)">수정하기</button></section><section v-else class="panel"><div class="mistake-filters"><label>과목<select v-model="subject"><option value="">전체 과목</option><option v-for="sub in subjects" :key="sub.id" :value="sub.id">{{sub.name}}</option></select></label><label class="check-line"><input v-model="mine" type="checkbox"/>내가 만든 문제</label><RouterLink v-if="route.query.creator" to="/workshop" class="button light">제작자 필터 해제</RouterLink><button class="light" @click="load">새로고침</button></div><p v-if="!items.length">아직 공유된 문제가 없어요. 객관식·주관식을 골라 직접 문제를 만들어 보세요!</p><div class="workshop-grid"><article v-for="p in items" :key="p.id" class="workshop-post"><SourceBadge source="student" :creator-name="p.creatorName" :creator-id="p.creatorId" :version="p.version"/><h2>{{p.title}}</h2><p>{{p.unit===0?'미정':unitTitle(p.subject,p.unit)}} · {{p.published?'공유 중':'비공개 초안'}}</p><small>{{new Date(p.updated_at).toLocaleString('ko-KR')}}</small><div class="toolbar"><button :disabled="busy||p.locked" @click="detail(p.id)">{{p.locked?'🔒 진도 잠김':'원본 게시글 보기'}}</button><button v-if="p.author_id===s.user.id" class="light" :disabled="busy||p.locked" @click="edit(p.id)">수정</button><button v-if="s.user.role==='admin'" class="light" :disabled="busy" @click="moderate(p)">{{p.published?'공유 숨기기':'공유 공개'}}</button></div></article></div></section></section></template>

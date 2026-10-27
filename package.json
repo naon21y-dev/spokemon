@@ -1,0 +1,40 @@
+{
+  "name": "spokemon",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:learning": "node scripts/verify-server.mjs && node scripts/verify-persistence.mjs",
+    "server": "node server/index.mjs",
+    "admin:create": "node server/create-admin.mjs",
+    "test:server": "node scripts/verify-server.mjs && node scripts/verify-persistence.mjs && node scripts/verify-cohorts.mjs",
+    "test:browser": "node scripts/verify-browser.cjs && node scripts/verify-migration-browser.cjs",
+    "test:mail": "node scripts/verify-mail.mjs",
+    "test:mail:browser": "node scripts/verify-mail-browser.cjs",
+    "test:cohorts:browser": "node scripts/verify-cohorts-browser.cjs",
+    "test:screens": "node scripts/verify-screens.cjs",
+    "test:workshop": "node scripts/verify-workshop.mjs && node scripts/verify-workshop-browser.cjs",
+    "test:manual": "node scripts/verify-manual.cjs",
+    "start": "node server/index.mjs",
+    "test:notes": "node scripts/verify-notes.cjs",
+    "test:theme": "node scripts/verify-theme.cjs"
+  },
+  "dependencies": {
+    "echarts": "^6.1.0",
+    "galmuri": "^2.40.3",
+    "pinia": "^4.0.3",
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "playwright": "^1.64.1",
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

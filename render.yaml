@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: spokemon
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: SPOKEMON_DB
+        value: /var/data/spokemon.sqlite
+      - key: SPOKEMON_ADMIN_LOGIN
+        value: admin
+      - key: SPOKEMON_ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: spokemon-data
+      mountPath: /var/data
+      sizeGB: 1
