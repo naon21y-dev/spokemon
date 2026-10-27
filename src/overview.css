@@ -16,3 +16,17 @@
 @media(max-width:600px){.profile-characters>h2{display:none}.profile-info input{padding:8px;font-size:14px}.profile-layout>.panel{padding:12px}.profile-characters .character-choice img{height:60px}.profile-characters .character-picker>p{margin:8px 0}.profile-info .text-button{padding:5px 0}.profile-characters .character-picker legend{font-size:14px}}
 
 .danger-button{background:#a83d3b;color:#fff9e8;border-color:#722d32}.delete-account-overlay{position:fixed;inset:0;z-index:100;background:#163b35aa;display:grid;place-items:center;padding:20px}.delete-account-dialog{width:min(540px,100%);max-height:85dvh;overflow:auto;margin:0}.delete-account-dialog h2{font-size:22px}.delete-account-dialog p{font-size:13px;line-height:1.9}.delete-account-dialog form{display:grid;gap:12px}.delete-account-dialog input{padding:12px;width:100%;min-width:0}.delete-account-dialog label{font-size:12px}@media(max-width:600px){.delete-account-dialog{padding:18px}.delete-account-dialog h2{font-size:19px}}
+
+/* Mobile only: keep quiz type choices inside their panel above the sidebar. */
+@media(max-width:600px){
+ .quiz-hub-mode .hub-type-panel{padding:12px;overflow:hidden}
+ .quiz-hub-mode .hub-type-panel>.text-button{flex-shrink:0;align-self:flex-start;margin:0;padding:4px 0;font-size:11px}
+ .quiz-hub-mode .hub-type-panel>h2{flex-shrink:0;font-size:21px;line-height:1.5;margin:7px 0 4px}
+ .quiz-hub-mode .hub-type-panel>p{flex-shrink:0;font-size:11px;line-height:1.6;margin:0 0 10px}
+ .quiz-hub-mode .hub-type-panel .study-modes{flex:1;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(3,minmax(64px,1fr));align-content:stretch;gap:8px;margin:0;padding:0 5px 5px 0;overflow:auto;scrollbar-width:thin}
+ .quiz-hub-mode .hub-type-panel .study-mode{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-content:center;align-items:center;text-align:left;gap:4px 10px;min-height:64px;margin:0;padding:9px 12px;box-sizing:border-box}
+ .quiz-hub-mode .hub-type-panel .study-mode strong{font-size:14px;line-height:1.4}
+ .quiz-hub-mode .hub-type-panel .study-mode b{font-size:20px;line-height:1.4;text-align:right}
+ .quiz-hub-mode .hub-type-panel .study-mode span{font-size:9px;line-height:1.5;overflow-wrap:anywhere}
+ .quiz-hub-mode .hub-type-panel .study-mode small{font-size:9px;line-height:1.5;text-align:right;white-space:nowrap}
+}
