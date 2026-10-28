@@ -24,7 +24,8 @@
     "db:migrate": "node scripts/migrate-sqlite-to-turso.mjs",
     "test:turso": "node scripts/verify-turso.mjs && node scripts/verify-db-migration.mjs",
     "test:turso:remote": "node scripts/verify-turso-remote.mjs",
-    "test:render": "node scripts/verify-render.mjs"
+    "test:render": "node scripts/verify-render.mjs",
+    "test:admin-features": "node scripts/verify-admin-content-mail.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

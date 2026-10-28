@@ -1,6 +1,5 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { fail, kstDay } from './service.mjs';
-import { subjectMap } from './questions/index.js';
 export async function createWorkshop(service, {
   clock = () => Date.now(),
   questionMap,
@@ -55,13 +54,16 @@ export async function createWorkshop(service, {
     return q;
   }
   for (const row of await all('SELECT * FROM workshop_versions')) hydrate(row);
-  const legacyLedger=[];
+  const legacyLedger = [];
   for (const row of await all("SELECT l.* FROM ledger l WHERE l.kind='퀴즈 최초 정답' AND NOT EXISTS(SELECT 1 FROM ledger_details d WHERE d.ledger_id=l.id)")) {
     const id = row.unique_key.split(':quiz:')[1],
       q = questionMap[id];
-    if (q) legacyLedger.push({sql:'INSERT OR IGNORE INTO ledger_details VALUES(?,?,?,?,?,?,?,?)',args:[row.id,'official',null,'관리자',q.prompt,q.id,1,'최초 정답 · 기존 기록']});
+    if (q) legacyLedger.push({
+      sql: 'INSERT OR IGNORE INTO ledger_details VALUES(?,?,?,?,?,?,?,?)',
+      args: [row.id, 'official', null, '관리자', q.prompt, q.id, 1, '최초 정답 · 기존 기록']
+    });
   }
-  for(let i=0;i<legacyLedger.length;i+=200) await db.batch(legacyLedger.slice(i,i+200));
+  for (let i = 0; i < legacyLedger.length; i += 200) await db.batch(legacyLedger.slice(i, i + 200));
   const tx = async fn => await db.transaction(fn);
   async function settings(u, body) {
     if (body) {
@@ -106,7 +108,7 @@ export async function createWorkshop(service, {
       prompt = String(body.prompt ?? '').trim(),
       explanation = String(body.explanation ?? '').trim(),
       type = body.type;
-    if (!subjectMap[subject] || !Number.isInteger(unit) || unit < 0 || unit > 5 || !title || title.length > 100 || !prompt || prompt.length > 1500 || !explanation || explanation.length > 3000 || !['multiple', 'short'].includes(type)) fail(400, '과목·단원·제목·문제·해설을 확인해 주세요.');
+    if (typeof subject !== 'string' || !Number.isInteger(unit) || unit < 0 || unit > 200 || !title || title.length > 100 || !prompt || prompt.length > 1500 || !explanation || explanation.length > 3000 || !['multiple', 'short'].includes(type)) fail(400, '과목·단원·제목·문제·해설을 확인해 주세요.');
     let extra = {};
     if (type === 'multiple') {
       if (!Array.isArray(body.options) || body.options.length !== 4) fail(400, '선택지는 4개가 필요합니다.');
@@ -138,28 +140,33 @@ export async function createWorkshop(service, {
     };
   }
   async function permitted(u, subject, unit) {
+    const subjectMap = Object.fromEntries((await service.curriculum()).map(s => [s.id, s]));
+    if (!subjectMap[subject] || unit !== 0 && !subjectMap[subject].units.some(u => u.number === unit)) fail(400, '과목·단원을 확인하세요.');
+    if (u.role === 'admin') return;
     service.student(u);
     if (unit === 0 && subjectMap[subject]) return;
     if (!(await service.catalog(u)).find(s => s.id === subject)?.releasedUnits.includes(unit)) fail(403, '아직 배우지 않은 단원입니다');
   }
   async function saveOne(u, body, id, batchContext) {
-    service.student(u);
+    if (!['admin', 'student'].includes(u.role)) fail(403, '로그인이 필요합니다.');
     const content = validate(body);
+    if (u.role === 'admin' && content.unit === 0) fail(400, '공식 문제의 단원을 선택하세요.');
     if (body.published === true && body.reviewed !== true) fail(400, '공유하기 전에 정답·해설 검토를 완료해 주세요.');
     if (batchContext) {
-      if (content.unit !== 0 && !batchContext.releases.find(s => s.id === content.subject)?.releasedUnits.includes(content.unit)) fail(403, '아직 배우지 않은 단원입니다');
+      if (!batchContext.releases.find(s => s.id === content.subject) || content.unit !== 0 && !batchContext.releases.find(s => s.id === content.subject)?.units.some(v => v.number === content.unit)) fail(400, '과목·단원을 확인하세요.');
+      if (u.role !== 'admin' && content.unit !== 0 && !batchContext.releases.find(s => s.id === content.subject)?.releasedUnits.includes(content.unit)) fail(403, '아직 배우지 않은 단원입니다');
     } else await permitted(u, content.subject, content.unit);
     const old = id ? await get('SELECT * FROM workshop_posts WHERE id=?', id) : null;
     if (id && (!old || old.author_id !== u.id)) fail(403, '본인이 작성한 문제만 수정할 수 있어요.');
     if (old && Number(body.baseVersion) !== old.version) fail(409, '다른 화면에서 수정되었습니다. 문제를 다시 열어 주세요.');
-    if (!id && !batchContext && (await all('SELECT id FROM workshop_posts WHERE author_id=? AND created_at>?', u.id, clock() - 86400000)).length >= 20) fail(429, '하루에 20개까지 작성할 수 있어요.');
+    if (u.role !== 'admin' && !id && !batchContext && (await all('SELECT id FROM workshop_posts WHERE author_id=? AND created_at>?', u.id, clock() - 86400000)).length >= 20) fail(429, '하루에 20개까지 작성할 수 있어요.');
     const root = id ?? randomUUID(),
       version = (old?.version ?? 0) + 1,
       questionId = root + ':v' + version,
       q = {
         ...content,
         id: questionId,
-        source: 'student',
+        source: u.role === 'admin' ? 'official' : 'student',
         creatorId: u.id,
         creatorName: u.name,
         creatorLogin: u.login,
@@ -176,7 +183,7 @@ export async function createWorkshop(service, {
         args: [q.id, root, version, JSON.stringify(q)]
       }, {
         sql: 'INSERT INTO problem_origins VALUES(?,?,?,?,?,?)',
-        args: [q.id, 'student', u.id, root, version, q.title]
+        args: [q.id, q.source, u.id, root, version, q.title]
       });
       batchContext.questions.push(q);
       return {
@@ -186,7 +193,7 @@ export async function createWorkshop(service, {
     }
     if (old) await run('UPDATE workshop_posts SET subject=?,unit=?,title=?,version=?,published=?,updated_at=? WHERE id=?', q.subject, q.unit, q.title, version, body.published === true ? 1 : 0, clock(), root);else await run('INSERT INTO workshop_posts VALUES(?,?,?,?,?,?,?,?,?)', root, u.id, q.subject, q.unit, q.title, version, body.published === true ? 1 : 0, clock(), clock());
     await run('INSERT INTO workshop_versions VALUES(?,?,?,?)', q.id, root, version, JSON.stringify(q));
-    await run('INSERT INTO problem_origins VALUES(?,?,?,?,?,?)', q.id, 'student', u.id, root, version, q.title);
+    await run('INSERT INTO problem_origins VALUES(?,?,?,?,?,?)', q.id, q.source, u.id, root, version, q.title);
     questionMap[q.id] = q;
     return {
       id: root,
@@ -197,7 +204,7 @@ export async function createWorkshop(service, {
     return await tx(async () => await saveOne(u, body, id));
   }
   async function saveBatch(u, body) {
-    service.student(u);
+    if (!['admin', 'student'].includes(u.role)) fail(403, '로그인이 필요합니다.');
     if (!Array.isArray(body.questions) || body.questions.length < 1 || body.questions.length > 20 || typeof body.requestKey !== 'string' || !/^[a-zA-Z0-9_-]{8,100}$/.test(body.requestKey)) fail(400, '1~20개 문제와 저장 식별자를 확인하세요.');
     const fingerprint = createHash('sha256').update(JSON.stringify(body.questions)).digest('hex');
     return await tx(async () => {
@@ -207,9 +214,9 @@ export async function createWorkshop(service, {
         return parse(prior.result);
       }
       const count = (await get('SELECT COUNT(*) n FROM workshop_posts WHERE author_id=? AND created_at>?', u.id, clock() - 86400000)).n;
-      if (count + body.questions.length > 20) fail(429, '하루에 20개까지 작성할 수 있어요.');
+      if (u.role !== 'admin' && count + body.questions.length > 20) fail(429, '하루에 20개까지 작성할 수 있어요.');
       const context = {
-          releases: await service.catalog(u),
+          releases: u.role === 'admin' ? await service.curriculum() : await service.catalog(u),
           statements: [],
           questions: []
         },
@@ -259,11 +266,11 @@ export async function createWorkshop(service, {
   }
   async function list(u, filters = {}) {
     const releases = u.role === 'student' ? await service.catalog(u) : null;
-    const rows = await all('SELECT p.*,u.name creator_name,u.login creator_login,u.deleted_at FROM workshop_posts p JOIN users u ON u.id=p.author_id ORDER BY p.updated_at DESC');
+    const rows = await all('SELECT p.*,u.name creator_name,u.login creator_login,u.role author_role,u.deleted_at FROM workshop_posts p JOIN users u ON u.id=p.author_id ORDER BY p.updated_at DESC');
     return {
       items: rows.filter(p => (p.published || p.author_id === u.id || u.role === 'admin') && p.deleted_at == null && (!filters.creator || p.author_id === filters.creator) && (!filters.subject || p.subject === filters.subject) && (!filters.mine || p.author_id === u.id)).map(p => ({
         ...p,
-        source: 'student',
+        source: p.author_role === 'admin' ? 'official' : 'student',
         originalId: p.id,
         creatorId: p.author_id,
         creatorName: p.creator_name,
@@ -291,6 +298,7 @@ export async function createWorkshop(service, {
     };
   }
   async function analytics(u, source = 'all', targetId, filters = {}) {
+    const subjectMap = Object.fromEntries((await service.curriculum()).map(s => [s.id, s]));
     if (!['all', 'official', 'student'].includes(source)) fail(400, '출처를 확인하세요.');
     const target = targetId ?? (u.role === 'student' ? u.id : null);
     if (u.role !== 'admin' && target !== u.id) fail(403, '본인 기록만 확인할 수 있어요.');
@@ -365,7 +373,12 @@ export async function createWorkshop(service, {
     const row = await get('SELECT p.published,u.deleted_at FROM workshop_posts p JOIN users u ON u.id=p.author_id WHERE p.id=?', q.originalId);
     return !!row?.published && row.deleted_at == null;
   }
+  async function officialBank() {
+    const rows = await all("SELECT v.content,u.name creator_name,u.login creator_login FROM workshop_posts p JOIN users u ON u.id=p.author_id JOIN workshop_versions v ON v.post_id=p.id AND v.version=p.version WHERE p.published=1 AND u.role='admin' AND u.deleted_at IS NULL");
+    return rows.map(hydrate);
+  }
   return {
+    officialBank,
     settings,
     loadQuestions,
     grant,

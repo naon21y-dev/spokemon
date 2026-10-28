@@ -3,9 +3,8 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fail } from './service.mjs';
 import { createPresence } from './presence.mjs';
-import { createSocial } from './social.mjs';
+import { createSocialMailbox as createSocial, createPrivateMailbox as createMail } from './mailbox.mjs';
 import { createNotes } from './notes.mjs';
-import { createMail } from './mail.mjs';
 export async function createHttp(service, {
   dist = resolve('dist'),
   origins = ['http://127.0.0.1:5188', 'http://localhost:5188', 'http://localhost:3199', 'http://127.0.0.1:3199'],
@@ -109,6 +108,10 @@ export async function createHttp(service, {
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
       let match;
+      if (p === '/api/curriculum' && method === 'GET') return send(200, await service.curriculum());
+      if (p === '/api/admin/curriculum' && method === 'POST') return send(200, await service.addCurriculum(u, body));
+      if (p === '/api/admin/message-recipients' && method === 'GET') return send(200, await mail.recipients(u, url.searchParams.get('search') ?? ''));
+      if (p === '/api/admin/messages' && method === 'POST') return send(200, await mail.sendAdmin(u, body));
       if (p === '/api/notes' && method === 'GET') return await send(200, await notes.read(u, (await url.searchParams.get('date')) ?? undefined));
       if ((match = p.match(/^\/api\/notes\/(\d{4}-\d{2}-\d{2})$/)) && method === 'PUT') return await send(200, await notes.save(u, match[1], body));
       if (p === '/api/workshop' && method === 'GET') return await send(200, await service.workshop.list(u, Object.fromEntries(url.searchParams)));
@@ -137,6 +140,7 @@ export async function createHttp(service, {
       if (p === '/api/friends' && method === 'POST') return await send(200, await social.add(u, body.studentId));
       if (p === '/api/friend-messages' && method === 'POST') return await send(200, await social.send(u, body));
       if (match = p.match(/^\/api\/friend-messages\/([^/]+)(?:\/(read))?$/)) {
+        if (method === 'DELETE' && !match[2]) return send(200, await social.remove(u, match[1]));
         if (method === 'GET' && !match[2]) return await send(200, await social.detail(u, match[1]));
         if (method === 'POST' && match[2] === 'read') return await send(200, await social.detail(u, match[1], true));
       }
@@ -147,12 +151,15 @@ export async function createHttp(service, {
       }
       if (p === '/api/messages' && method === 'GET') return await send(200, await mail.list(u));
       if (p === '/api/messages' && method === 'POST') return await send(200, await mail.send(u, body));
-      if (match = p.match(/^\/api\/messages\/([^/]+)(?:\/(read))?$/)) {
+      if (match = p.match(/^\/api\/messages\/([^/]+)(?:\/(read|reply))?$/)) {
+        if (method === 'DELETE' && !match[2]) return send(200, await mail.remove(u, match[1]));
+        if (method === 'POST' && match[2] === 'reply') return send(200, await mail.studentReply(u, match[1], body));
         if (method === 'GET' && !match[2]) return await send(200, await mail.detail(u, match[1]));
         if (method === 'POST' && match[2] === 'read') return await send(200, await mail.read(u, match[1], body));
       }
       if (p === '/api/admin/messages' && method === 'GET') return await send(200, await mail.list(u, Object.fromEntries(url.searchParams), true));
       if (match = p.match(/^\/api\/admin\/messages\/([^/]+)(?:\/(reply))?$/)) {
+        if (method === 'DELETE' && !match[2]) return send(200, await mail.remove(u, match[1], true));
         if (method === 'GET' && !match[2]) return await send(200, await mail.detail(u, match[1], true));
         if (method === 'POST' && match[2] === 'reply') return await send(200, await mail.reply(u, match[1], body));
       }
@@ -223,7 +230,7 @@ export async function createHttp(service, {
         error: '요청한 API가 없어요.'
       });
     } catch (e) {
-      if (!e.status) console.error('API database/request failure', String(e.code ?? 'INTERNAL_ERROR').replace(/[^A-Z0-9_]/gi,''));
+      if (!e.status) console.error('API database/request failure', String(e.code ?? 'INTERNAL_ERROR').replace(/[^A-Z0-9_]/gi, ''));
       await send(e.status ?? 500, {
         error: e.status ? e.message : '서버 처리 중 문제가 생겼어요.'
       });

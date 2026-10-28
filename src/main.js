@@ -29,3 +29,5 @@ import './finish.css'
 import './pokemon-rpg.css'
 
 import './notes.css'
+
+import './admin-features.css'

@@ -2,12 +2,12 @@ import {defineStore} from 'pinia'
 import {ref,computed} from 'vue'
 import {api} from '../lib/api'
 import {useArcade} from './arcade'
-import {questionMap} from '../data/quiz'
+import {questionMap,syncCurriculum} from '../data/quiz'
 export const useLearning=defineStore('learning',()=>{
  const arcade=useArcade(),state=ref({activeQuiz:null,activeReview:null,mistakes:{},history:[]}),catalog=ref([]),stats=ref({subjects:[]}),error=ref(''),busy=ref(false)
  const mistakes=computed(()=>Object.values(state.value.mistakes).sort((a,b)=>b.updatedAt-a.updatedAt)),pendingCount=computed(()=>mistakes.value.filter(m=>!m.reviewed&&!m.locked).length)
  function accept(session,review=false){state.value[review?'activeReview':'activeQuiz']=session;if(session?.question)questionMap[session.question.id]=session.question}
- async function load(){try{const [learning,units,summary]=await Promise.all([api('/learning'),api('/catalog'),api('/summary')]);state.value=learning;catalog.value=units;stats.value=summary;for(const g of [learning.activeQuiz,learning.activeReview])if(g?.question)questionMap[g.question.id]=g.question;error.value=''}catch(e){error.value=e.message}}
+ async function load(){try{const [learning,units,summary]=await Promise.all([api('/learning'),api('/catalog'),api('/summary')]);state.value=learning;catalog.value=units;syncCurriculum(units);stats.value=summary;for(const g of [learning.activeQuiz,learning.activeReview])if(g?.question)questionMap[g.question.id]=g.question;error.value=''}catch(e){error.value=e.message}}
  async function action(fn){if(busy.value)return false;busy.value=true;error.value='';try{await fn();return true}catch(e){error.value=e.message;if(e.status===403){state.value.activeQuiz=null;state.value.activeReview=null;for(const id of Object.keys(questionMap))delete questionMap[id]}return false}finally{busy.value=false}}
  async function startQuiz(subject,type='all',unit){return action(async()=>accept(await api('/quiz/start',{method:'POST',body:{subject,type,...(unit?{unit}: {})}})))}
  async function startReview(ids){return action(async()=>accept(await api('/review/start',{method:'POST',body:{ids}}),true))}

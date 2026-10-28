@@ -71,7 +71,7 @@ export async function createMail(service, {
       args.push(filters.classId);
     }
     if (filters.subject) {
-      if (!subjectMap[filters.subject]) fail(400, '과목을 확인해 주세요.');
+      if (!(await service.curriculum()).some(s=>s.id===filters.subject)) fail(400, '과목을 확인해 주세요.');
       conditions.push('m.subject=?');
       args.push(filters.subject);
     }
@@ -114,7 +114,7 @@ export async function createMail(service, {
     service.student(u);
     if (!body || typeof body !== 'object' || Array.isArray(body)) fail(400, '쪽지 내용을 확인해 주세요.');
     const subject = body.subject;
-    if (!subjectMap[subject]) fail(400, '과목을 선택해 주세요.');
+    if (!(await service.curriculum()).some(s=>s.id===subject)) fail(400, '과목을 선택해 주세요.');
     const title = text(body.title, 1, 100, '제목'),
       content = text(body.content, 1, 5000, '질문 내용'),
       requestKey = key(body.requestKey);

@@ -1,11 +1,11 @@
 <script setup>
 import {ref,nextTick,onUnmounted,watch} from 'vue'
 import {api} from '../lib/api'
-import {subjects} from '../data/quiz'
+import {subjects,syncCurriculum} from '../data/quiz'
 import PixelDecor from './PixelDecor.vue'
 const dialog=ref(null),subject=ref(''),title=ref(''),content=ref(''),busy=ref(false),error=ref(''),success=ref('');let requestKey=crypto.randomUUID()
 watch([subject,title,content],()=>{if(!busy.value)requestKey=crypto.randomUUID()},{flush:'sync'})
-async function open(){success.value='';error.value='';await nextTick();dialog.value.showModal()}
+async function open(){success.value='';error.value='';try{syncCurriculum(await api('/curriculum'))}catch(e){error.value=e.message}await nextTick();dialog.value.showModal()}
 function close(){if(!busy.value)dialog.value.close()}
 async function send(){if(busy.value)return;error.value='';if(!subject.value||!title.value.trim()||!content.value.trim()){error.value='과목·제목·질문 내용을 모두 입력해 주세요.';return}busy.value=true;try{await api('/messages',{method:'POST',body:{subject:subject.value,title:title.value,content:content.value,requestKey}});success.value='관리자에게 쪽지를 보냈어요. 답장은 마이 리틀 펫 → 내 쪽지함에서 확인해 주세요.';dialog.value.close();subject.value='';title.value='';content.value='';requestKey=crypto.randomUUID()}catch(e){error.value=e.message}finally{busy.value=false}}
 onUnmounted(()=>dialog.value?.close())

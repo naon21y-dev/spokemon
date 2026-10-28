@@ -1,9 +1,10 @@
+import { createCurriculum } from './curriculum.mjs';
 import { createWorkshop } from './workshop.mjs';
 import { openDatabase } from './database.mjs';
 import { unitTitle } from '../src/data/curriculum.js';
 import { itemMap } from '../src/data/items.js';
 import { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash } from 'node:crypto';
-import { questions, questionMap as officialMap, subjects, subjectMap } from './questions/index.js';
+import { questions as builtinQuestions, questionMap as officialMap, subjects as builtinSubjects } from './questions/index.js';
 import { isCorrect, answerText, correctText } from './questions/schema.js';
 export const fail = (status, message) => {
   const e = new Error(message);
@@ -43,7 +44,18 @@ export async function createService(filename, {
   const questionMap = {
     ...officialMap
   };
-  let workshop;
+  let workshop,
+    curriculum,
+    questions = [...builtinQuestions],
+    subjects = [...builtinSubjects],
+    subjectMap = Object.fromEntries(subjects.map(s => [s.id, s]));
+  async function refreshContent() {
+    subjects = await curriculum.list();
+    subjectMap = Object.fromEntries(subjects.map(s => [s.id, s]));
+    if (workshop) questions = [...builtinQuestions, ...(await workshop.officialBank())];
+    return subjects;
+  }
+  const label = (subject, number) => subjectMap[subject]?.units?.find(u => u.number === number)?.title ?? unitTitle(subject, number);
   const db = await openDatabase(filename);
   try {
     await db.exec(`CREATE TABLE IF NOT EXISTS classes(id TEXT PRIMARY KEY,name TEXT UNIQUE NOT NULL);
@@ -86,6 +98,8 @@ export async function createService(filename, {
         length: r.max_unit
       }, (_, i) => i + 1))]
     })));
+    curriculum = await createCurriculum(db);
+    await refreshContent();
     const tx = async fn => await db.transaction(fn);
     const passwordHash = (p, s) => scryptSync(p, s, 64).toString('hex');
     async function createUser({
@@ -175,7 +189,7 @@ export async function createService(filename, {
     async function accessFlags(u, ids) {
       await loadQuestions(ids);
       const releases = await releasesFor(u),
-        roots = [...new Set(ids.map(id => questionMap[id]).filter(q => q?.source === 'student').map(q => q.originalId))],
+        roots = [...new Set(ids.map(id => questionMap[id]).filter(q => q?.postId).map(q => q.originalId))],
         published = new Set();
       for (let i = 0; i < roots.length; i += 200) {
         const chunk = roots.slice(i, i + 200),
@@ -184,7 +198,7 @@ export async function createService(filename, {
       }
       return new Map(ids.map(id => {
         const q = questionMap[id];
-        return [id, !!q && (q.source !== 'student' || published.has(q.originalId)) && (q.source === 'student' && q.unit === 0 || (releases[q.subject] ?? []).includes(unitOf(q)))];
+        return [id, !!q && (!q.postId || published.has(q.originalId)) && (q.source === 'student' && q.unit === 0 || (releases[q.subject] ?? []).includes(unitOf(q)))];
       }));
     }
     const allowed = async (u, q) => !!q && (await accessFlags(u, [q.id])).get(q.id);
@@ -196,7 +210,8 @@ export async function createService(filename, {
       return q;
     }
     async function checkUnit(u, subject, unit) {
-      if (!subjectMap[subject] || !Number.isInteger(unit) || unit < 1 || unit > 5) fail(400, '단원을 확인해 주세요.');
+      await refreshContent();
+      if (!subjectMap[subject] || !Number.isInteger(unit) || unit < 1 || !subjectMap[subject]?.units.some(u => u.number === unit)) fail(400, '단원을 확인해 주세요.');
       if (!(await releasedUnits(u, subject)).includes(unit)) fail(403, '아직 배우지 않은 단원입니다');
     }
     const sanitizeQuestion = (q, answer) => {
@@ -257,31 +272,36 @@ export async function createService(filename, {
     }
     async function catalog(u) {
       student(u);
-      const done = new Set((await all('SELECT question_id FROM completions WHERE user_id=?', u.id)).map(r => r.question_id)),
+      await refreshContent();
+      const completionRows = await all('SELECT question_id FROM completions WHERE user_id=?', u.id);
+      await loadQuestions(completionRows.map(r => r.question_id));
+      const done = new Set(completionRows.flatMap(r => [r.question_id, questionMap[r.question_id]?.originalId ?? r.question_id])),
         releases = await releasesFor(u);
       return subjects.map(s => {
         const released = releases[s.id] ?? [],
-          units = Array.from({
-            length: 5
-          }, (_, i) => {
-            const number = i + 1,
+          units = s.units.map(definition => {
+            const number = definition.number,
               items = questions.filter(q => q.subject === s.id && unitOf(q) === number),
               locked = !released.includes(number);
             return {
               number,
-              title: unitTitle(s.id, number),
+              title: label(s.id, number),
               locked,
               total: items.length,
-              completed: locked ? 0 : items.filter(q => done.has(q.id)).length
+              completed: locked ? 0 : items.filter(q => done.has(q.id) || done.has(q.originalId)).length
             };
           }),
           exposed = questions.filter(q => q.subject === s.id && released.includes(unitOf(q))),
-          completed = exposed.filter(q => done.has(q.id)).length;
+          completed = exposed.filter(q => done.has(q.id) || done.has(q.originalId)).length;
         return {
           ...s,
           maxUnit: Math.max(0, ...released),
           releasedUnits: released,
           units,
+          counts: {
+            multiple: exposed.filter(q => q.type === 'multiple').length,
+            short: exposed.filter(q => q.type === 'short').length
+          },
           total: exposed.length,
           completed,
           percent: exposed.length ? Math.round(completed / exposed.length * 100) : 0
@@ -407,10 +427,11 @@ export async function createService(filename, {
       unit
     } = {}) {
       student(u);
+      await refreshContent();
       if (!subjectMap[subject] || !['all', 'multiple', 'short'].includes(type)) fail(400, '과목과 유형을 확인해 주세요.');
       if (unit != null) await checkUnit(u, subject, unit);
       const openUnits = await releasedUnits(u, subject);
-      const bank = questions.filter(q => q.subject === subject && openUnits.includes(unitOf(q)) && (unit == null || unitOf(q) === unit));
+      const bank = questions.filter(q => q.subject === subject && openUnits.includes(unitOf(q)) && (unit == null || unitOf(q) === unit) && (type === 'all' || q.type === type));
       if (!bank.length) fail(403, '아직 배우지 않은 단원입니다');
       return await tx(async () => {
         const prev = await get('SELECT ids FROM quiz_sessions WHERE user_id=? AND mode=? AND subject=? ORDER BY created_at DESC,rowid DESC LIMIT 1', u.id, 'quiz', subject),
@@ -529,12 +550,12 @@ export async function createService(filename, {
       return {
         subject,
         unit,
-        title: unitTitle(subject, unit),
+        title: label(subject, unit),
         items: questions.filter(q => q.subject === subject && unitOf(q) === unit).map(q => ({
           id: q.id,
           title: q.prompt,
           explanation: q.explanation,
-          completed: done.has(q.id)
+          completed: done.has(q.id) || done.has(q.originalId)
         })),
         source: subjectMap[subject].source
       };
@@ -542,6 +563,7 @@ export async function createService(filename, {
     async function complete(u, id) {
       student(u);
       const q = await requireQuestion(u, id);
+      if (q.source === 'student') fail(403, '공식 문제만 학습 진도에 포함됩니다.');
       await run('INSERT OR IGNORE INTO completions VALUES (?,?,?)', u.id, q.id, clock());
     }
     async function updateProfile(u, {
@@ -741,6 +763,7 @@ export async function createService(filename, {
     }
     async function adminData(u, filters = {}) {
       admin(u);
+      await refreshContent();
       return {
         classes: await all('SELECT * FROM classes ORDER BY name'),
         subjects,
@@ -830,9 +853,10 @@ export async function createService(filename, {
         classId,
         subject
       } = body;
+      await refreshContent();
       let units;
       if (Object.hasOwn(body, 'units')) {
-        if (!Array.isArray(body.units) || body.units.length > 5 || body.units.some(n => !Number.isInteger(n) || n < 1 || n > 5)) fail(400, '공개할 학습 항목을 확인해 주세요.');
+        if (!Array.isArray(body.units) || body.units.length > 200 || body.units.some(n => !Number.isInteger(n) || !subjectMap[subject]?.units.some(u => u.number === n))) fail(400, '공개할 학습 항목을 확인해 주세요.');
         units = [...new Set(body.units)].sort((a, b) => a - b);
       } else {
         const n = body.maxUnit;
@@ -843,7 +867,7 @@ export async function createService(filename, {
       }
       if (!(await get('SELECT id FROM classes WHERE id=?', classId)) || !subjectMap[subject]) fail(400, '기수와 과목을 확인해 주세요.');
       await tx(async () => {
-        await run('INSERT INTO releases VALUES (?,?,?) ON CONFLICT(class_id,subject) DO UPDATE SET max_unit=excluded.max_unit', classId, subject, Math.max(0, ...units));
+        await run('INSERT INTO releases VALUES (?,?,?) ON CONFLICT(class_id,subject) DO UPDATE SET max_unit=excluded.max_unit', classId, subject, Math.min(5, Math.max(0, ...units)));
         await run('INSERT INTO release_selections VALUES (?,?,?) ON CONFLICT(class_id,subject) DO UPDATE SET units=excluded.units', classId, subject, json(units));
         await run('DELETE FROM study_clock WHERE user_id IN (SELECT id FROM users WHERE class_id=?)', classId);
       });
@@ -885,6 +909,8 @@ export async function createService(filename, {
       release,
       close: async () => await db.close()
     };
+    api.curriculum = async () => await refreshContent();
+    api.addCurriculum = (u, b) => curriculum.add(u, b);
     workshop = await createWorkshop(api, {
       clock,
       questionMap,
