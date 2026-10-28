@@ -209,8 +209,10 @@ export async function createHttp(service, {
           ok: true
         });
       }
-      if (match = p.match(/^\/api\/admin\/students\/([^/]+)(?:\/(class|migration))?$/)) {
+      if (match = p.match(/^\/api\/admin\/students\/([^/]+)(?:\/(class|migration|points))?$/)) {
         const [, id, action] = match;
+        if(method==='GET'&&action==='points')return send(200,await service.points.read(u,id));
+        if(method==='POST'&&action==='points')return send(200,await service.points.grant(u,id,body));
         if (method === 'DELETE' && !action) return await send(200, await service.deleteStudent(u, id, body));
         if (method === 'GET' && !action) return await send(200, await service.studentDetail(u, id));
         if (method === 'PUT' && action === 'class') {

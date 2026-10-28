@@ -25,7 +25,8 @@
     "test:turso": "node scripts/verify-turso.mjs && node scripts/verify-db-migration.mjs",
     "test:turso:remote": "node scripts/verify-turso-remote.mjs",
     "test:render": "node scripts/verify-render.mjs",
-    "test:admin-features": "node scripts/verify-admin-content-mail.mjs"
+    "test:admin-features": "node scripts/verify-admin-content-mail.mjs",
+    "test:admin-points": "node scripts/verify-admin-points.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

@@ -1,3 +1,4 @@
+import { createAdminPoints } from './admin-points.mjs';
 import { createCurriculum } from './curriculum.mjs';
 import { createWorkshop } from './workshop.mjs';
 import { openDatabase } from './database.mjs';
@@ -919,6 +920,7 @@ export async function createService(filename, {
       allowed
     });
     api.workshop = workshop;
+    api.points = await createAdminPoints(api,{clock});
     return api;
   } catch (error) {
     await db.close();
