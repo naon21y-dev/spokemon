@@ -20,9 +20,14 @@
     "test:manual": "node scripts/verify-manual.cjs",
     "start": "node server/index.mjs",
     "test:notes": "node scripts/verify-notes.cjs",
-    "test:theme": "node scripts/verify-theme.cjs"
+    "test:theme": "node scripts/verify-theme.cjs",
+    "db:migrate": "node scripts/migrate-sqlite-to-turso.mjs",
+    "test:turso": "node scripts/verify-turso.mjs && node scripts/verify-db-migration.mjs",
+    "test:turso:remote": "node scripts/verify-turso-remote.mjs",
+    "test:render": "node scripts/verify-render.mjs"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "echarts": "^6.1.0",
     "galmuri": "^2.40.3",
     "pinia": "^4.0.3",

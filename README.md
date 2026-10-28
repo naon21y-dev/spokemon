@@ -1,6 +1,6 @@
 # Spokemon
 
-Vue 3 + Vite + Vue Router + Pinia, Node.js HTTP 서버 + SQLite 학습 앱입니다. **Node.js 24 이상**이 필요합니다. 로컬 테스트용으로 구성했으며 배포하지 않았습니다.
+Vue 3 + Vite + Vue Router + Pinia, Node.js HTTP 서버 + Turso/libSQL 학습 앱입니다. **Node.js 24**가 필요합니다. 서버 DB는 `@libsql/client` 비동기 API를 사용합니다.
 
 ## 실행
 
@@ -70,9 +70,9 @@ try {
 
 ## DB와 보안 경계
 
-DB 기본 경로: `server/data/spokemon.sqlite`. 환경 변수 `SPOKEMON_DB`로 바꿀 수 있습니다. 이 폴더와 `.env`는 Git에서 제외합니다. DB 파일에는 계정과 학습 기록이 있으므로 백업해 보관하세요. 실행 중 백업은 SQLite 백업 도구를 사용하거나 서버를 종료한 뒤 DB를 복사하세요.
+운영 DB: 서버 환경변수 `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`으로 Turso libSQL에 접속합니다. 운영 환경에서는 누락 시 로컬 DB로 전환하지 않습니다. 개발 중 두 변수가 없을 때만 `server/data/spokemon.sqlite` 또는 `SPOKEMON_DB`를 libSQL 파일 드라이버로 사용합니다. `.env`와 DB/백업은 Git에서 제외합니다. 기존 SQLite를 읽기 전용으로 별도 이전하는 절차와 Render Free 설정은 [RENDER.md](RENDER.md)에 있습니다.
 
-비밀번호는 무작위 salt와 scrypt 해시, 세션은 무작위 토큰의 해시를 DB에 저장합니다. 브라우저는 HttpOnly/SameSite 쿠키만 보유하며 사용자 ID·권한을 요청 본문에서 신뢰하지 않습니다. 모든 관리자 API, 학생 소유권, 단원·문제 접근은 서버에서 검사합니다. 보상은 SQLite 트랜잭션과 `(user_id, question_id)` 고유 키로 중복을 막고 ledger에 기록합니다. 문제은행과 정답은 `server/questions/`에 있으며 클라이언트 번들에 포함하지 않습니다. 개발 서버도 서버 파일과 DB 경로를 차단합니다.
+비밀번호는 무작위 salt와 scrypt 해시, 세션은 무작위 토큰의 해시를 DB에 저장합니다. 브라우저는 HttpOnly/SameSite 쿠키만 보유하며 사용자 ID·권한을 요청 본문에서 신뢰하지 않습니다. 모든 관리자 API, 학생 소유권, 단원·문제 접근은 서버에서 검사합니다. 보상은 libSQL 쓰기 트랜잭션과 `(user_id, question_id)` 고유 키로 중복을 막고 ledger에 기록합니다. 문제은행과 정답은 `server/questions/`에 있으며 클라이언트 번들에 포함하지 않습니다. 개발 서버도 서버 파일과 DB 경로를 차단합니다.
 
 기본 서버는 127.0.0.1:3199에만 바인딩됩니다. 다른 환경에서 사용할 때는 HTTPS와 `COOKIE_SECURE=true`, 정확한 `APP_ORIGIN`을 설정해야 합니다. `API_PORT`, `API_HOST`로 서버 주소를 조정할 수 있습니다. 개발 모드는 로컬 주소만 허용합니다.
 
@@ -114,4 +114,4 @@ npm run build
 AI 생성 기능은 제거했습니다. 문제 제작소에서 객관식·주관식을 추가해 최대20문제를 한 번에 저장·공유할 수 있습니다. 여러 문제는 개별 원본 문제로 게시됩니다. API 키가 필요하지 않습니다. 단원 미정은 unit=0으로 저장하며 공식 진도율에 포함하지 않습니다. 지정 단원의 진도 잠금과 기존 포인트 규칙은 유지됩니다. 일괄 저장은 한 트랜잭션으로 처리하고 요청 ID로 중복 저장을 차단합니다.
 
 ## Render
-See [RENDER.md](RENDER.md). Deploy as one Node Web Service with Node 24 and a persistent SQLite disk. Build: `npm ci --include=dev && npm run build`; start: `npm start`.
+[RENDER.md](RENDER.md)를 참고하세요. Render Free Node Web Service + Turso 원격 libSQL을 사용하며 영구 디스크가 필요하지 않습니다. Build: `npm ci --include=dev && npm run build`; Start: `npm start`. 기존 SQLite 이전 명령: `npm run db:migrate -- --source "백업파일경로"`. 비밀값은 서버 환경변수로만 설정합니다.

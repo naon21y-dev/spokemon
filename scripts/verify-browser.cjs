@@ -1,2 +1,254 @@
-const {chromium}=require('playwright');const assert=require('node:assert/strict');const {randomBytes,pbkdf2Sync}=require('node:crypto');
-(async()=>{const {createService}=await import('../server/service.mjs'),{createHttp}=await import('../server/http.mjs'),{questionMap}=await import('../server/questions/index.js');const service=createService(':memory:'),password=randomBytes(18).toString('base64url'),teacher=service.createUser({login:'browser_teacher',password,nickname:'검증선생님',role:'admin'}),classroom=service.createClass(teacher,'픽셀 학습반'),origins=[],server=createHttp(service,{origins});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;origins.push(base);const browser=await chromium.launch({headless:true,...(require('node:fs').existsSync('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe')?{executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'}:{})});try{const adminContext=await browser.newContext(),studentContext=await browser.newContext(),admin=await adminContext.newPage(),student=await studentContext.newPage(),errors=[];for(const p of [admin,student])p.on('pageerror',e=>errors.push(e.message));async function login(p,id,pwd){await p.goto(base+'/#/account');await p.locator('#login-id').fill(id);await p.locator('#password').fill(pwd);await p.getByRole('button',{name:'로그인하고 플레이',exact:true}).click()};const own=()=>service.db.prepare("SELECT * FROM users WHERE login='browser_student'").get();await student.goto(base+'/#/account');await student.getByRole('button',{name:'회원가입',exact:true}).click();await student.locator('#login-id').fill('browser_student');await student.locator('#new-nickname').fill('공부하는학생');await student.locator('#password').fill(password);await student.locator('#password-confirm').fill(password);await student.getByRole('button',{name:'가입하고 시작하기'}).click();await student.waitForURL('**/#/student');await student.getByRole('heading',{name:'과목별 진도',exact:true}).waitFor();assert.equal(own().coins,0);await student.goto(base+'/#/admin');await student.waitForURL('**/#/student');assert.equal((await student.request.get(base+'/api/admin/dashboard')).status(),403);await student.goto(base+'/#/learn/vue/1');await student.getByRole('heading',{name:/아직 배우지 않은 단원입니다/}).waitFor();await login(admin,'browser_teacher',password);await admin.waitForURL('**/#/admin');await admin.getByRole('heading',{name:'학생 대시보드',exact:true}).waitFor();const row=admin.locator('tbody tr').filter({hasText:'공부하는학생'});await row.locator('select').selectOption(classroom.id);await admin.getByRole('status').waitFor();const release=admin.locator('.release-form');await release.locator('select').nth(0).selectOption(classroom.id);await release.locator('select').nth(1).selectOption('vue');await release.getByRole('checkbox').first().check();await release.getByRole('button',{name:'선택 항목 공개 저장',exact:true}).click();await admin.getByRole('status').waitFor();await student.goto(base+'/#/student');await student.getByRole('link',{name:'학습하기',exact:true}).first().waitFor();await student.getByRole('link',{name:'학습하기',exact:true}).first().click();await student.locator('.mistake-entry').first().waitFor();await student.getByRole('button',{name:'학습 완료 표시',exact:true}).first().click();assert.equal(service.summary(own()).completed,1);await student.waitForTimeout(10500);assert.ok(service.summary(own()).totalSeconds>=8);await student.getByRole('button',{name:'이 단원 퀴즈 풀기',exact:true}).click();await student.waitForURL('**/#/quiz?resume=1');await student.locator('.study-question').waitFor();let current=()=>service.db.prepare("SELECT * FROM quiz_sessions WHERE user_id=? AND mode='quiz' ORDER BY created_at DESC,rowid DESC LIMIT 1").get(own().id);let q=questionMap[JSON.parse(current().ids)[current().position]];if(q.type==='multiple')await student.locator('.study-option input[value="'+q.correctOptionId+'"]').check();else await student.locator('.study-short input').fill(q.acceptedAnswers[0]);await student.getByRole('button',{name:'답안 제출',exact:true}).click();await student.locator('.study-feedback').waitFor();assert.equal(own().coins,20);await student.getByRole('button',{name:'다음 문제 →',exact:true}).click();q=questionMap[JSON.parse(current().ids)[current().position]];if(q.type==='multiple')await student.locator('.study-option input[value="'+q.options.find(o=>o.id!==q.correctOptionId).id+'"]').check();else await student.locator('.study-short input').fill('틀린 답');await student.getByRole('button',{name:'답안 제출',exact:true}).click();await student.locator('.study-feedback').waitFor();await student.getByRole('link',{name:'마이 리틀 펫',exact:true}).click();await student.getByRole('link',{name:/틀린 문제!/}).click();await student.locator('.mistake-entry').first().waitFor();await student.getByRole('button',{name:'이 문제 다시 풀기',exact:true}).click();await student.locator('.study-question').waitFor();if(q.type==='multiple')await student.locator('.study-option input[value="'+q.correctOptionId+'"]').check();else await student.locator('.study-short input').fill(q.acceptedAnswers[0]);await student.getByRole('button',{name:'답안 제출',exact:true}).click();await student.locator('.study-feedback').waitFor();assert.equal(own().coins,40);await student.getByRole('link',{name:'카드 뒤집기',exact:true}).click();await student.getByRole('button',{name:'START',exact:true}).click();await student.waitForTimeout(1000);const cards=await student.locator('.tcg-front img').evaluateAll(images=>images.map(i=>i.getAttribute('src')));for(const id of new Set(cards))for(let i=0;i<cards.length;i++)if(cards[i]===id)await student.locator('.tcg-card').nth(i).click();await student.getByRole('status').waitFor();assert.equal(own().coins,40);await student.waitForTimeout(1000);const before=service.summary(own()).totalSeconds;await student.waitForTimeout(1200);assert.equal(service.summary(own()).totalSeconds,before);await release.getByRole('checkbox').first().uncheck();await release.getByRole('button',{name:'선택 항목 공개 저장',exact:true}).click();await admin.getByRole('status').waitFor();await student.goto(base+'/#/pet/mistakes');await student.getByRole('heading',{name:/아직 배우지 않은 단원입니다/}).waitFor();assert.equal(await student.getByRole('button',{name:'이 문제 다시 풀기',exact:true}).count(),0);assert.equal(own().coins,40);assert.equal(service.summary(own()).total,0);await admin.getByRole('button',{name:'보기',exact:true}).first().click();await admin.getByRole('heading',{name:'오답 현황',exact:true}).waitFor();for(const width of [390,1440]){await admin.setViewportSize({width,height:900});await admin.evaluate(()=>document.fonts.ready);assert.ok(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await student.setViewportSize({width,height:900});for(const route of ['/student','/quiz','/pet/mistakes','/cards','/metro','/account']){await student.goto(base+'/#'+route);await student.evaluate(()=>document.fonts.ready);assert.ok(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow ${width} ${route}`)}}await admin.screenshot({path:'C:/yw/login/server-stage/admin-desktop.png',fullPage:true});await student.goto(base+'/#/student');await student.screenshot({path:'C:/yw/login/server-stage/student-desktop.png',fullPage:true});await student.setViewportSize({width:390,height:844});await student.screenshot({path:'C:/yw/login/server-stage/student-mobile.png',fullPage:true});const devSource=await student.request.get('http://127.0.0.1:5188/server/questions/vue.js');assert.equal(devSource.status(),403);assert.deepEqual(errors,[]);console.log('PASS: student/admin landing, role redirect/API guard, teacher class/release UI, locked lessons, completions/time, server quiz and review points, unchanged card gameplay without awards/time, relock notebook protection, teacher detail, mobile/desktop and private server source denial.')}finally{await browser.close();await new Promise(r=>server.close(r));service.close()}})().catch(e=>{console.error(e);process.exitCode=1});
+const {
+  chromium
+} = require('playwright');
+const assert = require('node:assert/strict');
+const {
+  randomBytes,
+  pbkdf2Sync
+} = require('node:crypto');
+(async () => {
+  const {
+      createService
+    } = await import('../server/service.mjs'),
+    {
+      createHttp
+    } = await import('../server/http.mjs'),
+    {
+      questionMap
+    } = await import('../server/questions/index.js');
+  const service = await createService(':memory:'),
+    password = randomBytes(18).toString('base64url'),
+    teacher = await service.createUser({
+      login: 'browser_teacher',
+      password,
+      nickname: '검증선생님',
+      role: 'admin'
+    }),
+    classroom = await service.createClass(teacher, '픽셀 학습반'),
+    origins = [],
+    server = await createHttp(service, {
+      origins
+    });
+  await new Promise(r => server.listen(0, '127.0.0.1', r));
+  const base = 'http://127.0.0.1:' + server.address().port;
+  origins.push(base);
+  const browser = await chromium.launch({
+    headless: true,
+    ...(require('node:fs').existsSync('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe') ? {
+      executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+    } : {})
+  });
+  try {
+    const adminContext = await browser.newContext(),
+      studentContext = await browser.newContext(),
+      admin = await adminContext.newPage(),
+      student = await studentContext.newPage(),
+      errors = [];
+    for (const p of [admin, student]) p.on('pageerror', e => errors.push(e.message));
+    async function login(p, id, pwd) {
+      await p.goto(base + '/#/account');
+      await p.locator('#login-id').fill(id);
+      await p.locator('#password').fill(pwd);
+      await p.getByRole('button', {
+        name: '로그인하고 플레이',
+        exact: true
+      }).click();
+    }
+    ;
+    const own = async () => await service.db.prepare("SELECT * FROM users WHERE login='browser_student'").get();
+    await student.goto(base + '/#/account');
+    await student.getByRole('button', {
+      name: '회원가입',
+      exact: true
+    }).click();
+    await student.locator('#login-id').fill('browser_student');
+    await student.locator('#new-nickname').fill('공부하는학생');
+    await student.locator('#password').fill(password);
+    await student.locator('#password-confirm').fill(password);
+    await student.getByRole('button', {
+      name: '가입하고 시작하기'
+    }).click();
+    await student.waitForURL('**/#/student');
+    await student.getByRole('heading', {
+      name: '과목별 진도',
+      exact: true
+    }).waitFor();
+    assert.equal((await own()).coins, 0);
+    await student.goto(base + '/#/admin');
+    await student.waitForURL('**/#/student');
+    assert.equal((await student.request.get(base + '/api/admin/dashboard')).status(), 403);
+    await student.goto(base + '/#/learn/vue/1');
+    await student.getByRole('heading', {
+      name: /아직 배우지 않은 단원입니다/
+    }).waitFor();
+    await login(admin, 'browser_teacher', password);
+    await admin.waitForURL('**/#/admin');
+    await admin.getByRole('heading', {
+      name: '학생 대시보드',
+      exact: true
+    }).waitFor();
+    const row = admin.locator('tbody tr').filter({
+      hasText: '공부하는학생'
+    });
+    await row.locator('select').selectOption(classroom.id);
+    await admin.getByRole('status').waitFor();
+    const release = admin.locator('.release-form');
+    await release.locator('select').nth(0).selectOption(classroom.id);
+    await release.locator('select').nth(1).selectOption('vue');
+    await release.getByRole('checkbox').first().check();
+    await release.getByRole('button', {
+      name: '선택 항목 공개 저장',
+      exact: true
+    }).click();
+    await admin.getByRole('status').waitFor();
+    await student.goto(base + '/#/student');
+    await student.getByRole('link', {
+      name: '학습하기',
+      exact: true
+    }).first().waitFor();
+    await student.getByRole('link', {
+      name: '학습하기',
+      exact: true
+    }).first().click();
+    await student.locator('.mistake-entry').first().waitFor();
+    await student.getByRole('button', {
+      name: '학습 완료 표시',
+      exact: true
+    }).first().click();
+    assert.equal((await service.summary(await own())).completed, 1);
+    await student.waitForTimeout(10500);
+    assert.ok((await service.summary(await own())).totalSeconds >= 8);
+    await student.getByRole('button', {
+      name: '이 단원 퀴즈 풀기',
+      exact: true
+    }).click();
+    await student.waitForURL('**/#/quiz?resume=1');
+    await student.locator('.study-question').waitFor();
+    let current = async () => await service.db.prepare("SELECT * FROM quiz_sessions WHERE user_id=? AND mode='quiz' ORDER BY created_at DESC,rowid DESC LIMIT 1").get((await own()).id);
+    let q = questionMap[JSON.parse((await current()).ids)[(await current()).position]];
+    if (q.type === 'multiple') await student.locator('.study-option input[value="' + q.correctOptionId + '"]').check();else await student.locator('.study-short input').fill(q.acceptedAnswers[0]);
+    await student.getByRole('button', {
+      name: '답안 제출',
+      exact: true
+    }).click();
+    await student.locator('.study-feedback').waitFor();
+    assert.equal((await own()).coins, 20);
+    await student.getByRole('button', {
+      name: '다음 문제 →',
+      exact: true
+    }).click();
+    q = questionMap[JSON.parse((await current()).ids)[(await current()).position]];
+    if (q.type === 'multiple') await student.locator('.study-option input[value="' + q.options.find(o => o.id !== q.correctOptionId).id + '"]').check();else await student.locator('.study-short input').fill('틀린 답');
+    await student.getByRole('button', {
+      name: '답안 제출',
+      exact: true
+    }).click();
+    await student.locator('.study-feedback').waitFor();
+    await student.getByRole('link', {
+      name: '마이 리틀 펫',
+      exact: true
+    }).click();
+    await student.getByRole('link', {
+      name: /틀린 문제!/
+    }).click();
+    await student.locator('.mistake-entry').first().waitFor();
+    await student.getByRole('button', {
+      name: '이 문제 다시 풀기',
+      exact: true
+    }).click();
+    await student.locator('.study-question').waitFor();
+    if (q.type === 'multiple') await student.locator('.study-option input[value="' + q.correctOptionId + '"]').check();else await student.locator('.study-short input').fill(q.acceptedAnswers[0]);
+    await student.getByRole('button', {
+      name: '답안 제출',
+      exact: true
+    }).click();
+    await student.locator('.study-feedback').waitFor();
+    assert.equal((await own()).coins, 40);
+    await student.getByRole('link', {
+      name: '카드 뒤집기',
+      exact: true
+    }).click();
+    await student.getByRole('button', {
+      name: 'START',
+      exact: true
+    }).click();
+    await student.waitForTimeout(1000);
+    const cards = await student.locator('.tcg-front img').evaluateAll(images => images.map(i => i.getAttribute('src')));
+    for (const id of new Set(cards)) for (let i = 0; i < cards.length; i++) if (cards[i] === id) await student.locator('.tcg-card').nth(i).click();
+    await student.getByRole('status').waitFor();
+    assert.equal((await own()).coins, 40);
+    await student.waitForTimeout(1000);
+    const before = (await service.summary(await own())).totalSeconds;
+    await student.waitForTimeout(1200);
+    assert.equal((await service.summary(await own())).totalSeconds, before);
+    await release.getByRole('checkbox').first().uncheck();
+    await release.getByRole('button', {
+      name: '선택 항목 공개 저장',
+      exact: true
+    }).click();
+    await admin.getByRole('status').waitFor();
+    await student.goto(base + '/#/pet/mistakes');
+    await student.getByRole('heading', {
+      name: /아직 배우지 않은 단원입니다/
+    }).waitFor();
+    assert.equal(await student.getByRole('button', {
+      name: '이 문제 다시 풀기',
+      exact: true
+    }).count(), 0);
+    assert.equal((await own()).coins, 40);
+    assert.equal((await service.summary(await own())).total, 0);
+    await admin.getByRole('button', {
+      name: '보기',
+      exact: true
+    }).first().click();
+    await admin.getByRole('heading', {
+      name: '오답 현황',
+      exact: true
+    }).waitFor();
+    for (const width of [390, 1440]) {
+      await admin.setViewportSize({
+        width,
+        height: 900
+      });
+      await admin.evaluate(() => document.fonts.ready);
+      assert.ok(await admin.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+      await student.setViewportSize({
+        width,
+        height: 900
+      });
+      for (const route of ['/student', '/quiz', '/pet/mistakes', '/cards', '/metro', '/account']) {
+        await student.goto(base + '/#' + route);
+        await student.evaluate(() => document.fonts.ready);
+        assert.ok(await student.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow ${width} ${route}`);
+      }
+    }
+    await admin.screenshot({
+      path: 'C:/yw/login/server-stage/admin-desktop.png',
+      fullPage: true
+    });
+    await student.goto(base + '/#/student');
+    await student.screenshot({
+      path: 'C:/yw/login/server-stage/student-desktop.png',
+      fullPage: true
+    });
+    await student.setViewportSize({
+      width: 390,
+      height: 844
+    });
+    await student.screenshot({
+      path: 'C:/yw/login/server-stage/student-mobile.png',
+      fullPage: true
+    });
+    const devSource = await student.request.get('http://127.0.0.1:5188/server/questions/vue.js');
+    assert.equal(devSource.status(), 403);
+    assert.deepEqual(errors, []);
+    console.log('PASS: student/admin landing, role redirect/API guard, teacher class/release UI, locked lessons, completions/time, server quiz and review points, unchanged card gameplay without awards/time, relock notebook protection, teacher detail, mobile/desktop and private server source denial.');
+  } finally {
+    await browser.close();
+    await new Promise(async r => await server.close(r));
+    await service.close();
+  }
+})().catch(e => {
+  console.error(e);
+  process.exitCode = 1;
+});

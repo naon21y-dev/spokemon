@@ -1,2 +1,2 @@
-await import('./verify-server.mjs')
-await import('./verify-persistence.mjs')
+await import('./verify-server.mjs');
+await import('./verify-persistence.mjs');
