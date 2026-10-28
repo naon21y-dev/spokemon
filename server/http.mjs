@@ -1,3 +1,4 @@
+import {createGameRankings} from './game-rankings.mjs';
 import {createHiddenGame} from './hidden-game.mjs';
 import {createCardGame} from './card-game.mjs';
 import {createActivity} from './activity.mjs';
@@ -20,7 +21,8 @@ export async function createHttp(service, {
     notes = await createNotes(service),
     activity = await createActivity(service),
     cards = await createCardGame(service),
-    hidden = await createHiddenGame(service);
+    hidden = await createHiddenGame(service),
+    rankings = await createGameRankings(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
       res.writeHead(status, {
@@ -116,6 +118,7 @@ export async function createHttp(service, {
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));
       if(p==='/api/activity/notifications/read'&&method==='POST')return send(200,await activity.acknowledge(u,body));
       if(p==='/api/cards/start'&&method==='POST')return send(200,await cards.start(u,body));
+      if(p==='/api/game-rankings'&&method==='GET')return send(200,await rankings.list(u,url.searchParams.get('game'),Number(url.searchParams.get('level'))));
       if(p==='/api/hidden/start'&&method==='POST')return send(200,await hidden.start(u,body));
       const hiddenMatch=p.match(/^\/api\/hidden\/([^/]+)\/action$/);
       if(hiddenMatch&&method==='POST')return send(200,await hidden.act(u,hiddenMatch[1],body));

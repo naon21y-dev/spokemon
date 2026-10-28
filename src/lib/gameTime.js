@@ -1,0 +1,1 @@
+export function formatGameTime(ms){if(!Number.isFinite(ms)||ms<0)return '기록 없음';const seconds=ms/1000;return seconds<60?seconds.toFixed(2)+'초':Math.floor(seconds/60)+'분 '+(seconds%60).toFixed(2).padStart(5,'0')+'초'}

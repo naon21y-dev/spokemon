@@ -31,7 +31,8 @@
     "test:wear-online": "node scripts/verify-wear-online.mjs",
     "test:skins": "node scripts/verify-skins.mjs",
     "test:cards-alerts": "node scripts/verify-cards-alerts.mjs",
-    "test:hidden": "node scripts/verify-hidden-game.mjs"
+    "test:hidden": "node scripts/verify-hidden-game.mjs",
+    "test:rankings": "node scripts/verify-game-rankings.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
