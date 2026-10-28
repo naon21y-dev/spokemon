@@ -6,7 +6,7 @@ import {api} from '../lib/api'
 const defaults=()=>({coins:0,pet:{character:'piplup',hunger:70,happy:70,xp:0,wear:'',owned:[],last:Date.now()},records:[],card:null,metro:null})
 export const useArcade=defineStore('arcade',()=>{
  const data=ref(defaults()),user=ref(null),storageError=ref(''),ready=ref(false);let initPromise,gameTimer
- function apply(value){user.value=value.user;data.value={...defaults(),...value.data};storageError.value=''}
+ function apply(value){const gained=user.value?.id===value.user?.id&&value.data.coins>data.value.coins;user.value=value.user;data.value={...defaults(),...value.data};storageError.value='';if(gained)window.dispatchEvent(new Event('spokemon-points-refresh'))}
  async function refresh(){apply(await api('/me'))}
  function init(){if(!initPromise)initPromise=refresh().catch(e=>{if(e.status!==401)storageError.value=e.message}).finally(()=>ready.value=true);return initPromise}
  function legacyAccount(login){try{return JSON.parse(localStorage.getItem('pocket-accounts-v1'))?.accounts.find(a=>a.login===login.trim().toLowerCase())}catch{return null}}

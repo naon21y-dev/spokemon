@@ -29,7 +29,8 @@
     "test:admin-points": "node scripts/verify-admin-points.mjs",
     "test:mail-bulk": "node scripts/verify-mail-bulk-layout.mjs",
     "test:wear-online": "node scripts/verify-wear-online.mjs",
-    "test:skins": "node scripts/verify-skins.mjs"
+    "test:skins": "node scripts/verify-skins.mjs",
+    "test:cards-alerts": "node scripts/verify-cards-alerts.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
