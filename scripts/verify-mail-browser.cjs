@@ -111,14 +111,12 @@ const {
       exact: true
     }).waitFor();
     await login(admin, teacher);
-    await admin.getByRole('heading', {
+    await admin.locator('.admin-section-nav button').filter({hasText:'학생 쪽지함'}).click();
+    await admin.locator('.admin-mailbox').getByRole('heading', {
       name: '학생 쪽지함',
       exact: true
     }).waitFor();
-    await admin.getByRole('button', {
-      name: '답변 대기 쪽지 1개 →',
-      exact: true
-    }).waitFor();
+    await admin.locator('.admin-overview-card').filter({hasText:'답변 대기 쪽지'}).locator('strong').filter({hasText:'1'}).waitFor();
     const filters = admin.locator('.mail-filters');
     await filters.locator('input').fill('없는학생');
     await filters.getByRole('button', {
@@ -154,10 +152,7 @@ const {
       hasText: '학생에게 답장을 보냈어요'
     }).waitFor();
     assert.equal((await service.db.prepare('SELECT COUNT(*) n FROM private_replies').get()).n, 1);
-    await admin.getByRole('button', {
-      name: '답변 대기 쪽지 0개 →',
-      exact: true
-    }).waitFor();
+    await admin.locator('.admin-overview-card').filter({hasText:'답변 대기 쪽지'}).locator('strong').filter({hasText:'0'}).waitFor();
     await student.getByRole('link', {
       name: '마이 리틀 펫',
       exact: true

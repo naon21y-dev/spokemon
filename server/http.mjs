@@ -138,6 +138,7 @@ export async function createHttp(service, {
       if (p === '/api/friends/search' && method === 'GET') return await send(200, await social.search(u, await url.searchParams.get('login')));
       if (p === '/api/friends' && method === 'GET') return await send(200, await social.list(u));
       if (p === '/api/friends' && method === 'POST') return await send(200, await social.add(u, body.studentId));
+      if(p==='/api/friend-messages'&&method==='DELETE')return send(200,await social.clear(u,body));
       if (p === '/api/friend-messages' && method === 'POST') return await send(200, await social.send(u, body));
       if (match = p.match(/^\/api\/friend-messages\/([^/]+)(?:\/(read))?$/)) {
         if (method === 'DELETE' && !match[2]) return send(200, await social.remove(u, match[1]));
@@ -146,9 +147,13 @@ export async function createHttp(service, {
       }
       if (p === '/api/messages/summary' && method === 'GET') {
         const result = await mail.summary(u);
-        if (u.role === 'student') result.unread += await social.summary(u);
+        result.events=await mail.notifications(u);
+        if (u.role === 'student'){result.unread += await social.summary(u);result.events.push(...await social.notifications(u));}
+        result.events.sort((a,b)=>b.at-a.at);
         return await send(200, result);
       }
+      if(p==='/api/messages'&&method==='DELETE')return send(200,await mail.clear(u,body));
+      if(p==='/api/admin/messages'&&method==='DELETE')return send(200,await mail.clear(u,body,true));
       if (p === '/api/messages' && method === 'GET') return await send(200, await mail.list(u));
       if (p === '/api/messages' && method === 'POST') return await send(200, await mail.send(u, body));
       if (match = p.match(/^\/api\/messages\/([^/]+)(?:\/(read|reply))?$/)) {

@@ -71,6 +71,48 @@ export async function createPrivateMailbox(service) {
     await detail(u, id, admin);
     return t.hide(u, 'private', id);
   }
+  async function clear(u, body, admin = false) {
+    admin ? service.admin(u) : service.student(u);
+    if (body?.confirmed !== true) fail(400, '전체 삭제를 확인하세요.');
+    return db.transaction(async () => {
+      const result = await run("INSERT OR IGNORE INTO mailbox_hidden(user_id,kind,message_id,hidden_at) SELECT ?,'private',m.id,? FROM private_messages m" + (admin ? '' : ' WHERE m.student_id=?'), u.id, Date.now(), ...(admin ? [] : [u.id]));
+      return {
+        ok: true,
+        changed: result.changes,
+        ...(await summary(u))
+      };
+    });
+  }
+  async function notifications(u) {
+    const hidden = "NOT EXISTS(SELECT 1 FROM mailbox_hidden h WHERE h.user_id=? AND h.kind='private' AND h.message_id=m.id)";
+    if (u.role === 'student') {
+      const rows = await all("SELECT r.id,m.id thread_id,r.created_at FROM private_replies r JOIN private_messages m ON m.id=r.message_id JOIN users a ON a.id=r.admin_id WHERE m.student_id=? AND a.role='admin' AND r.read_at IS NULL AND " + hidden + " ORDER BY r.created_at DESC,r.rowid DESC LIMIT 200", u.id, u.id);
+      return rows.map(r => ({
+        id: 'reply:' + r.id,
+        kind: 'private',
+        at: r.created_at
+      }));
+    }
+    service.admin(u);
+    const pending = "COALESCE((SELECT a.role FROM private_replies r JOIN users a ON a.id=r.admin_id WHERE r.message_id=m.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT 1),'student')='student'";
+    const [questions, replies] = await Promise.all([all("SELECT m.id,m.created_at FROM private_messages m WHERE NOT EXISTS(SELECT 1 FROM mailbox_senders s WHERE s.message_id=m.id) AND " + hidden + " AND " + pending + " ORDER BY m.created_at DESC,m.rowid DESC LIMIT 200", u.id), all("SELECT r.id,r.created_at FROM private_replies r JOIN private_messages m ON m.id=r.message_id JOIN users a ON a.id=r.admin_id WHERE a.role='student' AND " + hidden + " AND " + pending + " ORDER BY r.created_at DESC,r.rowid DESC LIMIT 200", u.id)]);
+    return [...questions.map(r => ({
+      id: 'question:' + r.id,
+      kind: 'private',
+      at: r.created_at
+    })), ...replies.map(r => ({
+      id: 'reply:' + r.id,
+      kind: 'private',
+      at: r.created_at
+    }))].sort((a, b) => b.at - a.at).slice(0, 200);
+  }
+  async function reply(u, id, body) {
+    return db.transaction(async () => {
+      const result = await base.reply(u, id, body);
+      if (!result.duplicate) await run("DELETE FROM mailbox_hidden WHERE kind='private' AND message_id=? AND user_id=(SELECT student_id FROM private_messages WHERE id=?)", id, id);
+      return result;
+    });
+  }
   async function once(u, kind, key, parts, fn) {
     if (typeof key !== 'string' || !/^[-\w]{8,100}$/.test(key)) fail(400, '전송 식별자를 확인하세요.');
     const hash = createHash('sha256').update(JSON.stringify(parts)).digest('hex');
@@ -128,6 +170,7 @@ export async function createPrivateMailbox(service) {
     return once(u, 'student-reply', b.requestKey, [id, body], async () => {
       const rid = randomUUID();
       await run('INSERT INTO private_replies VALUES(?,?,?,?,?,NULL)', rid, id, u.id, body, Date.now());
+      await run("DELETE FROM mailbox_hidden WHERE kind='private' AND message_id=? AND user_id IN (SELECT id FROM users WHERE role='admin')", id);
       return rid;
     });
   }
@@ -139,7 +182,10 @@ export async function createPrivateMailbox(service) {
     remove,
     recipients,
     sendAdmin,
-    studentReply
+    studentReply,
+    clear,
+    notifications,
+    reply
   };
 }
 export async function createSocialMailbox(service) {
@@ -163,8 +209,29 @@ export async function createSocialMailbox(service) {
       unread: await summary(u)
     };
   }
+  async function clear(u, body) {
+    service.student(u);
+    if (body?.confirmed !== true) fail(400, '전체 삭제를 확인하세요.');
+    return db.transaction(async () => {
+      const result = await db.prepare("INSERT OR IGNORE INTO mailbox_hidden(user_id,kind,message_id,hidden_at) SELECT ?,'friend',id,? FROM friend_mail WHERE sender=? OR recipient=?").run(u.id, Date.now(), u.id, u.id);
+      return {
+        ok: true,
+        changed: result.changes
+      };
+    });
+  }
+  async function notifications(u) {
+    service.student(u);
+    return (await db.prepare("SELECT m.id,m.created_at FROM friend_mail m WHERE recipient=? AND read_at IS NULL AND NOT EXISTS(SELECT 1 FROM mailbox_hidden h WHERE h.user_id=? AND h.kind='friend' AND h.message_id=m.id) ORDER BY m.created_at DESC,m.rowid DESC LIMIT 200").all(u.id, u.id)).map(r => ({
+      id: 'friend:' + r.id,
+      kind: 'friend',
+      at: r.created_at
+    }));
+  }
   return {
     ...base,
+    clear,
+    notifications,
     summary,
     detail,
     list,

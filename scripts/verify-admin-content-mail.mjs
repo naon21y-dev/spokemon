@@ -226,7 +226,7 @@ try {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('dialog', d => d.accept());
-  await page.goto(base + '/#/admin');
+  await page.goto(base + '/#/admin?section=content');
   await page.getByRole('heading', {
     name: '과목·단원 / 공식 문제 관리'
   }).waitFor();
@@ -255,6 +255,7 @@ try {
   await page.getByText('공식 문제를 저장했어요.', {
     exact: true
   }).waitFor();
+  await page.locator('.admin-section-nav button').filter({hasText:'학생 쪽지함'}).click();
   await page.getByRole('button', {
     name: '＋ 학생에게 쪽지 쓰기'
   }).click();
@@ -272,6 +273,7 @@ try {
   await page.getByText('학생에게 쪽지를 보냈어요.', {
     exact: true
   }).waitFor();
+  await page.locator('.admin-section-nav button').filter({hasText:'기수·진도'}).click();
   const color = await page.locator('.release-check.checked').first().evaluate(el => getComputedStyle(el).backgroundColor);
   assert.notEqual(color, 'rgb(223, 236, 201)');
   await page.setViewportSize({

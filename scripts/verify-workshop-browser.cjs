@@ -197,7 +197,7 @@ const {
       });
     }
     const admin = await page(teacher);
-    await admin.goto(base + '/#/admin');
+    await admin.goto(base + '/#/admin?section=points');
     await admin.getByLabel('학생 제작 문제 최초 정답', {
       exact: true
     }).fill('15');

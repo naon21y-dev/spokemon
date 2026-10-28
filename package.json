@@ -26,7 +26,9 @@
     "test:turso:remote": "node scripts/verify-turso-remote.mjs",
     "test:render": "node scripts/verify-render.mjs",
     "test:admin-features": "node scripts/verify-admin-content-mail.mjs",
-    "test:admin-points": "node scripts/verify-admin-points.mjs"
+    "test:admin-points": "node scripts/verify-admin-points.mjs",
+    "test:mail-bulk": "node scripts/verify-mail-bulk-layout.mjs",
+    "test:wear-online": "node scripts/verify-wear-online.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

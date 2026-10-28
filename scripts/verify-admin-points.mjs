@@ -131,7 +131,7 @@ try {
   const page = await context.newPage(),
     errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  await page.goto(base + '/#/admin');
+  await page.goto(base + '/#/admin?section=points');
   await page.getByRole('heading', {
     name: '학생 포인트 지급',
     exact: true
