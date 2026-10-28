@@ -1,3 +1,4 @@
+import { skinMap } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
 import { createCurriculum } from './curriculum.mjs';
 import { createWorkshop } from './workshop.mjs';
@@ -622,10 +623,20 @@ export async function createService(filename, {
             p.owned.push(item);
           }
           p.wear = item;
+        } else if (action === 'skin') {
+          p.ownedSkins = Array.isArray(p.ownedSkins) ? p.ownedSkins : [];
+          p.skinByCharacter = p.skinByCharacter && typeof p.skinByCharacter === 'object' ? p.skinByCharacter : {};
+          if (item === 'default') p.skinByCharacter[p.character] = '';
+          else {
+            const skin = skinMap[item];
+            if (!skin || skin.character !== p.character) fail(400, '현재 파트너의 스킨을 선택해 주세요.');
+            if (!p.ownedSkins.includes(item)) { cost = skin.price; p.ownedSkins.push(item); }
+            p.skinByCharacter[p.character] = item;
+          }
         } else if (action === 'remove') p.wear = '';else if (action !== 'age') fail(400, '행동을 확인해 주세요.');
         if (u.coins < cost) fail(400, '코인이 부족해요. 퀴즈로 코인을 모아 주세요.');
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
-        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, '펫 돌보기', action, randomUUID(), clock());
+        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : '펫 돌보기', action === 'skin' ? skinMap[item].name : action, action === 'skin' ? 'skin:' + u.id + ':' + item : randomUUID(), clock());
         return await state(u);
       });
     }

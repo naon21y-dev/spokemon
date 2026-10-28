@@ -1,5 +1,6 @@
 import {defineStore} from 'pinia'
 import {ref,computed,watch} from 'vue'
+import {activeSkin} from '../data/skins'
 import {findCharacter} from '../data/characters'
 import {api} from '../lib/api'
 const defaults=()=>({coins:0,pet:{character:'piplup',hunger:70,happy:70,xp:0,wear:'',owned:[],last:Date.now()},records:[],card:null,metro:null})
@@ -18,8 +19,8 @@ export const useArcade=defineStore('arcade',()=>{
  async function selectCharacter(character){try{apply(await api('/profile',{method:'PATCH',body:{character}}))}catch(e){storageError.value=e.message;throw e}}
  async function petAction(action,item){apply(await api('/pet',{method:'POST',body:{action,item}}))}
  async function age(){if(user.value?.role==='student')try{await petAction('age')}catch(e){storageError.value=e.message}}
- const partner=computed(()=>findCharacter(data.value.pet.character)),level=computed(()=>Math.floor(data.value.pet.xp/100)+1)
+ const skin=computed(()=>activeSkin(data.value.pet)),partner=computed(()=>findCharacter(data.value.pet.character)),level=computed(()=>Math.floor(data.value.pet.xp/100)+1)
  watch(()=>[data.value.card,data.value.metro],()=>{clearTimeout(gameTimer);if(user.value?.role!=='student')return;gameTimer=setTimeout(()=>api('/games',{method:'PUT',body:{card:data.value.card,metro:data.value.metro}}).catch(e=>storageError.value=e.message),600)},{deep:true})
- return {data,user,ready,storageError,partner,level,init,refresh,login,register,logout,rename,selectCharacter,petAction,age}
+ return {data,user,ready,storageError,partner,skin,level,init,refresh,login,register,logout,rename,selectCharacter,petAction,age}
 })
 export function shuffle(input){const a=[...input];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
