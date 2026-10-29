@@ -8,3 +8,6 @@ export const evolutionChains={
 export function evolutionStage(pet){const current=pet?.enhancement?.stage;if(Number.isInteger(current)&&current>=1&&current<=3)return current;const legacy=pet?.evolutions?.[pet?.character]?.stage;return Number.isInteger(legacy)&&legacy>=1&&legacy<=3?legacy:1}
 export function characterAtStage(character,stage=1){const base=findCharacter(character),chain=evolutionChains[base.id],index=Number.isInteger(stage)&&stage>=1&&stage<=3?stage-1:0,form=chain[index];return {...base,...form,id:base.id,formId:form.id,stage:index+1}}
 export const evolvedCharacter=pet=>characterAtStage(pet?.character,evolutionStage(pet));
+
+// Probability is based on the current stage: 1→2, then 2→3.
+export const enhancementChance = stage => stage === 1 ? 80 : stage === 2 ? 50 : 0;
