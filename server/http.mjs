@@ -115,6 +115,8 @@ export async function createHttp(service, {
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
+      if(p==='/api/quests'&&method==='GET')return send(200,await service.quests.list(u));
+      if(p==='/api/quests/claim'&&method==='POST')return send(200,await service.quests.claim(u,body.questId));
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));
       if(p==='/api/activity/notifications/read'&&method==='POST')return send(200,await activity.acknowledge(u,body));
       if(p==='/api/cards/start'&&method==='POST')return send(200,await cards.start(u,body));
@@ -126,6 +128,8 @@ export async function createHttp(service, {
       if(cardMatch&&method==='POST')return send(200,await cards.flip(u,cardMatch[1],body));
       let match;
       if (p === '/api/curriculum' && method === 'GET') return send(200, await service.curriculum());
+      if(p==='/api/admin/curriculum'&&method==='GET')return send(200,await service.archivedCurriculum(u));
+      if(p==='/api/admin/curriculum'&&method==='PATCH')return send(200,await service.manageCurriculum(u,body));
       if (p === '/api/admin/curriculum' && method === 'POST') return send(200, await service.addCurriculum(u, body));
       if (p === '/api/admin/message-recipients' && method === 'GET') return send(200, await mail.recipients(u, url.searchParams.get('search') ?? ''));
       if (p === '/api/admin/messages' && method === 'POST') return send(200, await mail.sendAdmin(u, body));

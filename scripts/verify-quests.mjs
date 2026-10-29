@@ -1,0 +1,61 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createService} from '../server/service.mjs';
+import {createHttp} from '../server/http.mjs';
+import {questionMap} from '../server/questions/index.js';
+const file=join(mkdtempSync(join(tmpdir(),'spokemon-quests-')),'test.sqlite');
+let s=await createService(file);
+const a=await s.createUser({login:'quest_admin',nickname:'관리자테스트',password:'test-only-1234',role:'admin'}),u=await s.createUser({login:'quest_student',nickname:'퀘스트학생',password:'test-only-1234'}),other=await s.createUser({login:'quest_other',nickname:'다른학생',password:'test-only-1234'});
+const rel=units=>s.release(a,{classId:'unassigned',subject:'vue',units});
+await rel([1]);
+let book=await s.quests.list(u),unit=book.units.find(x=>x.subject==='vue'&&x.unit===1);
+assert.equal(unit.quests.length,10);assert.deepEqual(unit.quests.map(x=>x.reward),[5,10,15,20,30,40,50,65,80,100]);
+await assert.rejects(()=>s.quests.list(a),e=>e.status===403);
+await assert.rejects(()=>s.quests.claim(u,unit.quests[0].id),e=>e.status===409);
+const quiz=await s.startQuiz(u,{subject:'vue',type:'all',unit:1});
+const q=questionMap[quiz.question.id],actual=q.type==='multiple'?q.correctOptionId:q.acceptedAnswers[0];
+await s.submit(u,quiz.id,{questionId:q.id,answer:actual});
+book=await s.quests.list(u);unit=book.units.find(x=>x.subject==='vue'&&x.unit===1);
+assert.equal(unit.quests[0].ready,true);assert.equal(unit.correct,1);
+const startBalance=(await s.state(u)).data.coins;
+const results=await Promise.all(Array.from({length:8},()=>s.quests.claim(u,unit.quests[0].id)));
+assert.equal(results.reduce((n,x)=>n+x.awarded,0),5);assert.equal((await s.state(u)).data.coins,startBalance+5);
+assert.equal((await s.quests.list(other)).units.find(x=>x.subject==='vue'&&x.unit===1).correct,0);
+await rel([]);await assert.rejects(()=>s.quests.claim(u,unit.quests[1].id),e=>e.status===403);await rel([1]);
+assert.equal((await s.quests.claim(u,unit.quests[1].id)).awarded,10);
+// Backfill pre-feature sessions; lesson completion alone must not count.
+await s.db.prepare('DELETE FROM quest_evidence WHERE user_id=?').run(u.id);await s.db.prepare('DELETE FROM quest_backfills WHERE user_id=?').run(u.id);
+assert.equal((await s.quests.list(u)).units.find(x=>x.subject==='vue'&&x.unit===1).correct,1);
+await s.complete(other,'vue-mc-01');assert.equal((await s.quests.list(other)).units.find(x=>x.subject==='vue'&&x.unit===1).correct,0);
+await assert.rejects(()=>s.manageCurriculum(u,{action:'delete',subject:'vue',confirmName:'Vue.js'}),e=>e.status===403);
+await s.manageCurriculum(a,{action:'delete',subject:'vue',confirmName:'Vue.js'});
+assert.equal((await s.catalog(u)).some(x=>x.id==='vue'),false);await assert.rejects(()=>s.getQuiz(u,quiz.id),e=>e.status===403);
+await s.manageCurriculum(a,{action:'restore',subject:'vue',confirmName:'Vue.js'});
+assert.equal((await s.catalog(u)).some(x=>x.id==='vue'),true);
+const custom=await s.addCurriculum(a,{kind:'subject',name:'이동 테스트'});await s.addCurriculum(a,{kind:'unit',subject:custom.id,name:'이동할 단원'});
+await s.release(a,{classId:'unassigned',subject:custom.id,units:[1]});
+const post=await s.workshop.save(a,{subject:custom.id,unit:1,type:'short',title:'배열 생성',prompt:'NumPy의 배열 생성 함수는?',acceptedAnswers:['array'],explanation:'np.array로 배열을 만듭니다.',published:true,reviewed:true});
+const oldQuiz=await s.startQuiz(u,{subject:custom.id,type:'short',unit:1});await s.submit(u,oldQuiz.id,{questionId:oldQuiz.question.id,answer:'array'});
+const oldRoot=oldQuiz.question.originalId;await s.workshop.save(a,{subject:custom.id,unit:1,type:'short',title:'배열 생성 수정',prompt:'NumPy에서 리스트로 배열을 만드는 함수는?',acceptedAnswers:['array'],explanation:'np.array를 사용합니다.',published:true,reviewed:true,baseVersion:post.version},post.id);
+const sameUnit=(await s.quests.list(u)).units.find(x=>x.subject===custom.id);assert.equal(sameUnit.correct,1);await s.quests.claim(u,sameUnit.quests[0].id);
+await s.manageCurriculum(a,{action:'move',subject:custom.id,target:'python',confirmName:'이동 테스트'});
+assert.equal((await s.curriculum()).some(x=>x.id===custom.id),false);assert.equal((await s.catalog(u)).find(x=>x.id==='python').units.at(-1).locked,false);
+const moved=await s.startQuiz(u,{subject:'python',type:'short',unit:6});assert.equal(moved.question.originalId,oldRoot);assert.equal(moved.question.version,2);assert.equal((await s.submit(u,moved.id,{questionId:moved.question.id,answer:'array'})).awarded,0);const movedUnit=(await s.quests.list(u)).units.find(x=>x.subject==='python'&&x.unit===6);assert.equal(movedUnit.correct,1);assert.equal(movedUnit.quests[0].claimed,true);
+await s.manageCurriculum(a,{action:'move',subject:'vue',target:'python',confirmName:'Vue.js'});
+const allPython=(await s.catalog(u)).find(x=>x.id==='python');assert.equal(allPython.total,21);assert.equal((await s.catalog(u)).some(x=>x.id==='vue'),false);
+const mapped=(await s.db.prepare('SELECT * FROM curriculum_question_locations WHERE question_id=?').get(q.id));assert.equal(mapped.subject,'python');
+const movedBuiltin=await s.startQuiz(u,{subject:'python',type:'all',unit:mapped.unit});assert(movedBuiltin.questionIds.every(id=>id.startsWith('vue-')));
+const transferred=(await s.quests.list(u)).units.find(x=>x.subject==='python'&&x.unit===mapped.unit);assert.equal(transferred.quests[0].claimed,true);
+const balance=(await s.state(u)).data.coins;await s.close();s=await createService(file);
+assert.equal((await s.state(u)).data.coins,balance);assert.equal((await s.quests.claim(u,transferred.quests[0].id)).awarded,0);assert.equal((await s.catalog(u)).some(x=>x.id==='vue'),false);
+const origins=[];const server=await createHttp(s,{origins});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
+origins.push(base);assert.equal((await fetch(base+'/api/quests')).status,401);
+const token=(await s.newSession(u)).token;
+assert.equal((await fetch(base+'/api/admin/curriculum',{headers:{Cookie:'spokemon_session='+token}})).status,403);
+console.log('PASS: quests, concurrency, locks, backfill, persistence, curriculum archive/restore/move, HTTP authorization');
+if(process.argv.includes('--serve'))console.log('TEST_UI_URL='+base);else{await new Promise(r=>server.close(r));await s.close()}
+
+
+

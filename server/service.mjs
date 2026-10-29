@@ -1,3 +1,4 @@
+import {createQuests} from './quests.mjs';
 import {evolutionStage} from '../src/data/evolutions.js';
 import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhancement} from './evolution.mjs';
 import { skinMap } from '../src/data/skins.js';
@@ -45,10 +46,8 @@ const petDefault = () => ({
 export async function createService(filename, {
   clock = () => Date.now(), evolutionRoll
 } = {}) {
-  const questionMap = {
-    ...officialMap
-  };
-  let workshop,
+  const questionMap = structuredClone(officialMap);
+  let quests, workshop,
     curriculum,
     questions = [...builtinQuestions],
     subjects = [...builtinSubjects],
@@ -56,7 +55,9 @@ export async function createService(filename, {
   async function refreshContent() {
     subjects = await curriculum.list();
     subjectMap = Object.fromEntries(subjects.map(s => [s.id, s]));
-    if (workshop) questions = [...builtinQuestions, ...(await workshop.officialBank())];
+    const locations=new Map((await db.prepare('SELECT * FROM curriculum_question_locations').all()).map(x=>[x.question_id,x]));
+    const base=builtinQuestions.map(q=>{const copy={...q,source:'official',creatorId:null,creatorName:'관리자',originalId:q.id,version:1};const location=locations.get(q.id);if(location){copy.subject=location.subject;copy.unit=location.unit}questionMap[q.id]=copy;return copy});
+    questions = [...base, ...(workshop?await workshop.officialBank():[])];
     return subjects;
   }
   const label = (subject, number) => subjectMap[subject]?.units?.find(u => u.number === number)?.title ?? unitTitle(subject, number);
@@ -193,6 +194,7 @@ export async function createService(filename, {
     }
     async function accessFlags(u, ids) {
       await loadQuestions(ids);
+      const hidden=new Set((await all('SELECT subject FROM curriculum_archives')).map(x=>x.subject));
       const releases = await releasesFor(u),
         roots = [...new Set(ids.map(id => questionMap[id]).filter(q => q?.postId).map(q => q.originalId))],
         published = new Set();
@@ -203,7 +205,7 @@ export async function createService(filename, {
       }
       return new Map(ids.map(id => {
         const q = questionMap[id];
-        return [id, !!q && (!q.postId || published.has(q.originalId)) && (q.source === 'student' && q.unit === 0 || (releases[q.subject] ?? []).includes(unitOf(q)))];
+        return [id, !!q && !hidden.has(q.subject) && (!q.postId || published.has(q.originalId)) && (q.source === 'student' && q.unit === 0 || (releases[q.subject] ?? []).includes(unitOf(q)))];
       }));
     }
     const allowed = async (u, q) => !!q && (await accessFlags(u, [q.id])).get(q.id);
@@ -510,6 +512,7 @@ export async function createService(filename, {
           awarded = await workshop.grant(u, q, now);
           await run('UPDATE mistakes SET reviewed=1,last_answer=?,updated_at=? WHERE user_id=? AND question_id=?', answerText(q, answer), now, u.id, qid);
         } else await run('INSERT INTO mistakes VALUES (?,?,?,?,?,?,?) ON CONFLICT(user_id,question_id) DO UPDATE SET last_answer=excluded.last_answer,last_wrong=excluded.last_wrong,wrong_count=mistakes.wrong_count+1,reviewed=0,updated_at=excluded.updated_at', u.id, qid, answerText(q, answer), answerText(q, answer), 1, 0, now);
+        await quests.record(u, q, correct);
         answers[qid].awarded = awarded;
         await run('UPDATE quiz_sessions SET answers=?,draft=? WHERE id=?', json(answers), answer, id);
         return {
@@ -943,6 +946,8 @@ export async function createService(filename, {
     };
     api.curriculum = async () => await refreshContent();
     api.addCurriculum = (u, b) => curriculum.add(u, b);
+    api.archivedCurriculum = u => {admin(u);return curriculum.list(true)};
+    api.manageCurriculum = async (u,b) => {admin(u);await refreshContent();const result=await curriculum.manage(u,b,questions);if(result.moved?.length)await workshop.loadQuestions(result.moved);await refreshContent();return {ok:true}};
     workshop = await createWorkshop(api, {
       clock,
       questionMap,
@@ -952,6 +957,8 @@ export async function createService(filename, {
     });
     api.workshop = workshop;
     api.points = await createAdminPoints(api,{clock});
+    quests = await createQuests(api,{clock,content:async()=>{await refreshContent();return {subjects,questions}},releases:releasesFor,loadQuestions,questionMap});
+    api.quests = quests;
     return api;
   } catch (error) {
     await db.close();
