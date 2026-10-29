@@ -1,11 +1,12 @@
 <script setup>
 import {ref,computed,onMounted} from 'vue'
 import {api} from '../lib/api'
+import {useQuests} from '../stores/quests'
 import {useArcade} from '../stores/arcade'
 const s=useArcade(),book=ref({units:[]}),subject=ref(''),unit=ref(''),busy=ref(false),claiming=ref(''),error=ref(''),notice=ref('')
 const subjects=computed(()=>[...new Map(book.value.units.map(u=>[u.subject,u.subjectName])).entries()]),units=computed(()=>book.value.units.filter(u=>(!subject.value||u.subject===subject.value)&&(!unit.value||String(u.unit)===unit.value))),choices=computed(()=>book.value.units.filter(u=>u.subject===subject.value))
 let initialized=false
-async function load(){busy.value=true;error.value='';try{book.value=await api('/quests');if(!initialized){const first=book.value.units.find(u=>!u.locked)??book.value.units[0];if(first){subject.value=first.subject;unit.value=String(first.unit)}initialized=true}}catch(e){error.value=e.message}finally{busy.value=false}}
+async function load(){busy.value=true;error.value='';try{book.value=await api('/quests');useQuests().accept(book.value);if(!initialized){const first=book.value.units.find(u=>!u.locked)??book.value.units[0];if(first){subject.value=first.subject;unit.value=String(first.unit)}initialized=true}}catch(e){error.value=e.message}finally{busy.value=false}}
 async function claim(q){if(claiming.value)return;claiming.value=q.id;error.value='';notice.value='';try{const r=await api('/quests/claim',{method:'POST',body:{questId:q.id}});notice.value=r.awarded?`퀘스트 완료! ${r.awarded}P를 받았어요.`:'이미 보상을 받았어요.';await Promise.all([load(),s.refresh()])}catch(e){error.value=e.message}finally{claiming.value=''}}
 onMounted(load)
 </script>

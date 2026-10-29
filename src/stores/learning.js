@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import {ref,computed} from 'vue'
 import {api} from '../lib/api'
+import {useQuests} from './quests'
 import {useArcade} from './arcade'
 import {questionMap,syncCurriculum} from '../data/quiz'
 export const useLearning=defineStore('learning',()=>{
@@ -13,7 +14,7 @@ export const useLearning=defineStore('learning',()=>{
  async function startReview(ids){return action(async()=>accept(await api('/review/start',{method:'POST',body:{ids}}),true))}
  function session(review=false){return state.value[review?'activeReview':'activeQuiz']}
  function setDraft(value,review=false){const g=session(review);if(g&&!g.done&&!g.answers[g.questionIds[g.index]])g.draft=String(value)}
- async function submit(review=false){return action(async()=>{const g=session(review);if(!g)throw Error('퀴즈를 먼저 시작해 주세요.');const result=await api('/quiz/'+g.id+'/submit',{method:'POST',body:{questionId:g.questionIds[g.index],answer:g.draft}});accept(result.session,review);await Promise.all([arcade.refresh(),api('/summary').then(v=>stats.value=v)])})}
+ async function submit(review=false){return action(async()=>{const g=session(review);if(!g)throw Error('퀴즈를 먼저 시작해 주세요.');const result=await api('/quiz/'+g.id+'/submit',{method:'POST',body:{questionId:g.questionIds[g.index],answer:g.draft}});accept(result.session,review);await Promise.all([useQuests().refresh(),arcade.refresh(),api('/summary').then(v=>stats.value=v)])})}
  async function next(review=false){return action(async()=>{const g=session(review);accept(await api('/quiz/'+g.id+'/next',{method:'POST'}),review);if(session(review).done)await load()})}
  async function retry(review=false){const g=session(review);if(!g)return false;return review?startReview(g.questionIds):startQuiz(g.subject,g.type)}
  async function saveDraft(review=false){const g=session(review);if(g&&!g.done)try{await api('/quiz/'+g.id+'/draft',{method:'PUT',body:{draft:g.draft}})}catch(e){error.value=e.message}}
