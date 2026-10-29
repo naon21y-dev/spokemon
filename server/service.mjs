@@ -1,4 +1,5 @@
-import {advanceEvolution} from './evolution.mjs';
+import {evolutionStage} from '../src/data/evolutions.js';
+import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhancement} from './evolution.mjs';
 import { skinMap } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
 import { createCurriculum } from './curriculum.mjs';
@@ -583,13 +584,15 @@ export async function createService(filename, {
         if (character != null) {
           student(u);
           if (!['piplup', 'squirtle', 'gengar', 'bulbasaur'].includes(character)) fail(400, '캐릭터를 확인해 주세요.');
-          const pet = parse(u.pet);
+          const pet = parse(u.pet);ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
           if (u.partner_locked && pet.character !== character) {
             if (u.coins < 5000) fail(400, '파트너 변경에는 5,000포인트가 필요해요.');
             await run('UPDATE users SET coins=coins-5000 WHERE id=?', u.id);
             await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -5000, '파트너 변경', pet.character + ' → ' + character, randomUUID(), clock());
           }
           if (!u.partner_locked || pet.character !== character) {
+            const enhancement=ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
+            if(pet.character!==character){enhancement.stage=1;for(const offer of [enhancement.pending,...enhancement.queued].filter(Boolean))enhancement.history.push({...offer,character:pet.character,decision:'character-change',success:null,at:clock()});enhancement.pending=null;enhancement.queued=[];enhancement.lastResult=null;if(pet.skinByCharacter?.[character])pet.skinByCharacter[character]='';}
             pet.character = character;
             await run('UPDATE users SET pet=?,partner_locked=1 WHERE id=?', json(pet), u.id);
           }
@@ -617,6 +620,7 @@ export async function createService(filename, {
         p.hunger = Math.max(0, p.hunger - hours * 3);
         p.happy = Math.max(0, p.happy - hours * 2);
         p.last = clock();
+        ensureEnhancement(p,previousLevel,clock());
         let cost = 0;
         if (action === 'food' || action === 'play') {
           const field = action === 'food' ? 'hunger' : 'happy';
@@ -624,6 +628,10 @@ export async function createService(filename, {
           cost = action === 'food' ? 10 : 5;
           p[field] = Math.min(100, p[field] + 25);
           p.xp += action === 'food' ? 15 : 10;
+        } else if(action==='name'){
+          if(typeof item!=='string')fail(400,'포켓몬 이름을 입력해 주세요.');const nickname=item.trim().replace(/\s+/g,' ');if(Array.from(nickname).length<1||Array.from(nickname).length>12||/[\u0000-\u001f\u007f]/.test(nickname))fail(400,'포켓몬 이름은 1~12글자로 입력해 주세요.');p.nickname=nickname;
+        } else if(action==='enhance'||action==='enhance-decline'){decideEnhancement(p,item,action==='enhance',clock(),evolutionRoll);
+        } else if(action==='enhancement-read'){acknowledgeEnhancement(p,item);
         } else if (action === 'wear') {
           const price = itemMap[item]?.price;
           if (!price) fail(400, '꾸미기를 확인해 주세요.');
@@ -639,12 +647,13 @@ export async function createService(filename, {
           else {
             const skin = skinMap[item];
             if (!skin || skin.character !== p.character) fail(400, '현재 파트너의 스킨을 선택해 주세요.');
+            if(skin.stage!==evolutionStage(p))fail(403,'현재 강화 단계의 스킨만 착용할 수 있어요. 다른 단계 스킨은 잠겨 있습니다.');
             if (!p.ownedSkins.includes(item)) { cost = skin.price; p.ownedSkins.push(item); }
             p.skinByCharacter[p.character] = item;
           }
         } else if (action === 'remove') p.wear = '';else if (action !== 'age') fail(400, '행동을 확인해 주세요.');
         if (u.coins < cost) fail(400, '코인이 부족해요. 퀴즈로 코인을 모아 주세요.');
-        if(care)advanceEvolution(p,previousLevel,Math.floor(p.xp/100)+1,clock(),evolutionRoll);
+        if(care)queueEnhancements(p,previousLevel,Math.floor(p.xp/100)+1,clock());
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
         if(care&&requestKey!=null)await run('INSERT INTO pet_care_requests VALUES(?,?,?,?)',u.id,requestKey,action,clock());
         if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : '펫 돌보기', action === 'skin' ? skinMap[item].name : action, action === 'skin' ? 'skin:' + u.id + ':' + item : randomUUID(), clock());

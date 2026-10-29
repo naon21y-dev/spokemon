@@ -9,8 +9,8 @@ import {skins,activeSkin} from '../src/data/skins.js';
 mkdirSync('artifacts',{recursive:true});const dir=mkdtempSync(join(process.cwd(),'artifacts','spokemon-skins-')),file=join(dir,'test.sqlite');
 let service=await createService(file),server,browser;
 try {
- assert.equal(skins.length,22);
- for(const skin of skins){assert.equal(skin.price,500);assert(existsSync('public'+skin.image));}
+ assert.equal(skins.length,38);
+ for(const skin of skins){assert.equal(skin.price,({1:500,2:1000,3:1500})[skin.stage]);assert(existsSync('public'+skin.image));}
  const user=await service.createUser({login:'skin_student',nickname:'스킨학생',password:'test-only-pass'});
  await service.db.prepare('UPDATE users SET coins=20000,pet=?,partner_locked=1 WHERE id=?').run(JSON.stringify({...JSON.parse(user.pet),character:'gengar',xp:245,wear:'👑',owned:['👑']}),user.id);
  await Promise.all(Array.from({length:20},()=>service.petAction(user,{action:'skin',item:'gengar-01'})));
@@ -36,7 +36,7 @@ try {
  assert((await page.locator('.device-partner-screen img').getAttribute('src')).endsWith('/gengar.png'));
  assert((await page.locator('.partner-wallet img').getAttribute('src')).endsWith('/gengar.png'));
  const boxBefore=await page.locator('.pet-scene').evaluate(e=>({height:e.getBoundingClientRect().height,bg:getComputedStyle(e).background,border:getComputedStyle(e).border,children:e.children.length}));
- await page.getByRole('button',{name:'✦ 스킨 상점 · 500 P',exact:true}).click();await page.getByRole('dialog',{name:'팬텀 스킨 상점'}).waitFor();assert.equal(await page.locator('.skin-option').count(),6);
+ await page.getByRole('button',{name:'✦ 스킨 상점 · 500 P',exact:true}).click();await page.getByRole('dialog',{name:'팬텀 스킨 상점'}).waitFor();assert.equal(await page.locator('.skin-option').count(),10);
  await page.getByRole('button',{name:/꿈꾸는 팬텀/}).click();await page.getByRole('button',{name:'500 P로 구매·적용',exact:true}).click();await page.getByRole('button',{name:'500 P 사용하고 구매 확정',exact:true}).click();await page.getByText('꿈꾸는 팬텀 적용 완료!',{exact:true}).waitFor();
  await page.getByRole('button',{name:'스킨 상점 닫기',exact:true}).click();await page.locator('.pet-scene .scene-skin[data-skin="gengar-02"]').waitFor();
  assert.deepEqual(await page.locator('.pet-scene').evaluate(e=>({height:e.getBoundingClientRect().height,bg:getComputedStyle(e).background,border:getComputedStyle(e).border,children:e.children.length})),boxBefore);
@@ -51,6 +51,6 @@ try {
  await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'✦ 스킨 상점 · 500 P',exact:true}).click();await page.locator('.skin-shop[open]').waitFor();
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));const modal=await page.locator('.skin-shop').boundingBox();assert(modal.x>=0&&modal.x+modal.width<=392&&modal.y>=0&&modal.y+modal.height<=846);
  await page.screenshot({path:'artifacts/skins-shop-mobile.png'});await page.getByRole('button',{name:'스킨 상점 닫기',exact:true}).click();
- assert.deepEqual(errors,[]);console.log('PASS: 22 original skins, 500P atomic purchase (20 requests once), authorization, balance, ledger, persistence, free reuse, only scene center changes, panel/device/header preserved, mobile modal.');
+ assert.deepEqual(errors,[]);console.log('PASS: 38 stage-gated skins, 500P atomic purchase (20 requests once), authorization, balance, ledger, persistence, free reuse, only scene center changes, panel/device/header preserved, mobile modal.');
 } finally {await browser?.close();if(server)await new Promise(r=>server.close(r));await service.db.close();try{rmSync(dir,{recursive:true,force:true,maxRetries:5,retryDelay:200})}catch(e){console.warn('Temporary test DB cleanup:',e.code)}}
 
