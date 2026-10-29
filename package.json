@@ -32,7 +32,8 @@
     "test:skins": "node scripts/verify-skins.mjs",
     "test:cards-alerts": "node scripts/verify-cards-alerts.mjs",
     "test:hidden": "node scripts/verify-hidden-game.mjs",
-    "test:rankings": "node scripts/verify-game-rankings.mjs"
+    "test:rankings": "node scripts/verify-game-rankings.mjs",
+    "test:evolution": "node scripts/verify-evolution.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

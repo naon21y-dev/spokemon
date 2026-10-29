@@ -4,7 +4,7 @@ import {useArcade} from '../stores/arcade'
 import {accessoryPlacement} from '../data/accessories'
 import {itemMap} from '../data/items'
 import PartnerImage from './PartnerImage.vue'
-const props=defineProps({size:{type:String,default:'scene'}}),arcade=useArcade(),item=computed(()=>arcade.data.pet.wear),placement=computed(()=>accessoryPlacement(arcade.partner.id,item.value)),style=computed(()=>({'--dress-ratio':placement.value.ratio,'--wear-x':placement.value.x+'%','--wear-y':placement.value.y+'%','--wear-size':placement.value.size,'--wear-offset':placement.value.offset,'--wear-rotation':placement.value.rotation+'deg'}))
+const props=defineProps({size:{type:String,default:'scene'}}),arcade=useArcade(),item=computed(()=>arcade.data.pet.wear),placement=computed(()=>accessoryPlacement(props.size==='scene'&&arcade.skin?arcade.partner.id:(arcade.partner.formId??arcade.partner.id),item.value)),style=computed(()=>({'--dress-ratio':placement.value.ratio,'--wear-x':placement.value.x+'%','--wear-y':placement.value.y+'%','--wear-size':placement.value.size,'--wear-offset':placement.value.offset,'--wear-rotation':placement.value.rotation+'deg'}))
 </script>
 <template><span :class="['dressed-partner','dressed-partner-'+size]" :data-character="arcade.partner.id" :style="style"><img v-if="size==='scene'&&arcade.skin" :src="arcade.skin.image" :alt="arcade.partner.name+' · '+arcade.skin.name" class="partner-image partner-scene scene-skin" :data-skin="arcade.skin.id" draggable="false"/><PartnerImage v-else :size="size"/><span v-if="item" :class="['partner-accessory',size==='device'?'device-partner-wear':'hat']" :data-kind="placement.kind" :aria-label="'착용 아이템: '+(itemMap[item]?.name??item)">{{item}}</span></span></template>
 <style scoped>

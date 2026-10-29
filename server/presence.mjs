@@ -1,3 +1,4 @@
+import {evolutionStage} from '../src/data/evolutions.js';
 export async function createPresence(service) {
   const db = service.db;
   await db.exec('CREATE TABLE IF NOT EXISTS presence(user_id TEXT PRIMARY KEY REFERENCES users(id),seen_at INTEGER NOT NULL)');
@@ -14,13 +15,13 @@ export async function createPresence(service) {
     async list() {
       return {
         items: (await db.prepare("SELECT u.login,u.pet FROM presence p JOIN users u ON u.id=p.user_id WHERE p.seen_at>? AND u.deleted_at IS NULL AND EXISTS(SELECT 1 FROM auth_sessions s WHERE s.user_id=u.id AND s.expires>?) ORDER BY p.seen_at DESC,u.login").all(Date.now() - 75000, Date.now())).map(u => {
-          let character = 'piplup';
+          let character = 'piplup', stage = 1;
           try {
-            character = JSON.parse(u.pet).character;
+            const pet=JSON.parse(u.pet);character=pet.character;stage=evolutionStage(pet);
           } catch {}
           return {
             login: u.login,
-            character
+            character, stage
           };
         })
       };

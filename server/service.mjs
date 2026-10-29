@@ -1,3 +1,4 @@
+import {advanceEvolution} from './evolution.mjs';
 import { skinMap } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
 import { createCurriculum } from './curriculum.mjs';
@@ -41,7 +42,7 @@ const petDefault = () => ({
   last: Date.now()
 });
 export async function createService(filename, {
-  clock = () => Date.now()
+  clock = () => Date.now(), evolutionRoll
 } = {}) {
   const questionMap = {
     ...officialMap
@@ -75,6 +76,7 @@ export async function createService(filename, {
  CREATE TABLE IF NOT EXISTS study_subject_days(user_id TEXT NOT NULL REFERENCES users(id),subject TEXT NOT NULL,day TEXT NOT NULL,ms INTEGER NOT NULL,PRIMARY KEY(user_id,subject,day));
  CREATE TABLE IF NOT EXISTS study_clock(user_id TEXT PRIMARY KEY REFERENCES users(id),tab_id TEXT NOT NULL,seq INTEGER NOT NULL,last_at INTEGER NOT NULL,active_until INTEGER NOT NULL,lease_until INTEGER NOT NULL,subject TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS migrations(user_id TEXT PRIMARY KEY REFERENCES users(id),legacy_id TEXT UNIQUE NOT NULL,snapshot TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created_at INTEGER NOT NULL,approved_at INTEGER);
+ CREATE TABLE IF NOT EXISTS pet_care_requests(user_id TEXT NOT NULL REFERENCES users(id),request_key TEXT NOT NULL,action TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(user_id,request_key));
  CREATE INDEX IF NOT EXISTS quiz_user ON quiz_sessions(user_id,created_at);
  CREATE INDEX IF NOT EXISTS ledger_user ON ledger(user_id,created_at);`);
     // Serialize schema upgrades: concurrent cold starts must not ALTER the same column twice.
@@ -598,12 +600,19 @@ export async function createService(filename, {
     }
     async function petAction(u, {
       action,
-      item
+      item,
+      requestKey
     }) {
       student(u);
       return await tx(async () => {
         u = await fresh(u);
-        const p = parse(u.pet),
+        const care = action === 'food' || action === 'play';
+        if(care && requestKey!=null){
+          if(typeof requestKey!=='string'||!/^[-\w]{8,100}$/.test(requestKey))fail(400,'돌보기 요청을 확인해 주세요.');
+          const previous=await get('SELECT action FROM pet_care_requests WHERE user_id=? AND request_key=?',u.id,requestKey);
+          if(previous){if(previous.action!==action)fail(409,'돌보기 요청 내용이 바뀌었어요.');return await state(u)}
+        }
+        const p = parse(u.pet), previousLevel = Math.floor(p.xp/100)+1,
           hours = Math.max(0, (clock() - p.last) / 3600000);
         p.hunger = Math.max(0, p.hunger - hours * 3);
         p.happy = Math.max(0, p.happy - hours * 2);
@@ -635,7 +644,9 @@ export async function createService(filename, {
           }
         } else if (action === 'remove') p.wear = '';else if (action !== 'age') fail(400, '행동을 확인해 주세요.');
         if (u.coins < cost) fail(400, '코인이 부족해요. 퀴즈로 코인을 모아 주세요.');
+        if(care)advanceEvolution(p,previousLevel,Math.floor(p.xp/100)+1,clock(),evolutionRoll);
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
+        if(care&&requestKey!=null)await run('INSERT INTO pet_care_requests VALUES(?,?,?,?)',u.id,requestKey,action,clock());
         if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : '펫 돌보기', action === 'skin' ? skinMap[item].name : action, action === 'skin' ? 'skin:' + u.id + ':' + item : randomUUID(), clock());
         return await state(u);
       });

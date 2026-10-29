@@ -1,10 +1,9 @@
 <script setup>
 import {computed,ref,onMounted,watch} from 'vue'
 import {useArcade} from '../stores/arcade'
-import {findCharacter} from '../data/characters'
 import {skins} from '../data/skins'
 const emit=defineEmits(['close']),s=useArcade(),dialog=ref(null),selected=ref(s.skin?.id??'default'),busy=ref(false),error=ref(''),notice=ref(''),confirm=ref(false)
-const options=computed(()=>[{id:'default',name:'기본 스킨',image:findCharacter(s.partner.id).image,price:0},...skins.filter(x=>x.character===s.partner.id)]),choice=computed(()=>options.value.find(x=>x.id===selected.value)??options.value[0]),owned=computed(()=>choice.value.id==='default'||s.data.pet.ownedSkins?.includes(choice.value.id)),equipped=computed(()=>(s.skin?.id??'default')===choice.value.id)
+const options=computed(()=>[{id:'default',name:'기본 스킨',image:s.partner.image,price:0},...skins.filter(x=>x.character===s.partner.id)]),choice=computed(()=>options.value.find(x=>x.id===selected.value)??options.value[0]),owned=computed(()=>choice.value.id==='default'||s.data.pet.ownedSkins?.includes(choice.value.id)),equipped=computed(()=>(s.skin?.id??'default')===choice.value.id)
 watch(()=>s.partner.id,()=>{selected.value=s.skin?.id??'default';confirm.value=false})
 onMounted(()=>dialog.value.showModal())
 function select(id){if(busy.value)return;selected.value=id;confirm.value=false;error.value='';notice.value=''}

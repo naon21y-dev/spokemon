@@ -1,8 +1,8 @@
 <script setup>
 import {computed} from 'vue'
 import {useArcade} from '../stores/arcade'
-import {findCharacter} from '../data/characters'
-const props=defineProps({character:String,size:{type:String,default:'medium'}})
-const s=useArcade(),partner=computed(()=>props.character?findCharacter(props.character):s.partner)
+import {characterAtStage} from '../data/evolutions'
+const props=defineProps({character:String,stage:Number,size:{type:String,default:'medium'}})
+const s=useArcade(),partner=computed(()=>props.character?characterAtStage(props.character,props.stage??1):s.partner)
 </script>
 <template><img :src="partner.image" :alt="partner.name" :class="['partner-image','partner-'+size]" draggable="false"/></template>

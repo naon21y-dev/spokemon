@@ -1,5 +1,13 @@
 // Normalized attachment anchors measured against each transparent character image.
 const anchors = {
+  prinplup:{ratio:1,head:[43,9],eyes:[44,28],ear:[56,22],chest:[48,58],aura:[86,65]},
+  empoleon:{ratio:1,head:[56,8],eyes:[56,26],ear:[69,22],chest:[52,51],aura:[87,67]},
+  wartortle:{ratio:1,head:[37,18],eyes:[37,41],ear:[54,26],chest:[50,66],aura:[86,65]},
+  blastoise:{ratio:1,head:[65,.5],eyes:[63,10],ear:[79,13],chest:[69,47],aura:[86,65]},
+  'gengar-mega':{ratio:1,head:[37,30],eyes:[38,47],ear:[70,33],chest:[50,65],aura:[87,67]},
+  'gengar-gmax':{ratio:1,head:[50,17],eyes:[54,35],ear:[72,29],chest:[47,62],aura:[87,67]},
+  ivysaur:{ratio:1,head:[78,33],eyes:[80,45],ear:[86,32],chest:[70,65],aura:[88,69]},
+  venusaur:{ratio:1,head:[50,44],eyes:[50,61],ear:[72,48],chest:[50,76],aura:[86,67]},
   piplup: {
     ratio: 272 / 290,
     head: [53, 8],
