@@ -1,3 +1,4 @@
+import {itemMap} from '../src/data/items.js';
 import {evolutionStage} from '../src/data/evolutions.js';
 export async function createPresence(service) {
   const db = service.db;
@@ -14,14 +15,13 @@ export async function createPresence(service) {
     },
     async list() {
       return {
-        items: (await db.prepare("SELECT u.login,u.pet FROM presence p JOIN users u ON u.id=p.user_id WHERE p.seen_at>? AND u.deleted_at IS NULL AND EXISTS(SELECT 1 FROM auth_sessions s WHERE s.user_id=u.id AND s.expires>?) ORDER BY p.seen_at DESC,u.login").all(Date.now() - 75000, Date.now())).map(u => {
-          let character = 'piplup', stage = 1;
+        items: (await db.prepare("SELECT u.pet FROM presence p JOIN users u ON u.id=p.user_id WHERE p.seen_at>? AND u.deleted_at IS NULL AND EXISTS(SELECT 1 FROM auth_sessions s WHERE s.user_id=u.id AND s.expires>?) ORDER BY p.seen_at DESC,u.login").all(Date.now() - 75000, Date.now())).map(u => {
+          let character = 'piplup', stage = 1, wear = '';
           try {
-            const pet=JSON.parse(u.pet);character=pet.character;stage=evolutionStage(pet);
+            const pet=JSON.parse(u.pet);character=pet.character;stage=evolutionStage(pet);wear=itemMap[pet.wear]&&Array.isArray(pet.owned)&&pet.owned.includes(pet.wear)?pet.wear:'';
           } catch {}
           return {
-            login: u.login,
-            character, stage
+            character, stage, wear
           };
         })
       };

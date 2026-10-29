@@ -40,6 +40,7 @@ try {
       pet = {
         ...JSON.parse(u.pet),
         character,
+        ...(i===12?{evolutions:{piplup:{stage:2}}}:{}),
         wear: '👑',
         owned: items.map(i => i.id)
       };
@@ -52,11 +53,13 @@ try {
       character
     });
   }
+  const publicRoster=await (await fetch(base+'/api/online')).json();assert.equal(publicRoster.items.length,13);for(const entry of publicRoster.items){assert.deepEqual(Object.keys(entry).sort(),['character','stage','wear']);assert.equal(entry.wear,'👑')}assert(!JSON.stringify(publicRoster).includes('online_'));const evolved=users[12],savedPet=(await service.state(evolved.u)).data.pet;await service.db.prepare('UPDATE users SET pet=? WHERE id=?').run(JSON.stringify({...savedPet,owned:[]}),evolved.u.id);assert.equal((await (await fetch(base+'/api/online')).json()).items.find(x=>x.stage===2).wear,'');await service.db.prepare('UPDATE users SET pet=? WHERE id=?').run(JSON.stringify(savedPet),evolved.u.id);
   await guest.reload();
   await guest.locator('.online-heading').getByText('13명', {
     exact: true
   }).waitFor();
-  assert.equal(await guest.locator('.online-student').count(), 13);
+  assert.equal(await guest.locator('.online-student').count(), 13);assert.equal(await guest.locator('.online-student .partner-accessory').count(),13);assert.equal(await guest.locator('.online-student img[src="/images/evolutions/prinplup.png"]').count(),1);assert.equal(await guest.locator('.online-student small').count(),0);assert(!(await guest.locator('.online-section').innerHTML()).includes('online_'));
+  for(const cell of await guest.locator('.online-student').all()){assert(await cell.evaluate(el=>{const a=el.getBoundingClientRect(),b=el.querySelector('.partner-accessory').getBoundingClientRect();return b.left>=a.left&&b.right<=a.right&&b.top>=a.top&&b.bottom<=a.bottom}))}
   assert.equal(await guest.locator('.online-section .dex-side-key').count(), 15);
   const grid = guest.locator('.online-section .dex-side-grid');
   assert(await grid.evaluate(el => el.scrollHeight > el.clientHeight + 10));
@@ -140,7 +143,7 @@ try {
     exact: true
   }).waitFor();
   assert.equal(await guest.locator('.online-section .dex-side-key').count(), 9);
-  console.log('PASS: all 13 online students returned, heading/count, 9-slot internal scroll+empty placeholders and expired-user removal; four character-specific crown anchors above eyes, device sync, goggles category, all item placements and desktop/mobile no overflow.');
+  console.log('PASS: no account identifiers in public roster or DOM, validated owned wear only, evolved avatar+13 fitted crowns; all 13 online students returned, heading/count, 9-slot internal scroll+empty placeholders and expired-user removal; four character-specific crown anchors above eyes, device sync, goggles category, all item placements and desktop/mobile no overflow.');
 } finally {
   await browser?.close();
   await new Promise(r => server.close(r));
