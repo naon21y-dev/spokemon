@@ -33,7 +33,7 @@ try{
  await s.petAction(u,{action:'skin',item:'mewtwo-home'});assert.equal((await s.state(u)).data.coins,3000);
  const pending=()=>({version:2,stage:1,lastOpportunityLevel:30,pending:{id:randomUUID(),level:30,at:now},queued:[],history:[],lastResult:null});
  let enhancement=pending();await patch({enhancement},999);draws=0;await assert.rejects(()=>s.petAction(u,{action:'enhance',item:enhancement.pending.id}),e=>e.status===400);assert.equal(draws,0);assert.equal((await s.state(u)).data.coins,999);
- enhancement=pending();await patch({enhancement},2000);roll=80;await s.petAction(u,{action:'enhance',item:enhancement.pending.id});state=await s.state(u);assert.equal(state.data.coins,1000);assert.equal(evolutionStage(state.data.pet),1);
+ enhancement=pending();await patch({enhancement},2000);roll=80;await s.petAction(u,{action:'enhance',item:enhancement.pending.id});state=await s.state(u);assert.equal(state.data.coins,1000);assert.equal(evolutionStage(state.data.pet),1);assert.equal(state.data.pet.character,'diglett');await s.petAction(u,{action:'diglett-restore',item:state.data.pet.diglettRecovery.id});assert.equal((await s.state(u)).data.coins,500);
  enhancement=pending();await patch({enhancement},2000);await s.petAction(u,{action:'enhance-decline',item:enhancement.pending.id});assert.equal((await s.state(u)).data.coins,2000);
  await patch({enhancement:pending()},15000);await s.updateProfile(u,{character:'squirtle'});state=await s.state(u);assert.equal(state.data.pet.character,'squirtle');assert.equal(evolutionStage(state.data.pet),1);
  assert.equal(skins.filter(x=>x.character==='mew').length,6);for(const skin of skins.filter(x=>x.character==='mew'))assert.equal(skin.price,skin.stage*500);

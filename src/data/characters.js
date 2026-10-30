@@ -5,4 +5,5 @@ export const characters = [
  {id:'bulbasaur',name:'이상해씨',type:'풀 · 독',description:'매일 조금씩 함께 자라요',color:'#e2ecc9',image:'/images/characters/bulbasaur.png'},
  {id:'mew',name:'뮤',type:'에스퍼',description:'Lv.30에서 만나는 환상의 친구',minLevel:30,color:'#f6d6e9',image:'/images/characters/mew.png'},
 ]
-export const findCharacter = id => characters.find(c=>c.id===id)||characters[0]
+export const diglett={id:'diglett',name:'디그다',type:'땅',description:'강화 실패로 잠시 변한 모습',color:'#ead5c2',image:'/images/characters/diglett.png'}
+export const findCharacter = id => id==='diglett'?diglett:characters.find(c=>c.id===id)||characters[0]

@@ -587,6 +587,7 @@ export async function createService(filename, {
           if (nickname.length < 2 || nickname.length > 20) fail(400, '닉네임은 2~20자로 입력해 주세요.');
         }
         if (character != null) {
+          if(parse(u.pet).character==='diglett')fail(403,'먼저 500포인트로 원래 포켓몬을 복구해 주세요.');
           student(u);
           if (!characters.some(c=>c.id===character)) fail(400, '캐릭터를 확인해 주세요.');
           const pet = parse(u.pet);if(Math.floor(pet.xp/100)+1<(characters.find(c=>c.id===character)?.minLevel??1))fail(403,'뮤는 30레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
@@ -636,9 +637,15 @@ export async function createService(filename, {
           p.xp += action === 'food' ? 15 : 10;
         } else if(action==='name'){
           if(typeof item!=='string')fail(400,'포켓몬 이름을 입력해 주세요.');const nickname=item.trim().replace(/\s+/g,' ');if(Array.from(nickname).length<1||Array.from(nickname).length>12||/[\u0000-\u001f\u007f]/.test(nickname))fail(400,'포켓몬 이름은 1~12글자로 입력해 주세요.');p.nickname=nickname;
+        } else if(action==='diglett-restore'){
+          if(!p.diglettRecovery){if(p.lastDiglettRecovery===item)return await state(u);fail(400,'복구할 디그다가 없어요.');}
+          if(p.character!=='diglett'||item!==p.diglettRecovery.id)fail(409,'복구 요청을 다시 확인해 주세요.');
+          cost=500;p.character=p.diglettRecovery.character;p.lastDiglettRecovery=item;p.diglettRecovery=null;p.enhancement.stage=1;p.enhancement.pending=p.enhancement.queued.shift()??null;
+          p.enhancement.lastResult&&(p.enhancement.lastResult.acknowledged=true);
+          if(p.skinByCharacter)p.skinByCharacter[p.character]='';
         } else if(action==='enhance'||action==='enhance-decline'){
           if(p.character==='mew'&&previousLevel<30)fail(403,'뮤 강화는 30레벨부터 가능해요.');
-          const prior=p.enhancement.history.find(e=>e.id===item);cost=action==='enhance'&&!prior?enhancementCost(p.character):0;
+          const prior=p.enhancement.history.find(e=>e.id===item);if(p.character==='diglett'&&!prior)fail(403,'디그다는 강화할 수 없어요. 먼저 원래 포켓몬으로 복구해 주세요.');cost=action==='enhance'&&!prior?enhancementCost(p.character):0;
           if(u.coins<cost)fail(400,'뮤츠 강화에는 1,000포인트가 필요해요.');
           const result=decideEnhancement(p,item,action==='enhance',clock(),evolutionRoll);if(!prior)result.cost=cost;
         } else if(action==='enhancement-read'){acknowledgeEnhancement(p,item);
@@ -666,7 +673,7 @@ export async function createService(filename, {
         if(care)queueEnhancements(p,previousLevel,Math.floor(p.xp/100)+1,clock());
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
         if(care&&requestKey!=null)await run('INSERT INTO pet_care_requests VALUES(?,?,?,?)',u.id,requestKey,action,clock());
-        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':'펫 돌보기', action === 'skin' ? skinMap[item].name : action==='enhance'?'뮤 → 뮤츠 강화 시도':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:randomUUID(), clock());
+        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':action==='diglett-restore'?'디그다 복구':'펫 돌보기', action === 'skin' ? skinMap[item].name : action==='enhance'?'뮤 → 뮤츠 강화 시도':action==='diglett-restore'?'원래 포켓몬의 1단계로 복구':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:action==='diglett-restore'?'diglett-restore:'+u.id+':'+item:randomUUID(), clock());
         return await state(u);
       });
     }

@@ -50,3 +50,5 @@ html[data-partner="bulbasaur"] body::before{background-image:linear-gradient(#a8
 html[data-partner="mew"]{--rpg-ink:#693b60;--rpg-edge:#995588;--rpg-mid:#d68dbb;--rpg-bright:#f4c6e2;--rpg-soft:#fce7f4;--rpg-paper:#fff7fc;--rpg-shadow:#77436c;--rpg-panel:#fff6fc}html[data-partner="mew"] body::before{background-image:linear-gradient(#efb8dc55,#f8daef44),url("/images/pixel-garden.png");background-color:#f2d5e8}
 
 html[data-partner="mewtwo"]{--rpg-ink:#443155;--rpg-edge:#70548f;--rpg-mid:#a58ac7;--rpg-bright:#d4c3ec;--rpg-soft:#eee6f8;--rpg-paper:#fbf8ff;--rpg-shadow:#57426f;--rpg-panel:#f6f1fc}html[data-partner="mewtwo"] body::before{background-image:linear-gradient(#b6a0d355,#dfd1ef44),url('/images/pixel-garden.png');background-color:#d4c7e6}
+
+html[data-partner="diglett"]{--rpg-ink:#503729;--rpg-edge:#805b42;--rpg-mid:#b68d6e;--rpg-bright:#ead2b9;--rpg-soft:#f3e8db;--rpg-paper:#fffcf7;--rpg-shadow:#654633;--rpg-panel:#faf3e9}html[data-partner="diglett"] body::before{background-image:linear-gradient(#ceb49455,#ead7bd44),url('/images/pixel-garden.png');background-color:#e7d3bb}

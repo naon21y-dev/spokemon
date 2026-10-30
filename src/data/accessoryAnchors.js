@@ -1395,3 +1395,9 @@ export const skinAccessoryAnchors = {
     ]
   }
 };
+
+// Diglett accessories align to the top of its head, with a shorter face/body.
+accessoryAnchors.diglett={ratio:1,head:[51,9],headWidth:50,eyes:[43,26],ear:[66,30],chest:[50,55],aura:[50,66]};
+skinAccessoryAnchors['diglett-home']={ratio:1,head:[48,35],headWidth:40,eyes:[44,50],ear:[66,48],chest:[48,68],aura:[50,67]};
+skinAccessoryAnchors['diglett-home-shiny']={...skinAccessoryAnchors['diglett-home']};
+skinAccessoryAnchors['diglett-shiny']={...accessoryAnchors.diglett};

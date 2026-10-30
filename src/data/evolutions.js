@@ -1,5 +1,6 @@
 import {findCharacter} from './characters.js';
 export const evolutionChains={
+ diglett:[{id:'diglett',name:'디그다',image:'/images/characters/diglett.png'}],
  mew:[{id:'mew',name:'뮤',image:'/images/characters/mew.png'},{id:'mewtwo',name:'뮤츠',image:'/images/evolutions/mewtwo.png'}],
  piplup:[{id:'piplup',name:'팽도리',image:'/images/characters/piplup.png'},{id:'prinplup',name:'팽태자',image:'/images/evolutions/prinplup.png'},{id:'empoleon',name:'엠페르트',image:'/images/evolutions/empoleon.png'}],
  squirtle:[{id:'squirtle',name:'꼬부기',image:'/images/characters/squirtle.png'},{id:'wartortle',name:'어니부기',image:'/images/evolutions/wartortle.png'},{id:'blastoise',name:'거북왕',image:'/images/evolutions/blastoise.png'}],

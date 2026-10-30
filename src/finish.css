@@ -11,3 +11,5 @@
 
 .trainer-card[data-partner="mew"]{--trainer-frame:#efbed9;--trainer-header:#b7759e;--trainer-base:#d399bc;--trainer-stripe:#efc9e0;--trainer-edge:#fff0f8;--trainer-pane:#ffedf766;--trainer-ink:#663650;--trainer-shadow:#96547c;--trainer-name:#fff2f9e3}
 .trainer-card[data-partner="mewtwo"]{--trainer-frame:#c7b9e3;--trainer-header:#776196;--trainer-base:#a48fc3;--trainer-stripe:#cfbee6;--trainer-edge:#f6efff;--trainer-pane:#f4edff66;--trainer-ink:#443155;--trainer-shadow:#655074;--trainer-name:#f8f3ffe3}
+
+.trainer-card[data-partner="diglett"]{--trainer-frame:#e0c3a4;--trainer-header:#997051;--trainer-base:#bc9573;--trainer-stripe:#e1c5a8;--trainer-edge:#fff4e6;--trainer-pane:#fff0db66;--trainer-ink:#503729;--trainer-shadow:#805b42;--trainer-name:#fff8eee3}
