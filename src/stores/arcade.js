@@ -7,7 +7,7 @@ const defaults=()=>({coins:0,pet:{character:'piplup',hunger:70,happy:70,xp:0,wea
 export const useArcade=defineStore('arcade',()=>{
  const data=ref(defaults()),user=ref(null),storageError=ref(''),ready=ref(false);let initPromise,gameTimer
  function apply(value){const gained=user.value?.id===value.user?.id&&value.data.coins>data.value.coins;user.value=value.user;data.value={...defaults(),...value.data};storageError.value='';if(gained)window.dispatchEvent(new Event('spokemon-points-refresh'))}
- async function refresh(){apply(await api('/me'))}
+ async function refresh(options){apply(await api('/me',options))}
  function init(){if(!initPromise)initPromise=refresh().catch(e=>{if(e.status!==401)storageError.value=e.message}).finally(()=>ready.value=true);return initPromise}
  function legacyAccount(login){try{return JSON.parse(localStorage.getItem('pocket-accounts-v1'))?.accounts.find(a=>a.login===login.trim().toLowerCase())}catch{return null}}
  async function legacyMatches(account,password){if(!account)return false;const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bytes=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(account.salt),iterations:150000,hash:'SHA-256'},key,256);return [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('')===account.digest}

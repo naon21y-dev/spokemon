@@ -30,6 +30,7 @@
     "test:mail-bulk": "node scripts/verify-mail-bulk-layout.mjs",
     "test:wear-online": "node scripts/verify-wear-online.mjs",
     "test:skins": "node scripts/verify-skins.mjs",
+    "test:card-performance": "node scripts/verify-card-performance.mjs",
     "test:cards-alerts": "node scripts/verify-cards-alerts.mjs",
     "test:hidden": "node scripts/verify-hidden-game.mjs",
     "test:rankings": "node scripts/verify-game-rankings.mjs",
