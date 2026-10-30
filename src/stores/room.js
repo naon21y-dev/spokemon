@@ -15,7 +15,8 @@ export const useRoom=defineStore('room',()=>{
  function choose(itemId){const copies=inventory.value.filter(i=>i.item_id===itemId),copy=copies.find(i=>!design.value.placements.some(p=>p.copyId===i.id))??copies[0];if(!copy)return;selected.value=copy.id;editing.value=true;notice.value='방의 원하는 곳을 클릭해 배치하세요. 크기는 아래에서 조절해요.'}
  function place(x,y){if(!editing.value||!selected.value||!inventory.value.some(i=>i.id===selected.value))return;const existing=selectedPlacement.value;if(existing){existing.x=x;existing.y=y}else design.value.placements.push({copyId:selected.value,x,y,size:14,rotation:0,front:false})}
  function remove(){design.value.placements=design.value.placements.filter(p=>p.copyId!==selected.value);selected.value='';notice.value='내 아이템으로 돌려놓았어요. 저장하면 반영됩니다.'}
+ function restoreDefault(){if(!loaded.value||busy.value)return;design.value=defaultRoom();selected.value='';editing.value=true;error.value='';notice.value='처음 상태로 되돌렸어요. 구매한 아이템은 내 아이템에 보관됩니다. 방 저장을 누르면 반영돼요.'}
  function cancel(){design.value=clone(saved);editing.value=false;selected.value='';error.value='';notice.value='편집을 취소했어요.'}
  async function save(){if(busy.value)return;busy.value=true;error.value='';const g=generation;try{const value=await api('/room',{method:'PUT',body:{version:version.value,design:design.value}});if(g!==generation)return;accept(value);editing.value=false;selected.value='';notice.value='방을 저장했어요!'}catch(e){if(g===generation)error.value=e.message}finally{if(g===generation)busy.value=false}}
- return {design,inventory,version,editing,selected,busy,error,notice,loaded,dirty,selectedPlacement,selectedItem,load,reset,buy,choose,place,remove,cancel,save}
+ return {design,inventory,version,editing,selected,busy,error,notice,loaded,dirty,selectedPlacement,selectedItem,load,reset,buy,choose,place,remove,restoreDefault,cancel,save}
 })
