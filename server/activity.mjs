@@ -5,9 +5,10 @@ export async function createActivity(service){
  async function list(u){
   service.student(u);
   const requests=await db.prepare(`SELECT f.sender,u.login,u.name FROM friendships f JOIN users u ON u.id=f.sender WHERE f.recipient=? AND f.accepted=0 AND u.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='friend:'||f.sender) ORDER BY u.login LIMIT 30`).all(u.id,u.id);
-  const credits=await db.prepare(`SELECT l.id,l.amount,l.kind,l.detail,l.created_at FROM ledger l WHERE l.user_id=? AND l.kind!='연속 출석' AND l.amount>0 AND l.rowid>(SELECT value FROM activity_meta WHERE key='ledger_baseline') AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='points:'||l.id) ORDER BY l.created_at,l.rowid LIMIT 50`).all(u.id,u.id);
+  const credits=await db.prepare(`SELECT l.id,l.amount,l.kind,l.detail,l.created_at FROM ledger l WHERE l.user_id=? AND l.kind NOT IN ('연속 출석','퀘스트 일괄 보상') AND l.amount>0 AND l.rowid>(SELECT value FROM activity_meta WHERE key='ledger_baseline') AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='points:'||l.id) ORDER BY l.created_at,l.rowid LIMIT 50`).all(u.id,u.id);
+  const bulk=await db.prepare("SELECT b.* FROM quest_bulk_alerts b WHERE b.user_id=? AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='quest-bulk:'||b.id) ORDER BY b.created_at LIMIT 30").all(u.id,u.id);
   const account=await db.prepare('SELECT coins FROM users WHERE id=? AND deleted_at IS NULL').get(u.id);
-  return {balance:account?.coins??0,events:[...requests.map(x=>({id:'friend:'+x.sender,kind:'friend-request',senderId:x.sender,login:x.login,name:x.name})),...credits.map(x=>({id:'points:'+x.id,kind:'points',amount:x.amount,reason:x.kind,detail:x.detail,at:x.created_at}))]};
+  return {balance:account?.coins??0,events:[...requests.map(x=>({id:'friend:'+x.sender,kind:'friend-request',senderId:x.sender,login:x.login,name:x.name})),...bulk.map(x=>({id:'quest-bulk:'+x.id,kind:'points',amount:x.amount,reason:'퀘스트 일괄 수령',detail:`완료한 퀘스트 ${x.count}개 보상을 한 번에 받았어요!`,at:x.created_at})),...credits.map(x=>({id:'points:'+x.id,kind:'points',amount:x.amount,reason:x.kind,detail:x.detail,at:x.created_at}))]};
  }
  async function acknowledge(u,body){
   service.student(u);
@@ -15,7 +16,7 @@ export async function createActivity(service){
   return db.transaction(async()=>{
    for(const id of new Set(body.ids)){
     const [kind,...rest]=id.split(':'),key=rest.join(':');
-    const owned=kind==='points'?await db.prepare('SELECT 1 FROM ledger WHERE id=? AND user_id=? AND amount>0').get(key,u.id):kind==='friend'?await db.prepare('SELECT 1 FROM friendships WHERE sender=? AND recipient=?').get(key,u.id):null;
+    const owned=kind==='quest-bulk'?await db.prepare('SELECT 1 FROM quest_bulk_alerts WHERE id=? AND user_id=?').get(key,u.id):kind==='points'?await db.prepare('SELECT 1 FROM ledger WHERE id=? AND user_id=? AND amount>0').get(key,u.id):kind==='friend'?await db.prepare('SELECT 1 FROM friendships WHERE sender=? AND recipient=?').get(key,u.id):null;
     if(owned)await db.prepare('INSERT OR IGNORE INTO activity_receipts VALUES(?,?)').run(u.id,id);
    }
    return {ok:true};

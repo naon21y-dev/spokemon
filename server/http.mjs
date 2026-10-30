@@ -123,6 +123,7 @@ export async function createHttp(service, {
       if(p==='/api/room/buy'&&method==='POST')return send(200,await room.buy(u,body));
       if(p==='/api/attendance'&&method==='POST')return send(200,await service.attendance.checkIn(u));
       if(p==='/api/quests'&&method==='GET')return send(200,await service.quests.list(u));
+      if(p==='/api/quests/claim-all'&&method==='POST')return send(200,await service.quests.claimAll(u));
       if(p==='/api/quests/claim'&&method==='POST')return send(200,await service.quests.claim(u,body.questId));
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));
       if(p==='/api/activity/notifications/read'&&method==='POST')return send(200,await activity.acknowledge(u,body));

@@ -36,6 +36,7 @@
     "test:diglett": "node scripts/verify-diglett.mjs",
     "test:room": "node scripts/verify-room-accessories.mjs",
     "test:attendance-mew": "node scripts/verify-attendance-mew.mjs && node scripts/verify-enhancement-rates.mjs",
+    "test:quest-bulk": "node scripts/verify-quest-bulk.mjs",
     "test:quests": "node scripts/verify-quests.mjs",
     "test:evolution": "node scripts/verify-evolution.mjs"
   },

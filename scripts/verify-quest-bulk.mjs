@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {createService,unitOf} from '../server/service.mjs';
+import {createActivity} from '../server/activity.mjs';
+import {createHttp} from '../server/http.mjs';
+import {questionMap} from '../server/questions/index.js';
+const s=await createService(':memory:');let server;
+try{
+ const admin=await s.createUser({login:'bulk_admin',nickname:'Teacher',password:'test-only-password',role:'admin'}),u=await s.createUser({login:'bulk_student',nickname:'Student',password:'test-only-password'}),other=await s.createUser({login:'bulk_other',nickname:'Other',password:'test-only-password'});
+ for(const subject of ['vue','python']){await s.release(admin,{classId:'unassigned',subject,units:[1]});for(const q of Object.values(questionMap).filter(q=>q.subject===subject&&unitOf(q)===1&&q.source!=='student').slice(0,4))await s.quests.record(u,q,true)}
+ server=await createHttp(s);const activity=await createActivity(s);const book=await s.quests.list(u),ready=book.units.flatMap(unit=>unit.quests.filter(q=>q.ready)),expected=ready.reduce((n,q)=>n+q.reward,0),before=(await s.state(u)).data.coins;assert(ready.length>2);await assert.rejects(()=>s.quests.claimAll(admin),e=>e.status===403);
+ const results=await Promise.all([s.quests.claim(u,ready[0].id),...Array.from({length:10},()=>s.quests.claimAll(u))]);assert.equal(results.reduce((n,r)=>n+r.awarded,0),expected);assert.equal((await s.state(u)).data.coins,before+expected);assert.equal((await s.quests.list(u)).ready,0);assert.equal((await s.quests.claimAll(u)).awarded,0);assert.equal((await s.state(other)).data.coins,0);const notices=(await activity.list(u)).events.filter(e=>e.id.startsWith('quest-bulk:'));assert.equal(notices.length,1);assert.equal(notices[0].amount,expected-ready[0].reward);await activity.acknowledge(u,{ids:[notices[0].id]});assert.equal((await activity.list(u)).events.filter(e=>e.id.startsWith('quest-bulk:')).length,0);
+ for(const q of Object.values(questionMap).filter(q=>q.subject==='vue'&&unitOf(q)===2).slice(0,4))await s.quests.record(u,q,true);assert.equal((await s.quests.claimAll(u)).count,0);await s.release(admin,{classId:'unassigned',subject:'vue',units:[1,2]});assert((await s.quests.list(u)).ready>0);await s.release(admin,{classId:'unassigned',subject:'vue',units:[1]});assert.equal((await s.quests.claimAll(u)).count,0);
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;const send=async token=>fetch(base+'/api/quests/claim-all',{method:'POST',headers:{'X-Spokemon-Request':'1','Content-Type':'application/json',Cookie:'spokemon_session='+token},body:'{}'});assert.equal((await send('')).status,401);assert.equal((await send((await s.newSession(admin)).token)).status,403);assert.equal((await send((await s.newSession(u)).token)).status,200);
+ console.log('PASS: bulk awards all subjects once, mixed single/bulk concurrency, replay zero, locked units excluded, other accounts untouched, HTTP role checks.');
+}finally{if(server)await new Promise(r=>server.close(r));await s.close()}

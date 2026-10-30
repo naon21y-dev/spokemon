@@ -6,6 +6,7 @@ export async function createQuests(service,{clock,content,releases,loadQuestions
  const db=service.db,get=(s,...a)=>db.prepare(s).get(...a),all=(s,...a)=>db.prepare(s).all(...a),run=(s,...a)=>db.prepare(s).run(...a);
  await db.exec(`CREATE TABLE IF NOT EXISTS quest_evidence(user_id TEXT NOT NULL REFERENCES users(id),root_id TEXT NOT NULL,correct INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(user_id,root_id));
  CREATE TABLE IF NOT EXISTS quest_backfills(user_id TEXT PRIMARY KEY REFERENCES users(id));
+ CREATE TABLE IF NOT EXISTS quest_bulk_alerts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),amount INTEGER NOT NULL,count INTEGER NOT NULL,created_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS quest_claims(user_id TEXT NOT NULL REFERENCES users(id),quest_id TEXT NOT NULL,amount INTEGER NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(user_id,quest_id));`);
  async function record(u,q,correct){if(q.source==='student')return;await run('INSERT INTO quest_evidence VALUES(?,?,?) ON CONFLICT(user_id,root_id) DO UPDATE SET correct=MAX(correct,excluded.correct)',u.id,q.originalId??q.id,correct?1:0)}
  async function backfill(u){
@@ -51,5 +52,16 @@ export async function createQuests(service,{clock,content,releases,loadQuestions
   await run('UPDATE users SET coins=coins+? WHERE id=?',quest.reward,u.id);
   return {awarded:quest.reward,duplicate:false};
  })}
- return {list,claim,record};
+ async function claimAll(u){return db.transaction(async()=>{
+  const book=await build(u),available=book.units.flatMap(unit=>unit.quests.filter(q=>q.ready&&!unit.locked).map(quest=>({unit,quest}))),awarded=available.reduce((n,{quest})=>n+quest.reward,0);
+  if(!Number.isSafeInteger(book.balance+awarded))fail(400,'포인트 한도를 초과합니다.');
+  const now=clock(),statements=available.flatMap(({unit,quest})=>[
+   {sql:'INSERT INTO quest_claims VALUES(?,?,?,?)',args:[u.id,quest.id,quest.reward,now]},
+   {sql:'INSERT INTO ledger VALUES(?,?,?,?,?,?,?)',args:[randomUUID(),u.id,quest.reward,'퀘스트 일괄 보상',`${unit.subjectName} · ${unit.title} · ${quest.tier}단계 · ${quest.title}`,'quest:'+u.id+':'+quest.id,now]}
+  ]);
+  for(let i=0;i<statements.length;i+=100)await db.batch(statements.slice(i,i+100));
+  if(awarded){await run('UPDATE users SET coins=coins+? WHERE id=?',awarded,u.id);await run('INSERT INTO quest_bulk_alerts VALUES(?,?,?,?,?)',randomUUID(),u.id,awarded,available.length,now);}
+  return {awarded,count:available.length,duplicate:available.length===0};
+ })}
+ return {list,claim,claimAll,record};
 }
