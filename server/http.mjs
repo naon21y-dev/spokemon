@@ -117,6 +117,7 @@ export async function createHttp(service, {
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
+      if(p==='/api/admin/online'&&method==='GET')return send(200,await presence.list(u));
       if(p==='/api/room'&&method==='GET')return send(200,await room.read(u));
       if(p==='/api/room'&&method==='PUT')return send(200,await room.save(u,body));
       if(p==='/api/room/buy'&&method==='POST')return send(200,await room.buy(u,body));

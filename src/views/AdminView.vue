@@ -13,6 +13,7 @@ import AdminPointGrants from '../components/AdminPointGrants.vue'
 import AdminContentManager from '../components/AdminContentManager.vue'
 import AdminMailbox from '../components/AdminMailbox.vue'
 import AdminProfile from '../components/AdminProfile.vue'
+import AdminOnline from '../components/AdminOnline.vue'
 import {useMessages} from '../stores/messages'
 const deleteTarget=ref(null),deleteLogin=ref(''),deleting=ref(false);
 function askDelete(student){deleteTarget.value=student;deleteLogin.value='';error.value=''}
@@ -47,6 +48,7 @@ onMounted(load)
 <button class="admin-overview-card" @click="showInbox"><span>✉ 답변 대기 쪽지</span><strong>{{messages.pending}}<small>개</small></strong><em>쪽지함 바로가기 →</em></button>
 <button class="admin-overview-card" @click="chooseSection('cohorts')"><span>⚑ 등록 기수</span><strong>{{dashboard.classes.filter(c=>c.id!=='unassigned').length}}<small>개</small></strong><em>기수·공개 진도 관리 →</em></button>
 </section>
+<AdminOnline/>
 <nav class="admin-section-nav" aria-label="관리자 메뉴"><button v-for="tab in sections" :key="tab.id" :class="{active:activeSection===tab.id}" :aria-pressed="activeSection===tab.id" @click="chooseSection(tab.id)"><span>{{tab.icon}}</span>{{tab.name}}<b v-if="tab.id==='mail'&&messages.pending" class="unread-badge">{{messages.pending}}</b></button></nav>
 <header class="admin-section-heading"><span>{{selectedSection.icon}}</span><div><h2>{{selectedSection.name}}</h2><p>{{selectedSection.description}}</p></div></header>
 <div class="admin-section-area" :data-section="activeSection">
