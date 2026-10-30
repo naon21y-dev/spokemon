@@ -1,5 +1,6 @@
 <script setup>
 import {useArcade} from './stores/arcade'
+import {partnerTheme} from './data/evolutions'
 import {ref,watch,onMounted,onUnmounted} from 'vue'
 import AttendancePopup from './components/AttendancePopup.vue'
 import PageBoundary from './components/PageBoundary.vue'
@@ -19,7 +20,7 @@ function presence(){if(s.user?.role==='student')api('/presence',{method:'POST',b
 async function confirmLogout(){if(logoutBusy.value)return;logoutBusy.value=true;logoutError.value='';try{await s.logout();logoutDialog.value?.close();await router.replace('/account')}catch(e){logoutError.value=e.message}finally{logoutBusy.value=false}}
 const s=useArcade(),learning=useLearning(),messages=useMessages(),activity=useActivity(),quests=useQuests();let mailTimer
 function updateMail(){presence();if(s.user&&document.visibilityState==='visible'){messages.refresh();activity.refresh();quests.refresh()}}
-watch(()=>[s.user?.role,s.partner.id],()=>{document.documentElement.dataset.partner=s.user?.role==='student'?s.partner.id:'system'},{immediate:true})
+watch(()=>[s.user?.role,s.partner.id,s.partner.stage],()=>{document.documentElement.dataset.partner=s.user?.role==='student'?partnerTheme(s.partner):'system'},{immediate:true})
 watch(()=>!!s.user,value=>document.documentElement.classList.toggle('auth-mode',!value),{immediate:true})
 watch(()=>s.user?.id,()=>{learning.reset();messages.reset();activity.reset();quests.reset();useRoom().reset();clearInterval(mailTimer);if(s.user){updateMail();mailTimer=setInterval(updateMail,15000)}})
 onMounted(()=>{presence();presenceTimer=setInterval(presence,30000);if(s.user){updateMail();mailTimer=setInterval(updateMail,15000)}document.addEventListener('visibilitychange',updateMail);window.addEventListener('spokemon-points-refresh',updateMail)})

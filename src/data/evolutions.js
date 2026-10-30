@@ -14,3 +14,5 @@ export const evolvedCharacter=pet=>characterAtStage(pet?.character,evolutionStag
 
 // Probability is based on the current stage: 1→2, then 2→3.
 export const enhancementChance = stage => stage === 1 ? 80 : stage === 2 ? 50 : 0;
+
+export const partnerTheme = partner => partner?.formId === 'mewtwo' ? 'mewtwo' : partner?.id;
