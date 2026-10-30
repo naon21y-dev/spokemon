@@ -52,3 +52,11 @@ html[data-partner="mew"]{--rpg-ink:#693b60;--rpg-edge:#995588;--rpg-mid:#d68dbb;
 html[data-partner="mewtwo"]{--rpg-ink:#443155;--rpg-edge:#70548f;--rpg-mid:#a58ac7;--rpg-bright:#d4c3ec;--rpg-soft:#eee6f8;--rpg-paper:#fbf8ff;--rpg-shadow:#57426f;--rpg-panel:#f6f1fc}html[data-partner="mewtwo"] body::before{background-image:linear-gradient(#b6a0d355,#dfd1ef44),url('/images/pixel-garden.png');background-color:#d4c7e6}
 
 html[data-partner="diglett"]{--rpg-ink:#503729;--rpg-edge:#805b42;--rpg-mid:#b68d6e;--rpg-bright:#ead2b9;--rpg-soft:#f3e8db;--rpg-paper:#fffcf7;--rpg-shadow:#654633;--rpg-panel:#faf3e9}html[data-partner="diglett"] body::before{background-image:linear-gradient(#ceb49455,#ead7bd44),url('/images/pixel-garden.png');background-color:#e7d3bb}
+
+html[data-partner="magikarp"]{--rpg-ink:#613624;--rpg-edge:#a75e37;--rpg-mid:#dc9567;--rpg-bright:#ffdcba;--rpg-soft:#fce9d7;--rpg-paper:#fffaf5;--rpg-shadow:#74422c;--rpg-panel:#fdf0e3;}html[data-partner="magikarp"] body::before{background-image:linear-gradient(#ffdcba66,#fce9d755),url('/images/pixel-garden.png');background-color:#ffdcba}
+
+html[data-partner="dratini"]{--rpg-ink:#394574;--rpg-edge:#6078ae;--rpg-mid:#99acd7;--rpg-bright:#d4def7;--rpg-soft:#edf0fc;--rpg-paper:#fcfcff;--rpg-shadow:#475c87;--rpg-panel:#f3f5ff;}html[data-partner="dratini"] body::before{background-image:linear-gradient(#d4def766,#edf0fc55),url('/images/pixel-garden.png');background-color:#d4def7}
+
+html[data-partner="froakie"]{--rpg-ink:#224e6a;--rpg-edge:#3f7f9e;--rpg-mid:#7fb7d1;--rpg-bright:#c6e9f9;--rpg-soft:#e4f5fc;--rpg-paper:#f9fdff;--rpg-shadow:#315f77;--rpg-panel:#eff9ff;}html[data-partner="froakie"] body::before{background-image:linear-gradient(#c6e9f966,#e4f5fc55),url('/images/pixel-garden.png');background-color:#c6e9f9}
+
+html[data-partner="pichu"]{--rpg-ink:#655222;--rpg-edge:#a38835;--rpg-mid:#d4bb65;--rpg-bright:#fff1ae;--rpg-soft:#fff8dc;--rpg-paper:#fffdf5;--rpg-shadow:#79642d;--rpg-panel:#fff9e8;}html[data-partner="pichu"] body::before{background-image:linear-gradient(#fff1ae66,#fff8dc55),url('/images/pixel-garden.png');background-color:#fff1ae}

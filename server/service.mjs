@@ -1,7 +1,7 @@
 import {createAttendance} from './attendance.mjs';
 import {characters} from '../src/data/characters.js';
 import {createQuests} from './quests.mjs';
-import {evolutionStage,enhancementCost} from '../src/data/evolutions.js';
+import {evolutionStage,enhancementCost,characterAtStage} from '../src/data/evolutions.js';
 import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhancement} from './evolution.mjs';
 import { skinMap } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
@@ -590,7 +590,7 @@ export async function createService(filename, {
           if(parse(u.pet).character==='diglett')fail(403,'먼저 500포인트로 원래 포켓몬을 복구해 주세요.');
           student(u);
           if (!characters.some(c=>c.id===character)) fail(400, '캐릭터를 확인해 주세요.');
-          const pet = parse(u.pet);if(Math.floor(pet.xp/100)+1<(characters.find(c=>c.id===character)?.minLevel??1))fail(403,'뮤는 30레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
+          const pet = parse(u.pet);const selectedCharacter=characters.find(c=>c.id===character);if(Math.floor(pet.xp/100)+1<(selectedCharacter.minLevel??1))fail(403,selectedCharacter.name+'는 '+selectedCharacter.minLevel+'레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
           if (u.partner_locked && pet.character !== character) {
             if (u.coins < 5000) fail(400, '파트너 변경에는 5,000포인트가 필요해요.');
             await run('UPDATE users SET coins=coins-5000 WHERE id=?', u.id);
@@ -628,7 +628,7 @@ export async function createService(filename, {
         p.happy = Math.max(0, p.happy - hours * 2);
         p.last = clock();
         ensureEnhancement(p,previousLevel,clock());
-        let cost = 0;
+        let cost = 0,enhanceDetail='';
         if (action === 'food' || action === 'play') {
           const field = action === 'food' ? 'hunger' : 'happy';
           if (p[field] >= 100) fail(400, '이미 충분해요!');
@@ -644,10 +644,10 @@ export async function createService(filename, {
           p.enhancement.lastResult&&(p.enhancement.lastResult.acknowledged=true);
           if(p.skinByCharacter)p.skinByCharacter[p.character]='';
         } else if(action==='enhance'||action==='enhance-decline'){
-          if(p.character==='mew'&&previousLevel<30)fail(403,'뮤 강화는 30레벨부터 가능해요.');
+          const minLevel=characters.find(c=>c.id===p.character)?.minLevel??1;if(previousLevel<minLevel)fail(403,'현재 파트너 강화는 '+minLevel+'레벨부터 가능해요.');
           const prior=p.enhancement.history.find(e=>e.id===item);if(p.character==='diglett'&&!prior)fail(403,'디그다는 강화할 수 없어요. 먼저 원래 포켓몬으로 복구해 주세요.');cost=action==='enhance'&&!prior?enhancementCost(p.character):0;
-          if(u.coins<cost)fail(400,'뮤츠 강화에는 1,000포인트가 필요해요.');
-          const result=decideEnhancement(p,item,action==='enhance',clock(),evolutionRoll);if(!prior)result.cost=cost;
+          if(u.coins<cost)fail(400,'뮤 계열 강화에는 1,000포인트가 필요해요.');
+          const result=decideEnhancement(p,item,action==='enhance',clock(),evolutionRoll);if(!prior)result.cost=cost;enhanceDetail=characterAtStage(result.character,result.fromStage).name+' → '+characterAtStage(result.character,Math.min(result.fromStage+1,3)).name+' 강화 시도';
         } else if(action==='enhancement-read'){acknowledgeEnhancement(p,item);
         } else if (action === 'wear') {
           const price = itemMap[item]?.price;
@@ -673,7 +673,7 @@ export async function createService(filename, {
         if(care)queueEnhancements(p,previousLevel,Math.floor(p.xp/100)+1,clock());
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
         if(care&&requestKey!=null)await run('INSERT INTO pet_care_requests VALUES(?,?,?,?)',u.id,requestKey,action,clock());
-        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':action==='diglett-restore'?'디그다 복구':'펫 돌보기', action === 'skin' ? skinMap[item].name : action==='enhance'?'뮤 → 뮤츠 강화 시도':action==='diglett-restore'?'원래 포켓몬의 1단계로 복구':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:action==='diglett-restore'?'diglett-restore:'+u.id+':'+item:randomUUID(), clock());
+        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':action==='diglett-restore'?'디그다 복구':'펫 돌보기', action === 'skin' ? skinMap[item].name : action==='enhance'?enhanceDetail:action==='diglett-restore'?'원래 포켓몬의 1단계로 복구':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:action==='diglett-restore'?'diglett-restore:'+u.id+':'+item:randomUUID(), clock());
         return await state(u);
       });
     }

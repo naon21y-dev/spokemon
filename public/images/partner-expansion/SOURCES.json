@@ -1,0 +1,343 @@
+{
+  "source": "https://github.com/PokeAPI/sprites",
+  "forms": [
+    {
+      "family": "magikarp",
+      "id": "magikarp",
+      "name": "잉어킹",
+      "stage": 1,
+      "pokemonId": 129,
+      "image": "/images/characters/magikarp.png",
+      "assets": [
+        {
+          "path": "/images/characters/magikarp.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/129.png"
+        },
+        {
+          "path": "/images/skins/evolved/magikarp-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/129.png"
+        },
+        {
+          "path": "/images/skins/evolved/magikarp-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/129.png"
+        },
+        {
+          "path": "/images/skins/evolved/magikarp-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/129.png"
+        }
+      ]
+    },
+    {
+      "family": "magikarp",
+      "id": "gyarados",
+      "name": "갸라도스",
+      "stage": 2,
+      "pokemonId": 130,
+      "image": "/images/evolutions/gyarados.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/gyarados.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/130.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/130.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/130.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/130.png"
+        }
+      ]
+    },
+    {
+      "family": "magikarp",
+      "id": "gyarados-mega",
+      "name": "메가 갸라도스",
+      "stage": 3,
+      "pokemonId": 10041,
+      "image": "/images/evolutions/gyarados-mega.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/gyarados-mega.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10041.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-mega-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10041.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-mega-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10041.png"
+        },
+        {
+          "path": "/images/skins/evolved/gyarados-mega-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10041.png"
+        }
+      ]
+    },
+    {
+      "family": "dratini",
+      "id": "dratini",
+      "name": "미뇽",
+      "stage": 1,
+      "pokemonId": 147,
+      "image": "/images/characters/dratini.png",
+      "assets": [
+        {
+          "path": "/images/characters/dratini.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/147.png"
+        },
+        {
+          "path": "/images/skins/evolved/dratini-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/147.png"
+        },
+        {
+          "path": "/images/skins/evolved/dratini-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/147.png"
+        },
+        {
+          "path": "/images/skins/evolved/dratini-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/147.png"
+        }
+      ]
+    },
+    {
+      "family": "dratini",
+      "id": "dragonair",
+      "name": "신뇽",
+      "stage": 2,
+      "pokemonId": 148,
+      "image": "/images/evolutions/dragonair.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/dragonair.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/148.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonair-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/148.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonair-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/148.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonair-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/148.png"
+        }
+      ]
+    },
+    {
+      "family": "dratini",
+      "id": "dragonite",
+      "name": "망나뇽",
+      "stage": 3,
+      "pokemonId": 149,
+      "image": "/images/evolutions/dragonite.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/dragonite.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonite-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/149.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonite-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/149.png"
+        },
+        {
+          "path": "/images/skins/evolved/dragonite-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/149.png"
+        }
+      ]
+    },
+    {
+      "family": "froakie",
+      "id": "froakie",
+      "name": "개구마르",
+      "stage": 1,
+      "pokemonId": 656,
+      "image": "/images/characters/froakie.png",
+      "assets": [
+        {
+          "path": "/images/characters/froakie.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/656.png"
+        },
+        {
+          "path": "/images/skins/evolved/froakie-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/656.png"
+        },
+        {
+          "path": "/images/skins/evolved/froakie-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/656.png"
+        },
+        {
+          "path": "/images/skins/evolved/froakie-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/656.png"
+        }
+      ]
+    },
+    {
+      "family": "froakie",
+      "id": "frogadier",
+      "name": "개굴반장",
+      "stage": 2,
+      "pokemonId": 657,
+      "image": "/images/evolutions/frogadier.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/frogadier.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/657.png"
+        },
+        {
+          "path": "/images/skins/evolved/frogadier-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/657.png"
+        },
+        {
+          "path": "/images/skins/evolved/frogadier-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/657.png"
+        },
+        {
+          "path": "/images/skins/evolved/frogadier-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/657.png"
+        }
+      ]
+    },
+    {
+      "family": "froakie",
+      "id": "greninja",
+      "name": "개굴닌자",
+      "stage": 3,
+      "pokemonId": 658,
+      "image": "/images/evolutions/greninja.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/greninja.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/658.png"
+        },
+        {
+          "path": "/images/skins/evolved/greninja-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/658.png"
+        },
+        {
+          "path": "/images/skins/evolved/greninja-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/658.png"
+        },
+        {
+          "path": "/images/skins/evolved/greninja-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/658.png"
+        }
+      ]
+    },
+    {
+      "family": "pichu",
+      "id": "pichu",
+      "name": "피츄",
+      "stage": 1,
+      "pokemonId": 172,
+      "image": "/images/characters/pichu.png",
+      "assets": [
+        {
+          "path": "/images/characters/pichu.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/172.png"
+        },
+        {
+          "path": "/images/skins/evolved/pichu-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/172.png"
+        },
+        {
+          "path": "/images/skins/evolved/pichu-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/172.png"
+        },
+        {
+          "path": "/images/skins/evolved/pichu-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/172.png"
+        }
+      ]
+    },
+    {
+      "family": "pichu",
+      "id": "pikachu",
+      "name": "피카츄",
+      "stage": 2,
+      "pokemonId": 25,
+      "image": "/images/evolutions/pikachu.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/pikachu.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"
+        },
+        {
+          "path": "/images/skins/evolved/pikachu-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/25.png"
+        },
+        {
+          "path": "/images/skins/evolved/pikachu-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/25.png"
+        },
+        {
+          "path": "/images/skins/evolved/pikachu-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/25.png"
+        }
+      ]
+    },
+    {
+      "family": "pichu",
+      "id": "raichu",
+      "name": "라이츄",
+      "stage": 3,
+      "pokemonId": 26,
+      "image": "/images/evolutions/raichu.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/raichu.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/26.png"
+        },
+        {
+          "path": "/images/skins/evolved/raichu-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/26.png"
+        },
+        {
+          "path": "/images/skins/evolved/raichu-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/26.png"
+        },
+        {
+          "path": "/images/skins/evolved/raichu-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/26.png"
+        }
+      ]
+    },
+    {
+      "family": "mew",
+      "id": "mewtwo-mega-x",
+      "name": "메가뮤츠 X",
+      "stage": 3,
+      "pokemonId": 10043,
+      "image": "/images/evolutions/mewtwo-mega-x.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/mewtwo-mega-x.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10043.png"
+        },
+        {
+          "path": "/images/skins/evolved/mewtwo-mega-x-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10043.png"
+        },
+        {
+          "path": "/images/skins/evolved/mewtwo-mega-x-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10043.png"
+        },
+        {
+          "path": "/images/skins/evolved/mewtwo-mega-x-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10043.png"
+        }
+      ]
+    }
+  ]
+}

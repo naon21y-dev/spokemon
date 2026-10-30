@@ -24,7 +24,7 @@ try{
  const oldDay=(await s.attendance.checkIn(u)).day;await s.close();s=await createService(file,{clock:()=>now,evolutionRoll:()=>{draws++;return roll}});assert.equal((await s.attendance.checkIn(u)).awarded,0);assert.equal((await s.attendance.checkIn(u)).day,oldDay);
  async function patch(fields,coins=10000){const state=await s.state(u);await s.db.prepare('UPDATE users SET pet=?,coins=?,partner_locked=1 WHERE id=?').run(JSON.stringify({...state.data.pet,...fields}),coins,u.id)}
  await patch({xp:2899});await assert.rejects(()=>s.updateProfile(u,{character:'mew'}),e=>e.status===403);assert.equal((await s.state(u)).data.coins,10000);
- await patch({xp:2900});await s.updateProfile(u,{character:'mew'});let state=await s.state(u);assert.equal(state.data.pet.character,'mew');assert.equal(state.data.coins,5000);assert.equal(state.data.pet.enhancement.pending.level,30);assert.equal(evolutionMaxStage('mew'),2);
+ await patch({xp:2900});await s.updateProfile(u,{character:'mew'});let state=await s.state(u);assert.equal(state.data.pet.character,'mew');assert.equal(state.data.coins,5000);assert.equal(state.data.pet.enhancement.pending.level,30);assert.equal(evolutionMaxStage('mew'),3);
  const id=state.data.pet.enhancement.pending.id;draws=0;
  await Promise.all(Array.from({length:8},()=>s.petAction(u,{action:'enhance',item:id})));
  state=await s.state(u);assert.equal(draws,1);assert.equal(state.data.coins,4000);assert.equal(evolutionStage(state.data.pet),2);
@@ -36,6 +36,6 @@ try{
  enhancement=pending();await patch({enhancement},2000);roll=80;await s.petAction(u,{action:'enhance',item:enhancement.pending.id});state=await s.state(u);assert.equal(state.data.coins,1000);assert.equal(evolutionStage(state.data.pet),1);assert.equal(state.data.pet.character,'diglett');await s.petAction(u,{action:'diglett-restore',item:state.data.pet.diglettRecovery.id});assert.equal((await s.state(u)).data.coins,500);
  enhancement=pending();await patch({enhancement},2000);await s.petAction(u,{action:'enhance-decline',item:enhancement.pending.id});assert.equal((await s.state(u)).data.coins,2000);
  await patch({enhancement:pending()},15000);await s.updateProfile(u,{character:'squirtle'});state=await s.state(u);assert.equal(state.data.pet.character,'squirtle');assert.equal(evolutionStage(state.data.pet),1);
- assert.equal(skins.filter(x=>x.character==='mew').length,6);for(const skin of skins.filter(x=>x.character==='mew'))assert.equal(skin.price,skin.stage*500);
+ assert.equal(skins.filter(x=>x.character==='mew').length,9);for(const skin of skins.filter(x=>x.character==='mew'))assert.equal(skin.price,skin.stage*500);
  console.log('PASS: KST daily uniqueness, 10 concurrent check-ins, 7-day +105P, cycle renewal, missed-day reset, restart, admin excluded; Lv30 gate, Mew unlock, 1000P fee, 80% boundary, replay-once charge, insufficient balance, decline, final stage and skin locks.');
 }finally{await s.close()}

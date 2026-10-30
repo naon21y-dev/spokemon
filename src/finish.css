@@ -13,3 +13,11 @@
 .trainer-card[data-partner="mewtwo"]{--trainer-frame:#c7b9e3;--trainer-header:#776196;--trainer-base:#a48fc3;--trainer-stripe:#cfbee6;--trainer-edge:#f6efff;--trainer-pane:#f4edff66;--trainer-ink:#443155;--trainer-shadow:#655074;--trainer-name:#f8f3ffe3}
 
 .trainer-card[data-partner="diglett"]{--trainer-frame:#e0c3a4;--trainer-header:#997051;--trainer-base:#bc9573;--trainer-stripe:#e1c5a8;--trainer-edge:#fff4e6;--trainer-pane:#fff0db66;--trainer-ink:#503729;--trainer-shadow:#805b42;--trainer-name:#fff8eee3}
+
+.trainer-card[data-partner="magikarp"]{--trainer-frame:#ffdcba;--trainer-header:#a75e37;--trainer-base:#dc9567;--trainer-stripe:#ffdcba;--trainer-edge:#fffaf5;--trainer-pane:#fce9d766;--trainer-ink:#613624;--trainer-shadow:#74422c;--trainer-name:#fffaf5e3}
+
+.trainer-card[data-partner="dratini"]{--trainer-frame:#d4def7;--trainer-header:#6078ae;--trainer-base:#99acd7;--trainer-stripe:#d4def7;--trainer-edge:#fcfcff;--trainer-pane:#edf0fc66;--trainer-ink:#394574;--trainer-shadow:#475c87;--trainer-name:#fcfcffe3}
+
+.trainer-card[data-partner="froakie"]{--trainer-frame:#c6e9f9;--trainer-header:#3f7f9e;--trainer-base:#7fb7d1;--trainer-stripe:#c6e9f9;--trainer-edge:#f9fdff;--trainer-pane:#e4f5fc66;--trainer-ink:#224e6a;--trainer-shadow:#315f77;--trainer-name:#f9fdffe3}
+
+.trainer-card[data-partner="pichu"]{--trainer-frame:#fff1ae;--trainer-header:#a38835;--trainer-base:#d4bb65;--trainer-stripe:#fff1ae;--trainer-edge:#fffdf5;--trainer-pane:#fff8dc66;--trainer-ink:#655222;--trainer-shadow:#79642d;--trainer-name:#fffdf5e3}

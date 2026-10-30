@@ -1,7 +1,12 @@
 import {findCharacter} from './characters.js';
 export const evolutionChains={
+ magikarp:[{"id": "magikarp", "name": "잉어킹", "image": "/images/characters/magikarp.png"}, {"id": "gyarados", "name": "갸라도스", "image": "/images/evolutions/gyarados.png"}, {"id": "gyarados-mega", "name": "메가 갸라도스", "image": "/images/evolutions/gyarados-mega.png"}],
+ dratini:[{"id": "dratini", "name": "미뇽", "image": "/images/characters/dratini.png"}, {"id": "dragonair", "name": "신뇽", "image": "/images/evolutions/dragonair.png"}, {"id": "dragonite", "name": "망나뇽", "image": "/images/evolutions/dragonite.png"}],
+ froakie:[{"id": "froakie", "name": "개구마르", "image": "/images/characters/froakie.png"}, {"id": "frogadier", "name": "개굴반장", "image": "/images/evolutions/frogadier.png"}, {"id": "greninja", "name": "개굴닌자", "image": "/images/evolutions/greninja.png"}],
+ pichu:[{"id": "pichu", "name": "피츄", "image": "/images/characters/pichu.png"}, {"id": "pikachu", "name": "피카츄", "image": "/images/evolutions/pikachu.png"}, {"id": "raichu", "name": "라이츄", "image": "/images/evolutions/raichu.png"}],
+
  diglett:[{id:'diglett',name:'디그다',image:'/images/characters/diglett.png'}],
- mew:[{id:'mew',name:'뮤',image:'/images/characters/mew.png'},{id:'mewtwo',name:'뮤츠',image:'/images/evolutions/mewtwo.png'}],
+ mew:[{id:'mew',name:'뮤',image:'/images/characters/mew.png'},{id:'mewtwo',name:'뮤츠',image:'/images/evolutions/mewtwo.png'},{id:'mewtwo-mega-x',name:'메가뮤츠 X',image:'/images/evolutions/mewtwo-mega-x.png'}],
  piplup:[{id:'piplup',name:'팽도리',image:'/images/characters/piplup.png'},{id:'prinplup',name:'팽태자',image:'/images/evolutions/prinplup.png'},{id:'empoleon',name:'엠페르트',image:'/images/evolutions/empoleon.png'}],
  squirtle:[{id:'squirtle',name:'꼬부기',image:'/images/characters/squirtle.png'},{id:'wartortle',name:'어니부기',image:'/images/evolutions/wartortle.png'},{id:'blastoise',name:'거북왕',image:'/images/evolutions/blastoise.png'}],
  gengar:[{id:'gengar',name:'팬텀',image:'/images/characters/gengar.png'},{id:'gengar-mega',name:'메가팬텀',image:'/images/evolutions/gengar-mega.png'},{id:'gengar-gmax',name:'거다이맥스 팬텀',image:'/images/evolutions/gengar-gmax.png'}],
@@ -16,4 +21,4 @@ export const evolvedCharacter=pet=>characterAtStage(pet?.character,evolutionStag
 // Probability is based on the current stage: 1→2, then 2→3.
 export const enhancementChance = stage => stage === 1 ? 80 : stage === 2 ? 50 : 0;
 
-export const partnerTheme = partner => partner?.formId === 'mewtwo' ? 'mewtwo' : partner?.id;
+export const partnerTheme = partner => ['mewtwo','mewtwo-mega-x'].includes(partner?.formId) ? 'mewtwo' : partner?.id;
