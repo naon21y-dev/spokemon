@@ -810,6 +810,7 @@ export async function createService(filename, {
         await run('UPDATE migrations SET status=?,approved_at=? WHERE user_id=?', 'approved', clock(), id);
       });
     }
+    const memberGameStats = account => ({level:Math.max(1,Math.floor((Number(parse(account.pet).xp)||0)/100)+1),coins:account.coins});
     async function adminData(u, filters = {}) {
       admin(u);
       await refreshContent();
@@ -819,6 +820,7 @@ export async function createService(filename, {
         students: await Promise.all((await all("SELECT * FROM users WHERE role='student' AND deleted_at IS NULL ORDER BY name")).filter(s => (!filters.classId || s.class_id === filters.classId) && (!filters.search || (s.name + ' ' + s.login).toLowerCase().includes(filters.search.toLowerCase()))).map(async s => ({
           ...(await publicUser(s)),
           ...(await summary(s, filters.subject ?? 'all')),
+          ...memberGameStats(s),
           sourceStats: await workshop.analytics(u, 'all', s.id, filters)
         }))),
         releases: await Promise.all((await all('SELECT * FROM releases')).map(async r => ({
@@ -840,6 +842,7 @@ export async function createService(filename, {
       return {
         user: await publicUser(s),
         ...(await summary(s)),
+        ...memberGameStats(s),
         history: await Promise.all((await all('SELECT * FROM quiz_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100', id)).map(quizView)),
         mistakes: (await all('SELECT * FROM mistakes WHERE user_id=?', id)).map(m => ({
           ...m,
