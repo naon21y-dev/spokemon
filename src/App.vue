@@ -6,6 +6,7 @@ import PageBoundary from './components/PageBoundary.vue'
 import ActivityPopups from './components/ActivityPopups.vue'
 import {useActivity} from './stores/activity'
 import {useQuests} from './stores/quests'
+import {useRoom} from './stores/room'
 import MailArrivalPopup from './components/MailArrivalPopup.vue'
 import QuestionComposer from './components/QuestionComposer.vue'
 import {useMessages} from './stores/messages'
@@ -20,7 +21,7 @@ const s=useArcade(),learning=useLearning(),messages=useMessages(),activity=useAc
 function updateMail(){presence();if(s.user&&document.visibilityState==='visible'){messages.refresh();activity.refresh();quests.refresh()}}
 watch(()=>[s.user?.role,s.partner.id],()=>{document.documentElement.dataset.partner=s.user?.role==='student'?s.partner.id:'system'},{immediate:true})
 watch(()=>!!s.user,value=>document.documentElement.classList.toggle('auth-mode',!value),{immediate:true})
-watch(()=>s.user?.id,()=>{learning.reset();messages.reset();activity.reset();quests.reset();clearInterval(mailTimer);if(s.user){updateMail();mailTimer=setInterval(updateMail,15000)}})
+watch(()=>s.user?.id,()=>{learning.reset();messages.reset();activity.reset();quests.reset();useRoom().reset();clearInterval(mailTimer);if(s.user){updateMail();mailTimer=setInterval(updateMail,15000)}})
 onMounted(()=>{presence();presenceTimer=setInterval(presence,30000);if(s.user){updateMail();mailTimer=setInterval(updateMail,15000)}document.addEventListener('visibilitychange',updateMail);window.addEventListener('spokemon-points-refresh',updateMail)})
 onUnmounted(()=>{clearInterval(presenceTimer);clearInterval(mailTimer);document.removeEventListener('visibilitychange',updateMail);window.removeEventListener('spokemon-points-refresh',updateMail)})
 </script>

@@ -33,6 +33,7 @@
     "test:cards-alerts": "node scripts/verify-cards-alerts.mjs",
     "test:hidden": "node scripts/verify-hidden-game.mjs",
     "test:rankings": "node scripts/verify-game-rankings.mjs",
+    "test:room": "node scripts/verify-room-accessories.mjs",
     "test:attendance-mew": "node scripts/verify-attendance-mew.mjs && node scripts/verify-enhancement-rates.mjs",
     "test:quests": "node scripts/verify-quests.mjs",
     "test:evolution": "node scripts/verify-evolution.mjs"

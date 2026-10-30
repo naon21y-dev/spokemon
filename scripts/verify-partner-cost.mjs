@@ -30,7 +30,7 @@ try {
   await assert.rejects(async () => await s.updateProfile(u, {
     character: 'piplup'
   }), e => e.status === 400);
-  assert.equal(items.length, 18);
+  assert.equal(items.length, 30);
   await s.db.prepare('UPDATE users SET coins=5000 WHERE id=?').run(u.id);
   for (const item of items) {
     const balance = (await s.state(u)).data.coins;
@@ -45,7 +45,7 @@ try {
     });
     assert.equal((await s.state(u)).data.coins, balance - item.price);
   }
-  assert.equal((await s.state(u)).data.pet.owned.length, 18);
+  assert.equal((await s.state(u)).data.pet.owned.length, 30);
   await assert.rejects(async () => await s.petAction(u, {
     action: 'wear',
     item: 'fake'

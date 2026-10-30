@@ -1,3 +1,4 @@
+import {createRoom} from './room.mjs';
 import {createGameRankings} from './game-rankings.mjs';
 import {createHiddenGame} from './hidden-game.mjs';
 import {createCardGame} from './card-game.mjs';
@@ -22,7 +23,8 @@ export async function createHttp(service, {
     activity = await createActivity(service),
     cards = await createCardGame(service),
     hidden = await createHiddenGame(service),
-    rankings = await createGameRankings(service);
+    rankings = await createGameRankings(service),
+    room = await createRoom(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
       res.writeHead(status, {
@@ -115,6 +117,9 @@ export async function createHttp(service, {
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
+      if(p==='/api/room'&&method==='GET')return send(200,await room.read(u));
+      if(p==='/api/room'&&method==='PUT')return send(200,await room.save(u,body));
+      if(p==='/api/room/buy'&&method==='POST')return send(200,await room.buy(u,body));
       if(p==='/api/attendance'&&method==='POST')return send(200,await service.attendance.checkIn(u));
       if(p==='/api/quests'&&method==='GET')return send(200,await service.quests.list(u));
       if(p==='/api/quests/claim'&&method==='POST')return send(200,await service.quests.claim(u,body.questId));
