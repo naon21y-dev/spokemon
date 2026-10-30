@@ -115,6 +115,7 @@ export async function createHttp(service, {
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
+      if(p==='/api/attendance'&&method==='POST')return send(200,await service.attendance.checkIn(u));
       if(p==='/api/quests'&&method==='GET')return send(200,await service.quests.list(u));
       if(p==='/api/quests/claim'&&method==='POST')return send(200,await service.quests.claim(u,body.questId));
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));

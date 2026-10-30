@@ -18,3 +18,5 @@ Original transparent images from [PokéAPI/sprites](https://github.com/PokeAPI/s
 - ivysaur-shiny.png: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/2.png
 - venusaur-home.png: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/3.png
 - venusaur-shiny.png: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/3.png
+
+Mew (151) / Mewtwo (150): transparent PNG variants from https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon/other — home, home/shiny, official-artwork/shiny. No background or composition edits applied.

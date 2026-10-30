@@ -1,5 +1,11 @@
 import {evolutionStage} from './evolutions.js';
 export const skins = [
+{"id": "mew-home", "character": "mew", "stage": 1, "name": "3D 뮤", "price": 500, "image": "/images/skins/evolved/mew-home.png"},
+{"id": "mew-home-shiny", "character": "mew", "stage": 1, "name": "색이 다른 3D 뮤", "price": 500, "image": "/images/skins/evolved/mew-home-shiny.png"},
+{"id": "mew-shiny", "character": "mew", "stage": 1, "name": "색이 다른 뮤", "price": 500, "image": "/images/skins/evolved/mew-shiny.png"},
+{"id": "mewtwo-home", "character": "mew", "stage": 2, "name": "3D 뮤츠", "price": 1000, "image": "/images/skins/evolved/mewtwo-home.png"},
+{"id": "mewtwo-home-shiny", "character": "mew", "stage": 2, "name": "색이 다른 3D 뮤츠", "price": 1000, "image": "/images/skins/evolved/mewtwo-home-shiny.png"},
+{"id": "mewtwo-shiny", "character": "mew", "stage": 2, "name": "색이 다른 뮤츠", "price": 1000, "image": "/images/skins/evolved/mewtwo-shiny.png"},
   {
     "id": "gengar-01",
     "character": "gengar",

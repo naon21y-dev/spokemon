@@ -10,3 +10,6 @@
 .login-screen-scroll{height:calc(100dvh - 215px)}@media(max-width:600px){.login-screen-scroll{height:calc(100dvh - 164px)}}
 
 .login-dex-body{align-items:stretch}.login-dex-screen{display:flex;flex-direction:column}.login-screen-scroll{flex:1;min-height:0;height:auto;max-height:calc(100dvh - 170px)}.dex-form-column{padding-bottom:14px}@media(max-width:600px){.login-screen-scroll{max-height:calc(100dvh - 130px);height:auto}.login-dex-body{min-height:0}}
+
+/* Fill the device screen with a common width for fields and partner cards. */
+.auth-mode .login-dex-screen .dex-form-column{width:100%;max-width:none;min-width:0;box-sizing:border-box;margin-left:auto;margin-right:auto}.login-dex-screen .dex-form-column form,.login-dex-screen .dex-form-column input{width:100%;min-width:0;box-sizing:border-box}

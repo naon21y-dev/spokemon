@@ -5,7 +5,7 @@ export async function createActivity(service){
  async function list(u){
   service.student(u);
   const requests=await db.prepare(`SELECT f.sender,u.login,u.name FROM friendships f JOIN users u ON u.id=f.sender WHERE f.recipient=? AND f.accepted=0 AND u.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='friend:'||f.sender) ORDER BY u.login LIMIT 30`).all(u.id,u.id);
-  const credits=await db.prepare(`SELECT l.id,l.amount,l.kind,l.detail,l.created_at FROM ledger l WHERE l.user_id=? AND l.amount>0 AND l.rowid>(SELECT value FROM activity_meta WHERE key='ledger_baseline') AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='points:'||l.id) ORDER BY l.created_at,l.rowid LIMIT 50`).all(u.id,u.id);
+  const credits=await db.prepare(`SELECT l.id,l.amount,l.kind,l.detail,l.created_at FROM ledger l WHERE l.user_id=? AND l.kind!='연속 출석' AND l.amount>0 AND l.rowid>(SELECT value FROM activity_meta WHERE key='ledger_baseline') AND NOT EXISTS(SELECT 1 FROM activity_receipts r WHERE r.user_id=? AND r.event_id='points:'||l.id) ORDER BY l.created_at,l.rowid LIMIT 50`).all(u.id,u.id);
   const account=await db.prepare('SELECT coins FROM users WHERE id=? AND deleted_at IS NULL').get(u.id);
   return {balance:account?.coins??0,events:[...requests.map(x=>({id:'friend:'+x.sender,kind:'friend-request',senderId:x.sender,login:x.login,name:x.name})),...credits.map(x=>({id:'points:'+x.id,kind:'points',amount:x.amount,reason:x.kind,detail:x.detail,at:x.created_at}))]};
  }

@@ -10,3 +10,6 @@ Original transparent PNGs downloaded unchanged from [PokéAPI/sprites official a
 - `gengar-gmax.png`: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10202.png
 - `ivysaur.png`: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png
 - `venusaur.png`: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png
+
+## Mew / Mewtwo
+Base transparent PNG artwork: https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon/other/official-artwork (151=Mew, 150=Mewtwo). Pokémon character rights belong to their respective owners.

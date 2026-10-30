@@ -1,5 +1,7 @@
 // Normalized attachment anchors measured against each transparent character image.
 const anchors = {
+  mew:{ratio:1,head:[46,15],eyes:[46,34],ear:[60,24],chest:[54,53],aura:[85,65]},
+  mewtwo:{ratio:1,head:[60,5],eyes:[61,19],ear:[69,13],chest:[59,40],aura:[87,65]},
   prinplup:{ratio:1,head:[43,9],eyes:[44,28],ear:[56,22],chest:[48,58],aura:[86,65]},
   empoleon:{ratio:1,head:[56,8],eyes:[56,26],ear:[69,22],chest:[52,51],aura:[87,67]},
   wartortle:{ratio:1,head:[37,18],eyes:[37,41],ear:[54,26],chest:[50,66],aura:[86,65]},
