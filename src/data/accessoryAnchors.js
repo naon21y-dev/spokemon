@@ -1455,3 +1455,18 @@ accessoryAnchors["mewtwo-mega-x"]={"ratio": 1, "head": [51, 9], "headWidth": 23,
 skinAccessoryAnchors["mewtwo-mega-x-home"]={"ratio": 1, "head": [49, 12], "headWidth": 24, "eyes": [53, 23], "ear": [59.08, 23], "chest": [49, 39.8], "aura": [50, 70]};
 skinAccessoryAnchors["mewtwo-mega-x-home-shiny"]={"ratio": 1, "head": [49, 12], "headWidth": 24, "eyes": [53, 23], "ear": [59.08, 23], "chest": [49, 39.8], "aura": [50, 70]};
 skinAccessoryAnchors["mewtwo-mega-x-shiny"]={"ratio": 1, "head": [51, 9], "headWidth": 23, "eyes": [55, 21], "ear": [60.66, 21], "chest": [51, 37.099999999999994], "aura": [50, 70]};
+
+accessoryAnchors["wugtrio"]={"ratio": 1, "head": [60, 6], "headWidth": 16, "eyes": [59, 14], "ear": [66.72, 14], "chest": [60, 34], "aura": [50, 70]};
+skinAccessoryAnchors["wugtrio-home"]={"ratio": 1, "head": [60, 1], "headWidth": 17, "eyes": [59, 10], "ear": [67.14, 10], "chest": [60, 30], "aura": [50, 70]};
+skinAccessoryAnchors["wugtrio-home-shiny"]={"ratio": 1, "head": [60, 1], "headWidth": 17, "eyes": [59, 10], "ear": [67.14, 10], "chest": [60, 30], "aura": [50, 70]};
+skinAccessoryAnchors["wugtrio-shiny"]={"ratio": 1, "head": [60, 6], "headWidth": 16, "eyes": [59, 14], "ear": [66.72, 14], "chest": [60, 34], "aura": [50, 70]};
+
+accessoryAnchors["dugtrio-alola"]={"ratio": 1, "head": [56, 7], "headWidth": 26, "eyes": [55, 20], "ear": [66.92, 20], "chest": [56, 40], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-alola-home"]={"ratio": 1, "head": [56, 18], "headWidth": 24, "eyes": [55, 30], "ear": [66.08, 30], "chest": [56, 50], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-alola-home-shiny"]={"ratio": 1, "head": [56, 18], "headWidth": 24, "eyes": [55, 30], "ear": [66.08, 30], "chest": [56, 50], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-alola-shiny"]={"ratio": 1, "head": [56, 7], "headWidth": 26, "eyes": [55, 20], "ear": [66.92, 20], "chest": [56, 40], "aura": [50, 70]};
+
+accessoryAnchors["dugtrio"]={"ratio": 1, "head": [58, 5], "headWidth": 28, "eyes": [58, 19], "ear": [69.76, 19], "chest": [58, 39], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-home"]={"ratio": 1, "head": [56, 13], "headWidth": 28, "eyes": [56, 28], "ear": [67.76, 28], "chest": [56, 48], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-home-shiny"]={"ratio": 1, "head": [56, 13], "headWidth": 28, "eyes": [56, 28], "ear": [67.76, 28], "chest": [56, 48], "aura": [50, 70]};
+skinAccessoryAnchors["dugtrio-shiny"]={"ratio": 1, "head": [58, 5], "headWidth": 28, "eyes": [58, 19], "ear": [69.76, 19], "chest": [58, 39], "aura": [50, 70]};

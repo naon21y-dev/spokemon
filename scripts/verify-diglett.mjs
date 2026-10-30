@@ -10,7 +10,7 @@ try{
  for(const character of ['piplup','squirtle','gengar','bulbasaur','mew','magikarp','dratini','froakie','pichu']){
   const {u,id}=await setup(character);await Promise.all(Array.from({length:10},()=>s.petAction(u,{action:'enhance',item:id})));
   let state=await s.state(u);assert.equal(state.data.pet.character,'diglett');assert.equal(state.data.pet.diglettRecovery.character,character);assert.equal(evolvedCharacter(state.data.pet).name,'디그다');assert.equal(state.data.pet.xp,3900);assert.equal(state.data.pet.wear,'👑');assert.equal(state.data.pet.enhancement.lastResult.diglett,true);
-  await assert.rejects(()=>s.updateProfile(u,{character:'piplup'}),e=>e.status===403);await assert.rejects(()=>s.petAction(u,{action:'enhance',item:randomUUID()}),e=>e.status===403);
+  await assert.rejects(()=>s.updateProfile(u,{character:'piplup'}),e=>e.status===403);await assert.rejects(()=>s.petAction(u,{action:'enhance',item:randomUUID()}),e=>e.status===404);
   await s.petAction(u,{action:'skin',item:'diglett-home'});state=await s.state(u);assert.equal(activeSkin(state.data.pet).id,'diglett-home');const balance=state.data.coins;
   await Promise.all(Array.from({length:20},()=>s.petAction(u,{action:'diglett-restore',item:id})));
   state=await s.state(u);assert.equal(state.data.coins,balance-500);assert.equal(state.data.pet.character,character);assert.equal(evolutionStage(state.data.pet),1);assert.equal(state.data.pet.diglettRecovery,null);assert.equal(state.data.pet.xp,3900);assert(state.data.pet.ownedSkins.includes('diglett-home'));assert.equal(activeSkin(state.data.pet),null);

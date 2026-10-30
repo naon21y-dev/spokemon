@@ -1,4 +1,4 @@
-import {evolutionStage} from '../src/data/evolutions.js';
+import {evolutionStage,evolvedCharacter} from '../src/data/evolutions.js';
 import {fail} from './service.mjs';
 const limits={cards:8,hidden:10};
 export async function createGameRankings(service){
@@ -21,7 +21,7 @@ export async function createGameRankings(service){
  async function list(u,game,level){
   validate(game,level);
   const rows=await db.prepare(`WITH personal AS(SELECT g.*,u.login,u.name,u.pet,ROW_NUMBER() OVER(PARTITION BY g.user_id ORDER BY duration_ms,metric,hints,completed_at,session_id) personal_order FROM game_scores g JOIN users u ON u.id=g.user_id WHERE g.game=? AND g.level=? AND NOT EXISTS(SELECT 1 FROM game_score_removals removed WHERE removed.game=g.game AND removed.session_id=g.session_id) AND u.deleted_at IS NULL AND u.role='student'),ranked AS(SELECT *,ROW_NUMBER() OVER(ORDER BY duration_ms,metric,hints,completed_at,user_id) place,COUNT(*) OVER() players FROM personal WHERE personal_order=1) SELECT * FROM ranked WHERE place<=20 OR user_id=? ORDER BY place`).all(game,level,u.id);
-  const entry=x=>{let character='piplup',stage=1;try{const pet=JSON.parse(x.pet);character=pet.character;stage=evolutionStage(pet)}catch{}return {rank:x.place,login:x.login,nickname:x.name,character,stage,durationMs:x.duration_ms,attempts:x.metric,hints:x.hints,completedAt:x.completed_at,medal:({1:'gold',2:'silver',3:'bronze'})[x.place]??null,isMe:x.user_id===u.id}};
+  const entry=x=>{let character='piplup',stage=1,formId='';try{const pet=JSON.parse(x.pet);character=pet.character;stage=evolutionStage(pet);formId=character==='diglett'&&stage===2?evolvedCharacter(pet).formId:''}catch{}return {rank:x.place,login:x.login,nickname:x.name,character,stage,...(formId?{formId}:{}),durationMs:x.duration_ms,attempts:x.metric,hints:x.hints,completedAt:x.completed_at,medal:({1:'gold',2:'silver',3:'bronze'})[x.place]??null,isMe:x.user_id===u.id}};
   return {game,level,totalPlayers:rows[0]?.players??0,entries:rows.filter(x=>x.place<=20).map(entry),me:rows.find(x=>x.user_id===u.id)?entry(rows.find(x=>x.user_id===u.id)):null};
  }
  function adminFilters(filters={}){

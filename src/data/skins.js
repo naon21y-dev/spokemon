@@ -1,5 +1,14 @@
 import {evolutionStage} from './evolutions.js';
 export const skins = [
+{"id": "wugtrio-home", "character": "diglett", "formId": "wugtrio", "stage": 2, "name": "3D 바닥트리오", "price": 1000, "image": "/images/skins/diglett/wugtrio-home.png"},
+{"id": "wugtrio-home-shiny", "character": "diglett", "formId": "wugtrio", "stage": 2, "name": "색이 다른 3D 바닥트리오", "price": 1000, "image": "/images/skins/diglett/wugtrio-home-shiny.png"},
+{"id": "wugtrio-shiny", "character": "diglett", "formId": "wugtrio", "stage": 2, "name": "색이 다른 바닥트리오", "price": 1000, "image": "/images/skins/diglett/wugtrio-shiny.png"},
+{"id": "dugtrio-alola-home", "character": "diglett", "formId": "dugtrio-alola", "stage": 2, "name": "3D 알로라 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-alola-home.png"},
+{"id": "dugtrio-alola-home-shiny", "character": "diglett", "formId": "dugtrio-alola", "stage": 2, "name": "색이 다른 3D 알로라 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-alola-home-shiny.png"},
+{"id": "dugtrio-alola-shiny", "character": "diglett", "formId": "dugtrio-alola", "stage": 2, "name": "색이 다른 알로라 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-alola-shiny.png"},
+{"id": "dugtrio-home", "character": "diglett", "formId": "dugtrio", "stage": 2, "name": "3D 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-home.png"},
+{"id": "dugtrio-home-shiny", "character": "diglett", "formId": "dugtrio", "stage": 2, "name": "색이 다른 3D 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-home-shiny.png"},
+{"id": "dugtrio-shiny", "character": "diglett", "formId": "dugtrio", "stage": 2, "name": "색이 다른 닥트리오", "price": 1000, "image": "/images/skins/diglett/dugtrio-shiny.png"},
 {"id": "magikarp-home", "character": "magikarp", "stage": 1, "name": "3D 잉어킹", "price": 500, "image": "/images/skins/evolved/magikarp-home.png"},
 {"id": "magikarp-home-shiny", "character": "magikarp", "stage": 1, "name": "색이 다른 3D 잉어킹", "price": 500, "image": "/images/skins/evolved/magikarp-home-shiny.png"},
 {"id": "magikarp-shiny", "character": "magikarp", "stage": 1, "name": "색이 다른 잉어킹", "price": 500, "image": "/images/skins/evolved/magikarp-shiny.png"},
@@ -354,4 +363,5 @@ export const skins = [
   }
 ];
 export const skinMap = Object.fromEntries(skins.map(s => [s.id, s]));
-export function activeSkin(pet) { const s = skinMap[pet?.skinByCharacter?.[pet?.character]]; return s?.character === pet?.character && s.stage===evolutionStage(pet) && pet?.ownedSkins?.includes(s.id) ? s : null; }
+export const skinMatchesForm=(skin,pet)=>!skin?.formId||skin.formId===pet?.enhancement?.diglettForm;
+export function activeSkin(pet) { const s = skinMap[pet?.skinByCharacter?.[pet?.character]]; return s?.character === pet?.character && s.stage===evolutionStage(pet) && skinMatchesForm(s,pet) && pet?.ownedSkins?.includes(s.id) ? s : null; }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {queueEnhancements,decideEnhancement} from '../server/evolution.mjs';
 import {enhancementChance,evolutionChains,evolutionMaxStage} from '../src/data/evolutions.js';
 for(const character of Object.keys(evolutionChains))for(const [stage,rate] of [[1,80],[2,50]]){
- if(stage>=evolutionMaxStage(character))continue;
+ if(character==='diglett'||stage>=evolutionMaxStage(character))continue;
  let successes=0;
  for(let roll=0;roll<100;roll++){
   const pet={character,xp:2895,enhancement:{version:2,stage,lastOpportunityLevel:20,pending:null,queued:[],history:[],lastResult:null}};

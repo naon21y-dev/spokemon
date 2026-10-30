@@ -1,0 +1,74 @@
+{
+  "source": "https://github.com/PokeAPI/sprites",
+  "forms": [
+    {
+      "id": "wugtrio",
+      "name": "바닥트리오",
+      "pokemonId": 961,
+      "assets": [
+        {
+          "path": "/images/evolutions/wugtrio.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/961.png"
+        },
+        {
+          "path": "/images/skins/diglett/wugtrio-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/961.png"
+        },
+        {
+          "path": "/images/skins/diglett/wugtrio-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/961.png"
+        },
+        {
+          "path": "/images/skins/diglett/wugtrio-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/961.png"
+        }
+      ]
+    },
+    {
+      "id": "dugtrio-alola",
+      "name": "알로라 닥트리오",
+      "pokemonId": 10106,
+      "assets": [
+        {
+          "path": "/images/evolutions/dugtrio-alola.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10106.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-alola-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10106.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-alola-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10106.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-alola-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10106.png"
+        }
+      ]
+    },
+    {
+      "id": "dugtrio",
+      "name": "닥트리오",
+      "pokemonId": 51,
+      "assets": [
+        {
+          "path": "/images/evolutions/dugtrio.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/51.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/51.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/51.png"
+        },
+        {
+          "path": "/images/skins/diglett/dugtrio-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/51.png"
+        }
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import {skins,activeSkin} from '../src/data/skins.js';
 mkdirSync('artifacts',{recursive:true});const dir=mkdtempSync(join(process.cwd(),'artifacts','spokemon-skins-')),file=join(dir,'test.sqlite');
 let service=await createService(file),server,browser;
 try {
- assert.equal(skins.length,86);
+ assert.equal(skins.length,95);
  for(const skin of skins){assert.equal(skin.price,({1:500,2:1000,3:1500})[skin.stage]);assert(existsSync('public'+skin.image));}
  const user=await service.createUser({login:'skin_student',nickname:'스킨학생',password:'test-only-pass'});
  await service.db.prepare('UPDATE users SET coins=20000,pet=?,partner_locked=1 WHERE id=?').run(JSON.stringify({...JSON.parse(user.pet),character:'gengar',xp:245,wear:'👑',owned:['👑']}),user.id);
