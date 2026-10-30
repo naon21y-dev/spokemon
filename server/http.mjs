@@ -128,6 +128,9 @@ export async function createHttp(service, {
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));
       if(p==='/api/activity/notifications/read'&&method==='POST')return send(200,await activity.acknowledge(u,body));
       if(p==='/api/cards/start'&&method==='POST')return send(200,await cards.start(u,body));
+      if(p==='/api/admin/game-rankings'&&method==='GET')return send(200,await rankings.adminList(u,Object.fromEntries(url.searchParams)));
+      if(p==='/api/admin/game-rankings'&&method==='DELETE')return send(200,await rankings.adminClear(u,body));
+      const rankingMatch=p.match(/^\/api\/admin\/game-rankings\/(cards|hidden)\/([-\w]+)(?:\/(restore))?$/);if(rankingMatch){if(method==='DELETE'&&!rankingMatch[3])return send(200,await rankings.adminRemove(u,rankingMatch[1],rankingMatch[2]));if(method==='POST'&&rankingMatch[3])return send(200,await rankings.adminRemove(u,rankingMatch[1],rankingMatch[2],true));}
       if(p==='/api/game-rankings'&&method==='GET')return send(200,await rankings.list(u,url.searchParams.get('game'),Number(url.searchParams.get('level'))));
       if(p==='/api/hidden/start'&&method==='POST')return send(200,await hidden.start(u,body));
       const hiddenMatch=p.match(/^\/api\/hidden\/([^/]+)\/action$/);

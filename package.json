@@ -33,6 +33,7 @@
     "test:card-performance": "node scripts/verify-card-performance.mjs",
     "test:cards-alerts": "node scripts/verify-cards-alerts.mjs",
     "test:hidden": "node scripts/verify-hidden-game.mjs",
+    "test:admin-game-records": "node scripts/verify-admin-game-records.mjs",
     "test:rankings": "node scripts/verify-game-rankings.mjs",
     "test:partner-expansion": "node scripts/verify-partner-expansion.mjs",
     "test:diglett": "node scripts/verify-diglett.mjs",
