@@ -666,6 +666,13 @@ export async function createService(filename, {
           cost=effect.price;p.xp+=effect.xp;p.longAbsence=false;
         } else if(action==='name'){
           if(typeof item!=='string')fail(400,'포켓몬 이름을 입력해 주세요.');const nickname=item.trim().replace(/\s+/g,' ');if(Array.from(nickname).length<1||Array.from(nickname).length>12||/[\u0000-\u001f\u007f]/.test(nickname))fail(400,'포켓몬 이름은 1~12글자로 입력해 주세요.');p.nickname=nickname;
+        } else if(action==='name-reset'){p.nickname='';
+        } else if(action==='wear-position'){
+          if(!p.wear||!p.owned.includes(p.wear))fail(400,'먼저 보유한 아이템을 착용해 주세요.');
+          const form=evolvedCharacter(p).formId,skinId=p.skinByCharacter?.[p.character]??'';
+          if(!item||typeof item!=='object'||item.formId!==form||item.skinId!==skinId||item.wear!==p.wear)fail(409,'포켓몬이나 착용 아이템이 바뀌었어요. 편집창을 다시 열어 주세요.');
+          const positionKey=JSON.stringify([form,skinId,p.wear]);p.wearPositions??={};
+          if(item.reset===true)delete p.wearPositions[positionKey];else{if(!Number.isFinite(item.x)||!Number.isFinite(item.y)||item.x<0||item.x>100||item.y<0||item.y>100)fail(400,'위치는 0~100 범위로 지정해 주세요.');p.wearPositions[positionKey]={x:Math.round(item.x*100)/100,y:Math.round(item.y*100)/100};}
         } else if(action==='diglett-restore'){
           if(!p.diglettRecovery){if(p.lastDiglettRecovery===item)return await state(u);fail(400,'복구할 디그다가 없어요.');}
           if(p.character!=='diglett'||item!==p.diglettRecovery.id)fail(409,'복구 요청을 다시 확인해 주세요.');

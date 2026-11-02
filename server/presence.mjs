@@ -23,7 +23,7 @@ export async function createPresence(service) {
             const pet=JSON.parse(person.pet);character=pet.character;stage=evolutionStage(pet);formId=character==='diglett'&&stage>=2?evolvedCharacter(pet).formId:'';wear=itemMap[pet.wear]&&Array.isArray(pet.owned)&&pet.owned.includes(pet.wear)?pet.wear:'';
           } catch {}
           return {
-            character, stage, wear, ...(formId?{formId}:{}), ...(u ? {id:person.id,login:person.login,nickname:person.name,className:person.class_name??'미배정'} : {})
+            character, stage, wear, wearPosition:(()=>{try{const pet=JSON.parse(person.pet),form=evolvedCharacter(pet).formId;return pet.wearPositions?.[JSON.stringify([form,'',wear])]??null}catch{return null}})(), ...(formId?{formId}:{}), ...(u ? {id:person.id,login:person.login,nickname:person.name,className:person.class_name??'미배정'} : {})
           };
         })
       };
