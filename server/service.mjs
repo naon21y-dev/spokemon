@@ -1,5 +1,6 @@
 import {lessonGuide,guidePublic,gradeGuide} from './lessons/index.mjs';
 import {petCareActions,petCondition} from '../src/data/petCare.js';
+import {createTickets} from './tickets.mjs';
 import {createAttendance} from './attendance.mjs';
 import {characters} from '../src/data/characters.js';
 import {createQuests} from './quests.mjs';
@@ -70,6 +71,7 @@ export async function createService(filename, {
     await db.exec(`CREATE TABLE IF NOT EXISTS classes(id TEXT PRIMARY KEY,name TEXT UNIQUE NOT NULL);
  CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,login TEXT UNIQUE NOT NULL,name TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','student')),class_id TEXT REFERENCES classes(id),salt TEXT NOT NULL,password TEXT NOT NULL,coins INTEGER NOT NULL DEFAULT 0 CHECK(coins>=0),pet TEXT NOT NULL,game_state TEXT NOT NULL DEFAULT '{}',created_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS auth_sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),expires INTEGER NOT NULL);
+ CREATE TABLE IF NOT EXISTS admin_password_resets(id TEXT PRIMARY KEY,admin_id TEXT NOT NULL REFERENCES users(id),student_id TEXT NOT NULL REFERENCES users(id),request_key TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(admin_id,request_key));
  CREATE TABLE IF NOT EXISTS releases(class_id TEXT NOT NULL REFERENCES classes(id),subject TEXT NOT NULL,max_unit INTEGER NOT NULL CHECK(max_unit BETWEEN 0 AND 5),PRIMARY KEY(class_id,subject));
  CREATE TABLE IF NOT EXISTS release_selections(class_id TEXT NOT NULL REFERENCES classes(id),subject TEXT NOT NULL,units TEXT NOT NULL,PRIMARY KEY(class_id,subject));
  CREATE TABLE IF NOT EXISTS quiz_sessions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),mode TEXT NOT NULL,subject TEXT NOT NULL,type TEXT NOT NULL,ids TEXT NOT NULL,position INTEGER NOT NULL DEFAULT 0,answers TEXT NOT NULL DEFAULT '{}',draft TEXT NOT NULL DEFAULT '',done INTEGER NOT NULL DEFAULT 0,result TEXT,created_at INTEGER NOT NULL);
@@ -142,11 +144,13 @@ export async function createService(filename, {
       className: (await get('SELECT name FROM classes WHERE id=?', u.class_id))?.name ?? ''
     });
     async function login(name, password) {
+      return tx(async()=>{
       const u = await get('SELECT * FROM users WHERE login=?', String(name ?? '').trim().toLowerCase());
       const salt = u?.salt ?? 'invalid-account-salt';
       const digest = passwordHash(String(password ?? '').slice(0, 128), salt);
       if (!u || u.deleted_at != null || !timingSafeEqual(Buffer.from(digest, 'hex'), Buffer.from(u.password, 'hex'))) fail(401, '아이디 또는 비밀번호를 확인해 주세요.');
       return await newSession(u);
+      });
     }
     async function newSession(u) {
       await run('UPDATE users SET last_seen_at=? WHERE id=?',clock(),u.id);
@@ -166,6 +170,17 @@ export async function createService(filename, {
     async function logout(token) {
       await run('DELETE FROM auth_sessions WHERE token_hash=?', createHash('sha256').update(token ?? '').digest('hex'));
     }
+    async function changePassword(u,body){
+      const current=body?.currentPassword,next=body?.newPassword,confirm=body?.confirmPassword;
+      if(typeof current!=='string'||current.length>128||typeof next!=='string'||next.length<8||next.length>128||next!==confirm)fail(400,'현재 비밀번호와 새 비밀번호(8~128자), 비밀번호 확인을 입력해 주세요.');
+      if(next===current)fail(400,'기존 비밀번호와 다른 비밀번호를 입력해 주세요.');
+      return tx(async()=>{u=await fresh(u);const digest=passwordHash(current,u.salt);if(!timingSafeEqual(Buffer.from(digest,'hex'),Buffer.from(u.password,'hex')))fail(400,'현재 비밀번호가 올바르지 않아요.');const salt=randomBytes(24).toString('hex');await run('UPDATE users SET salt=?,password=? WHERE id=?',salt,passwordHash(next,salt),u.id);await run('DELETE FROM auth_sessions WHERE user_id=?',u.id);return {ok:true};});
+    }
+    async function resetStudentPassword(u,id,body){
+      admin(u);const key=body?.requestKey;if(typeof key!=='string'||!/^[-\w]{8,100}$/.test(key)||typeof body?.confirmLogin!=='string')fail(400,'초기화할 학생과 요청을 확인해 주세요.');
+      return tx(async()=>{u=await fresh(u);admin(u);const target=await get("SELECT id,login FROM users WHERE id=? AND role='student' AND deleted_at IS NULL",id);if(!target)fail(404,'초기화할 학생을 찾을 수 없어요.');if(body.confirmLogin!==target.login)fail(409,'선택한 학생 아이디가 달라요.');const old=await get('SELECT student_id FROM admin_password_resets WHERE admin_id=? AND request_key=?',u.id,key);if(old){if(old.student_id!==id)fail(409,'이미 처리한 초기화 요청의 대상이 달라요.');return {ok:true,duplicate:true};}const salt=randomBytes(24).toString('hex');await run('UPDATE users SET salt=?,password=? WHERE id=?',salt,passwordHash('123456789a',salt),id);await run('DELETE FROM auth_sessions WHERE user_id=?',id);await run('INSERT INTO admin_password_resets VALUES(?,?,?,?,?)',randomUUID(),u.id,id,key,clock());return {ok:true,duplicate:false};});
+    }
+
     const fresh = async u => {
       const row = await get('SELECT * FROM users WHERE id=? AND deleted_at IS NULL', u.id);
       return row ?? fail(401, '로그인이 필요해요.');
@@ -357,6 +372,7 @@ export async function createService(filename, {
         user: await publicUser(u),
         data: {
           partnerLocked: !!u.partner_locked,
+          tickets:u.role==='student'?await api.tickets.inventory(u):[],
           coins: u.coins,
           pet: parse(u.pet, petDefault()),
           ...parse(u.game_state),
@@ -587,7 +603,9 @@ export async function createService(filename, {
     }
     async function updateProfile(u, {
       nickname,
-      character
+      character,
+      ticketId,
+      requestKey
     }) {
       return await tx(async () => {
         u = await fresh(u);
@@ -595,15 +613,19 @@ export async function createService(filename, {
           nickname = String(nickname).trim();
           if (nickname.length < 2 || nickname.length > 20) fail(400, '닉네임은 2~20자로 입력해 주세요.');
         }
+        if(ticketId!=null){student(u);if(character==null)fail(400,'변경할 포켓몬을 선택해 주세요.');if(await api.tickets.previous(u,requestKey,'partner-change',character,ticketId))return state(u);}
         if (character != null) {
-          if(parse(u.pet).character==='diglett')fail(403,'먼저 500포인트로 원래 포켓몬을 복구해 주세요.');
+          if(parse(u.pet).character==='diglett')fail(403,'먼저 디그다를 복구해 주세요. 500포인트 또는 탈출권을 사용할 수 있어요.');
           student(u);
           if (!characters.some(c=>c.id===character)) fail(400, '캐릭터를 확인해 주세요.');
           const pet = parse(u.pet);const selectedCharacter=characters.find(c=>c.id===character);if(Math.floor(pet.xp/100)+1<(selectedCharacter.minLevel??1))fail(403,selectedCharacter.name+'는 '+selectedCharacter.minLevel+'레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
+          if(ticketId!=null&&(!u.partner_locked||pet.character===character))fail(400,'사용권은 다른 포켓몬으로 변경할 때만 사용할 수 있어요.');
           if (u.partner_locked && pet.character !== character) {
+            if(ticketId!=null)await api.tickets.consume(u,ticketId,requestKey,'partner-change',character);else {
             if (u.coins < 5000) fail(400, '파트너 변경에는 5,000포인트가 필요해요.');
             await run('UPDATE users SET coins=coins-5000 WHERE id=?', u.id);
             await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -5000, '파트너 변경', pet.character + ' → ' + character, randomUUID(), clock());
+            }
           }
           if (!u.partner_locked || pet.character !== character) {
             const enhancement=ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
@@ -620,11 +642,13 @@ export async function createService(filename, {
     async function petAction(u, {
       action,
       item,
-      requestKey
+      requestKey,
+      ticketId
     }) {
       student(u);
       return await tx(async () => {
         u = await fresh(u);
+        if(ticketId!=null){if(action!=='diglett-restore')fail(400,'이 행동에는 사용권을 사용할 수 없어요.');if(await api.tickets.previous(u,requestKey,'diglett-escape',item,ticketId))return state(u);}
         const care = ['food','play','train'].includes(action);
         if(care && requestKey!=null){
           if(typeof requestKey!=='string'||!/^[-\w]{8,100}$/.test(requestKey))fail(400,'돌보기 요청을 확인해 주세요.');
@@ -643,7 +667,7 @@ export async function createService(filename, {
         } else if(action==='diglett-restore'){
           if(!p.diglettRecovery){if(p.lastDiglettRecovery===item)return await state(u);fail(400,'복구할 디그다가 없어요.');}
           if(p.character!=='diglett'||item!==p.diglettRecovery.id)fail(409,'복구 요청을 다시 확인해 주세요.');
-          cost=500;p.character=p.diglettRecovery.character;p.lastDiglettRecovery=item;p.diglettRecovery=null;p.enhancement.diglettForm=null;p.enhancement.stage=1;p.enhancement.pending=p.enhancement.queued.shift()??null;
+          if(ticketId!=null)await api.tickets.consume(u,ticketId,requestKey,'diglett-escape',item);else cost=500;p.character=p.diglettRecovery.character;p.lastDiglettRecovery=item;p.diglettRecovery=null;p.enhancement.diglettForm=null;p.enhancement.stage=1;p.enhancement.pending=p.enhancement.queued.shift()??null;
           p.enhancement.lastResult&&(p.enhancement.lastResult.acknowledged=true);
           if(p.skinByCharacter)p.skinByCharacter[p.character]='';
         } else if(action==='enhance'||action==='enhance-decline'){
@@ -957,6 +981,8 @@ export async function createService(filename, {
       lesson,
       completeLesson,
       complete,
+      changePassword,
+      resetStudentPassword,
       updateProfile,
       petAction,
       saveGame,
@@ -984,6 +1010,7 @@ export async function createService(filename, {
       allowed
     });
     api.workshop = workshop;
+    api.tickets = await createTickets(api,{clock});
     api.points = await createAdminPoints(api,{clock});
     quests = await createQuests(api,{clock,content:async()=>{await refreshContent();return {subjects,questions}},releases:releasesFor,loadQuestions,questionMap});
     api.quests = quests;

@@ -213,6 +213,14 @@ export async function createHttp(service, {
         if (method === 'GET' && !match[2]) return await send(200, await mail.detail(u, match[1], true));
         if (method === 'POST' && match[2] === 'reply') return await send(200, await files.withFiles(u,'private',body,()=>mail.reply(u,match[1],body),match[1]));
       }
+      if(p==='/api/auth/password'&&method==='POST'){
+        const key='password:'+u.id,now=Date.now(),rate=attempts.get(key);if(rate&&rate.until>now&&rate.count>=10)fail(429,'잠시 후 다시 시도해 주세요.');attempts.set(key,{until:rate?.until>now?rate.until:now+900000,count:rate?.until>now?rate.count+1:1});
+        const result=await service.changePassword(u,body);setCookie('');return send(200,result);
+      }
+      if((match=p.match(/^\/api\/admin\/students\/([^/]+)\/password-reset$/))&&method==='POST')return send(200,await service.resetStudentPassword(u,match[1],body));
+      if(p==='/api/tickets'&&method==='GET')return send(200,await service.tickets.list(u));
+      if((match=p.match(/^\/api\/tickets\/([^/]+)\/claim$/))&&method==='POST')return send(200,await service.tickets.claim(u,match[1]));
+      if((match=p.match(/^\/api\/admin\/students\/([^/]+)\/gifts$/))){if(method==='GET')return send(200,await service.tickets.read(u,match[1]));if(method==='POST')return send(200,await service.tickets.send(u,match[1],body));}
       if (p === '/api/me' && method === 'GET') return await send(200, await service.state(u));
       if (p === '/api/profile' && method === 'PATCH') return await send(200, await service.updateProfile(u, body));
       if (p === '/api/pet' && method === 'POST') return await send(200, await service.petAction(u, body));

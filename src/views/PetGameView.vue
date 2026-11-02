@@ -1,5 +1,6 @@
 <script setup>
-import {ref,computed,onMounted,onUnmounted} from 'vue'
+import {ref,computed,watch,onMounted,onUnmounted} from 'vue'
+import {useRoute} from 'vue-router'
 import PetWeather from '../components/PetWeather.vue'
 import {petCondition,petMood} from '../data/petCare'
 import {useArcade} from '../stores/arcade'
@@ -20,7 +21,7 @@ import RoomScene from '../components/RoomScene.vue'
 import RoomControls from '../components/RoomControls.vue'
 import {useRoom} from '../stores/room'
 import ItemSlotWindow from '../components/ItemSlotWindow.vue'
-const nameOpen=ref(false),skinOpen=ref(false),notesOpen=ref(false);const messages=useMessages(),learning=useLearning();const room=useRoom();onMounted(()=>{learning.load();room.load()});const s=useArcade();s.age();const now=ref(Date.now());let moodTimer;const p=computed(()=>petCondition(s.data.pet,now.value)),mood=computed(()=>petMood(p.value));function updateMood(){now.value=Date.now()}onMounted(()=>{moodTimer=setInterval(updateMood,30000);document.addEventListener('visibilitychange',updateMood)});onUnmounted(()=>{clearInterval(moodTimer);document.removeEventListener('visibilitychange',updateMood)});const message=ref('파트너와 행복한 하루를 보내요!');const started=ref(false)
+const nameOpen=ref(false),skinOpen=ref(false),notesOpen=ref(false);const messages=useMessages(),learning=useLearning();const room=useRoom();onMounted(()=>{learning.load();room.load()});const s=useArcade();s.age();const now=ref(Date.now());let moodTimer;const p=computed(()=>petCondition(s.data.pet,now.value)),mood=computed(()=>petMood(p.value));function updateMood(){now.value=Date.now()}onMounted(()=>{moodTimer=setInterval(updateMood,30000);document.addEventListener('visibilitychange',updateMood)});onUnmounted(()=>{clearInterval(moodTimer);document.removeEventListener('visibilitychange',updateMood)});const message=ref('파트너와 행복한 하루를 보내요!');const route=useRoute(),started=ref(route.query.items==='tickets');watch(()=>route.query.items,value=>{if(value==='tickets')started.value=true})
 import {items} from '../data/items'
 const careBusy=ref(false),selectedCare=ref('');let careKey=null,careAction=null,spaceHeld=false,spaceTimer;
 function stopSpace(){spaceHeld=false;clearTimeout(spaceTimer)}
