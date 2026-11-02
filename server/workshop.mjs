@@ -107,16 +107,20 @@ export async function createWorkshop(service, {
       title = String(body.title ?? '').trim(),
       prompt = String(body.prompt ?? '').trim(),
       explanation = String(body.explanation ?? '').trim(),
-      type = body.type;
+      format = body.type==='ox'||body.format==='ox'?'ox':body.type,
+      type = format==='ox'?'multiple':body.type,
+      code=String(body.code??'');
+    if(code.length>12000)fail(400,'코드는 12,000자 이내로 입력하세요.');
     if (typeof subject !== 'string' || !Number.isInteger(unit) || unit < 0 || unit > 200 || !title || title.length > 100 || !prompt || prompt.length > 1500 || !explanation || explanation.length > 3000 || !['multiple', 'short'].includes(type)) fail(400, '과목·단원·제목·문제·해설을 확인해 주세요.');
     let extra = {};
     if (type === 'multiple') {
-      if (!Array.isArray(body.options) || body.options.length !== 4) fail(400, '선택지는 4개가 필요합니다.');
-      const options = body.options.map((o, i) => ({
+      const optionInput=format==='ox'?[{text:'O'},{text:'X'}]:body.options, optionCount=format==='ox'?2:4;
+      if (!Array.isArray(optionInput) || optionInput.length !== optionCount) fail(400, '선택지는 4개가 필요합니다.');
+      const options = optionInput.map((o, i) => ({
         id: 'choice-' + i,
         text: String(o.text ?? '').trim()
       }));
-      if (options.some(o => !o.text || o.text.length > 300) || new Set(options.map(o => o.text)).size !== 4 || !options.some(o => o.id === body.correctOptionId)) fail(400, '서로 다른 선택지 4개와 정답을 지정하세요.');
+      if (options.some(o => !o.text || o.text.length > 300) || new Set(options.map(o => o.text)).size !== optionCount || !options.some(o => o.id === body.correctOptionId)) fail(400, '서로 다른 선택지 4개와 정답을 지정하세요.');
       extra = {
         options,
         correctOptionId: body.correctOptionId
@@ -135,6 +139,8 @@ export async function createWorkshop(service, {
       title,
       prompt,
       explanation,
+      code,
+      format,
       type,
       ...extra
     };

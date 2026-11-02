@@ -10,3 +10,5 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:#8ed3b3 url
 .shell{background:rgba(250,247,239,.92);border:1px solid rgba(255,253,247,.85);border-radius:24px;box-shadow:0 12px 60px #203d3926;min-height:calc(100vh - 48px)}
 @media(max-width:1300px){.shell{margin-left:24px;margin-right:24px}}
 @media(max-width:600px){body{padding:12px 0}body::before{background-size:100% auto}.shell{margin-left:10px;margin-right:10px;border-radius:18px;min-height:calc(100vh - 24px);padding-left:16px;padding-right:16px}}
+
+.shared-code,.question-code{white-space:pre;overflow:auto;max-width:100%;box-sizing:border-box;font:13px/1.7 Consolas,monospace;tab-size:2}.shared-code{padding:16px;background:#182436;color:#e2f1ff;border-radius:8px;text-align:left}.question-code{min-height:130px}

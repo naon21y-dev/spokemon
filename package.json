@@ -42,7 +42,8 @@
     "test:quest-bulk": "node scripts/verify-quest-bulk.mjs",
     "test:quests": "node scripts/verify-quests.mjs",
     "test:evolution": "node scripts/verify-evolution.mjs",
-    "test:pet-care-trio": "node scripts/verify-pet-care-trio.mjs"
+    "test:pet-care-trio": "node scripts/verify-pet-care-trio.mjs",
+    "test:launch-features": "node scripts/verify-diglett-final-admin.mjs && node scripts/verify-learning-community-gifts.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

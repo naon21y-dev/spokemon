@@ -1,0 +1,302 @@
+[
+  {
+    "title": "프로젝트를 실행하고 관찰하기",
+    "minutes": 20,
+    "goals": [
+      "프로젝트와 SDK",
+      "실행 구성",
+      "디버깅 시작"
+    ],
+    "concepts": [
+      {
+        "title": "프로젝트와 SDK",
+        "body": "프로젝트는 소스와 설정의 묶음이고 SDK/JDK는 컴파일·실행에 사용할 개발 도구입니다. IDE 설치와 JDK 설치는 별개이며 프로젝트 설정에서 올바른 버전을 선택해야 합니다."
+      },
+      {
+        "title": "실행 구성",
+        "body": "실행할 main 클래스, 인자, 환경변수, 작업 디렉터리를 묶습니다. 같은 코드라도 작업 디렉터리와 환경변수에 따라 파일 경로와 동작이 달라집니다."
+      },
+      {
+        "title": "디버깅 시작",
+        "body": "의심되는 줄에 중단점을 두고 Run이 아니라 Debug로 실행합니다. 중단된 시점의 변수와 호출 스택을 보고 원인을 좁힙니다."
+      }
+    ],
+    "example": {
+      "code": "public class Main {\n public static void main(String[] args) {\n  int price = 1000;\n  int count = 3;\n  System.out.println(price * count);\n }\n}",
+      "explanation": "출력은 3000입니다. 출력 줄에 중단점을 두면 실행 전 price와 count를 확인할 수 있습니다. 중단점은 그 줄이 실행되기 전에 멈춘다는 점을 기억하세요."
+    },
+    "practice": {
+      "task": "JDK를 확인하고 main을 Run과 Debug로 각각 실행해 차이를 기록하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "Run은 결과 확인, Debug는 변수와 실행 흐름 관찰에 사용합니다. 중단 시 price=1000, count=3을 확인합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "JDK의 역할은?",
+        "options": [
+          "Java 컴파일·실행 도구 제공",
+          "Git 원격 저장소 제공",
+          "DB 데이터 보관"
+        ],
+        "answer": 0,
+        "explanation": "JDK는 Java 개발과 실행에 필요한 도구를 제공합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "중단점에서 변수를 보려면?",
+        "options": [
+          "파일 삭제",
+          "Debug 실행",
+          "IDE 종료"
+        ],
+        "answer": 1,
+        "explanation": "Run 대신 Debug로 실행해야 디버거가 연결됩니다."
+      }
+    ]
+  },
+  {
+    "title": "코드를 안전하게 찾아 바꾸기",
+    "minutes": 20,
+    "goals": [
+      "탐색",
+      "리팩터링",
+      "디버거 제어"
+    ],
+    "concepts": [
+      {
+        "title": "탐색",
+        "body": "선언으로 이동, 사용처 찾기, 전체 검색을 구분합니다. 텍스트 검색은 같은 철자의 다른 변수도 찾지만 심볼 사용처는 코드의 연결 관계를 기준으로 찾습니다."
+      },
+      {
+        "title": "리팩터링",
+        "body": "Rename과 Extract Method는 동작을 유지하며 구조를 바꾸는 기능입니다. 이름 바꾸기 전에 미리보기로 영향 범위를 확인하고 테스트로 동작 보존을 확인합니다."
+      },
+      {
+        "title": "디버거 제어",
+        "body": "Step Over는 현재 줄을 실행하고 호출한 함수 안으로 들어가지 않습니다. Step Into는 호출 내부를 확인하고 Resume은 다음 중단점까지 계속 실행합니다."
+      }
+    ],
+    "example": {
+      "code": "int sum(int a, int b) { return a + b; }\nint result = sum(2, 3);\nSystem.out.println(result);",
+      "explanation": "sum 호출 줄에서 Step Over하면 호출이 실행되어 result가 5가 됩니다. Step Into를 사용하면 sum 내부로 이동합니다. 재귀·라이브러리 내부 탐색 여부를 보고 선택하세요."
+    },
+    "practice": {
+      "task": "sum을 addNumbers로 Rename하고 호출부도 함께 변경되는지 확인하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "선언에서 Refactor → Rename을 실행하고 사용처 변경 미리보기를 확인합니다. 실행 결과는 여전히 5여야 합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "함수 내부를 직접 따라가려면?",
+        "options": [
+          "Step Into",
+          "Step Over",
+          "Stop"
+        ],
+        "answer": 0,
+        "explanation": "Step Into는 호출한 코드 내부로 들어갑니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "심볼 이름을 안전하게 바꾸는 기능은?",
+        "options": [
+          "문자 무조건 치환",
+          "Rename 리팩터링",
+          "파일 인코딩 변경"
+        ],
+        "answer": 1,
+        "explanation": "Rename은 코드의 심볼 관계를 고려해 사용처를 바꿉니다."
+      }
+    ]
+  },
+  {
+    "title": "테스트와 빌드 환경",
+    "minutes": 20,
+    "goals": [
+      "빌드 도구",
+      "테스트",
+      "실행 환경"
+    ],
+    "concepts": [
+      {
+        "title": "빌드 도구",
+        "body": "Maven의 pom.xml과 Gradle의 빌드 파일은 의존성과 빌드 작업을 정의합니다. 파일을 수정한 뒤 동기화해야 IDE 모델과 실제 빌드 설정을 맞출 수 있습니다."
+      },
+      {
+        "title": "테스트",
+        "body": "작은 입력과 예상 결과를 정의해 코드 변경 시 동작을 확인합니다. 테스트 성공만으로 모든 오류가 없다는 뜻은 아니므로 경계값과 실패 입력도 포함합니다."
+      },
+      {
+        "title": "실행 환경",
+        "body": "환경변수·프로그램 인자·JVM 옵션은 용도가 다릅니다. 비밀번호와 토큰을 소스나 공유 실행 설정에 저장하지 말고 안전한 환경 설정으로 전달합니다."
+      }
+    ],
+    "example": {
+      "code": "// JUnit Jupiter 예시: 테스트 의존성 설정 필요\nimport static org.junit.jupiter.api.Assertions.assertEquals;\nimport org.junit.jupiter.api.Test;\nclass CalcTest {\n @Test void adds() { assertEquals(5, 2 + 3); }\n}",
+      "explanation": "테스트는 실제 값 2+3과 기대 값 5를 비교합니다. 테스트가 발견되지 않으면 소스 폴더 지정, 테스트 의존성, 실행 구성을 먼저 확인하세요."
+    },
+    "practice": {
+      "task": "덧셈 함수를 작성하고 0·음수 입력 테스트를 추가하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "0+0=0, -2+3=1을 검증하고 빌드 도구의 테스트 작업으로도 실행합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "Gradle 의존성을 수정했다면?",
+        "options": [
+          "프로젝트 동기화",
+          "DB 삭제",
+          "항상 IDE 재설치"
+        ],
+        "answer": 0,
+        "explanation": "빌드 파일 동기화로 IDE에 의존성 모델을 반영합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "API 키를 두기 적절한 곳은?",
+        "options": [
+          "공개 소스 파일",
+          "Git에 커밋한 메모",
+          "서버 환경변수 등 비밀 관리 설정"
+        ],
+        "answer": 2,
+        "explanation": "공유 저장소에 비밀값을 하드코딩하면 안 됩니다."
+      }
+    ]
+  },
+  {
+    "title": "변경 이력과 개발 도구",
+    "minutes": 20,
+    "goals": [
+      "Git 변경 검토",
+      "Local History",
+      "터미널과 도구 창"
+    ],
+    "concepts": [
+      {
+        "title": "Git 변경 검토",
+        "body": "Commit 전에 diff를 확인하면 실수로 포함한 파일과 디버깅 코드를 찾을 수 있습니다. IDE의 VCS 화면은 Git 작업을 편하게 돕지만 Git 자체와 동일한 개념을 사용합니다."
+      },
+      {
+        "title": "Local History",
+        "body": "IDE가 보관한 로컬 편집 이력입니다. Git 커밋과 달리 장기 보관·원격 협업을 보장하지 않으므로 백업 대용으로 사용하지 않습니다."
+      },
+      {
+        "title": "터미널과 도구 창",
+        "body": "내장 터미널은 명령 실행 환경이고 Run·Debug·Problems 창은 서로 다른 정보를 보여 줍니다. 오류가 빌드 단계인지 실행 단계인지 먼저 구분해야 해결 경로가 보입니다."
+      }
+    ],
+    "example": {
+      "code": "git status\ngit diff\n# 변경 내용을 확인한 뒤 필요한 파일만 stage\ngit add src/Main.java\ngit diff --staged",
+      "explanation": "작업 트리 diff와 stage된 diff는 다를 수 있습니다. 커밋 대상은 stage된 내용이므로 마지막 명령으로 실제 포함될 코드를 확인합니다."
+    },
+    "practice": {
+      "task": "파일 하나를 수정하고 IDE diff와 터미널 diff가 같은 변경을 보여 주는지 확인하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "IDE의 변경 목록에서 해당 파일을 열고 git diff 결과와 추가·삭제 줄을 비교합니다. 필요 없는 변경은 커밋 대상에서 제외합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "Local History가 원격 백업을 보장하나요?",
+        "options": [
+          "예",
+          "아니요",
+          "항상 GitHub로 전송"
+        ],
+        "answer": 1,
+        "explanation": "Local History는 IDE의 로컬 편집 이력입니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "커밋될 변경을 보는 명령은?",
+        "options": [
+          "git diff --staged",
+          "git init",
+          "git branch"
+        ],
+        "answer": 0,
+        "explanation": "stage된 변경이 다음 커밋에 포함됩니다."
+      }
+    ]
+  },
+  {
+    "title": "개발 환경과 코드 품질",
+    "minutes": 20,
+    "goals": [
+      "코드 검사",
+      "포맷과 스타일",
+      "설정과 플러그인"
+    ],
+    "concepts": [
+      {
+        "title": "코드 검사",
+        "body": "Inspection은 실행 전 찾을 수 있는 오류와 개선점을 알려 줍니다. 경고가 모두 버그는 아니므로 발생 이유를 이해하고 수정하거나 의도적으로 처리합니다."
+      },
+      {
+        "title": "포맷과 스타일",
+        "body": "Reformat은 들여쓰기·공백 같은 형식을 맞춥니다. 의미 변경과 형식 변경을 분리하면 코드 리뷰에서 실제 로직 변화를 확인하기 쉽습니다."
+      },
+      {
+        "title": "설정과 플러그인",
+        "body": "Keymap·파일 인코딩·SDK·플러그인을 프로젝트 요구에 맞춥니다. 단축키는 운영체제와 Keymap에 따라 다르므로 메뉴의 동작 이름으로 먼저 익히세요."
+      }
+    ],
+    "example": {
+      "code": "String name = null;\n// 아래 줄은 실행하면 NullPointerException 발생 가능\n// System.out.println(name.length());\nif (name != null) System.out.println(name.length());",
+      "explanation": "null 검사를 거치면 null일 때 length 호출을 건너뜁니다. IDE 경고와 런타임 예외의 관계를 관찰하고 단순히 경고를 숨기기보다 원인을 수정하세요."
+    },
+    "practice": {
+      "task": "null 가능 경고를 만든 뒤 안전한 분기로 고치고 Reformat을 적용하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "null일 때 처리할 분기를 명시하고 정상 문자열에서도 길이가 출력되는지 테스트합니다. Reformat 뒤 동작이 변하지 않아야 합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "Reformat의 주된 목적은?",
+        "options": [
+          "코드 형식 정리",
+          "의존성 다운로드",
+          "원격 push"
+        ],
+        "answer": 0,
+        "explanation": "Reformat은 코드 스타일과 들여쓰기를 정리합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "OS마다 단축키가 다를 때는?",
+        "options": [
+          "메뉴 동작과 Keymap 확인",
+          "무작정 설정 삭제",
+          "항상 같은 키라고 가정"
+        ],
+        "answer": 0,
+        "explanation": "현재 Keymap에서 동작 이름을 찾아 실제 단축키를 확인합니다."
+      }
+    ]
+  }
+]

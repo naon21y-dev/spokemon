@@ -1,0 +1,302 @@
+[
+  {
+    "title": "테이블 조회와 안전한 변경",
+    "minutes": 20,
+    "goals": [
+      "관계형 데이터",
+      "SELECT 흐름",
+      "데이터 변경"
+    ],
+    "concepts": [
+      {
+        "title": "관계형 데이터",
+        "body": "테이블은 행과 열로 정보를 저장합니다. 기본키는 한 행을 식별하며 같은 이름의 학생이 있어도 고유 id로 구분할 수 있습니다."
+      },
+      {
+        "title": "SELECT 흐름",
+        "body": "FROM으로 대상을 정하고 WHERE로 행을 고른 뒤 SELECT 열을 출력합니다. ORDER BY 없는 결과 순서는 보장되지 않습니다."
+      },
+      {
+        "title": "데이터 변경",
+        "body": "INSERT·UPDATE·DELETE는 데이터를 바꿉니다. UPDATE와 DELETE의 WHERE 누락은 전체 행에 영향을 줄 수 있으므로 먼저 같은 조건으로 SELECT를 확인합니다."
+      }
+    ],
+    "example": {
+      "code": "CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1, '민지', 85), (2, '준호', 60);\nSELECT name, score FROM students WHERE score >= 80 ORDER BY score DESC;",
+      "explanation": "민지와 85가 한 행으로 나옵니다. WHERE는 80점 이상인 행만 남기고 ORDER BY는 점수 내림차순을 지정합니다. 예제는 별도 연습 DB에서 실행하세요."
+    },
+    "practice": {
+      "task": "70점 이상 학생을 조회한 뒤 id=2인 학생 점수만 75로 변경하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "SELECT * FROM students WHERE score >= 70;\nUPDATE students SET score = 75 WHERE id = 2;\nSELECT * FROM students WHERE id = 2;"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "행을 필터링하는 절은?",
+        "options": [
+          "ORDER BY",
+          "WHERE",
+          "SELECT"
+        ],
+        "answer": 1,
+        "explanation": "WHERE는 조건을 만족하는 행을 고릅니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "WHERE 없는 DELETE는?",
+        "options": [
+          "첫 행만 삭제",
+          "전체 행 삭제 가능",
+          "열만 삭제"
+        ],
+        "answer": 1,
+        "explanation": "조건을 생략하면 테이블의 모든 행이 대상이 됩니다."
+      }
+    ]
+  },
+  {
+    "title": "조건식과 문자열 검색",
+    "minutes": 20,
+    "goals": [
+      "NULL",
+      "조건 조합",
+      "패턴과 별칭"
+    ],
+    "concepts": [
+      {
+        "title": "NULL",
+        "body": "알 수 없거나 없는 값을 표현합니다. NULL과의 비교는 = NULL이 아니라 IS NULL을 사용합니다. 빈 문자열과 NULL은 구분해야 합니다."
+      },
+      {
+        "title": "조건 조합",
+        "body": "AND·OR·NOT으로 조건을 조합합니다. AND가 OR보다 우선하므로 괄호로 의도를 명확히 표시하면 실수를 줄일 수 있습니다."
+      },
+      {
+        "title": "패턴과 별칭",
+        "body": "LIKE에서 %는 길이 제한 없는 문자열, _는 한 글자에 대응합니다. AS 별칭은 출력 이름을 바꾸며 원본 열 이름을 바꾸지는 않습니다."
+      }
+    ],
+    "example": {
+      "code": "SELECT name AS student_name, score\nFROM students\nWHERE (name LIKE '김%' OR name LIKE '이%')\n  AND score IS NOT NULL;",
+      "explanation": "김 또는 이로 시작하면서 점수가 NULL이 아닌 학생을 선택합니다. 괄호가 없으면 김씨에 대해서는 점수 조건이 적용되지 않는 식으로 의도가 바뀔 수 있습니다."
+    },
+    "practice": {
+      "task": "이름에 민이 포함되고 점수가 70~90 사이인 학생을 조회하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "SELECT * FROM students WHERE name LIKE '%민%' AND score BETWEEN 70 AND 90;"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "NULL인지 확인하는 조건은?",
+        "options": [
+          "score = NULL",
+          "score IS NULL",
+          "score == null"
+        ],
+        "answer": 1,
+        "explanation": "SQL의 NULL은 IS NULL로 검사합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "LIKE의 % 의미는?",
+        "options": [
+          "정확히 한 글자",
+          "임의 길이 문자열",
+          "숫자만"
+        ],
+        "answer": 1,
+        "explanation": "%는 빈 문자열을 포함한 임의 길이 문자열에 대응합니다."
+      }
+    ]
+  },
+  {
+    "title": "집계와 테이블 연결",
+    "minutes": 20,
+    "goals": [
+      "집계",
+      "조인",
+      "서브쿼리"
+    ],
+    "concepts": [
+      {
+        "title": "집계",
+        "body": "COUNT·SUM·AVG는 여러 행을 요약합니다. COUNT(*)는 행 수를 세고 COUNT(열)은 NULL이 아닌 값을 셉니다. GROUP BY로 그룹을 만든 뒤 HAVING으로 그룹 결과를 거릅니다."
+      },
+      {
+        "title": "조인",
+        "body": "두 테이블의 관련 열로 행을 연결합니다. INNER JOIN은 매칭되는 행만, LEFT JOIN은 왼쪽 행을 유지합니다. 일대다 관계에서는 결과 행이 늘어날 수 있습니다."
+      },
+      {
+        "title": "서브쿼리",
+        "body": "쿼리 안에서 다른 조회 결과를 사용합니다. 단일 값 비교에는 한 값만 반환해야 하며 여러 값이라면 IN·EXISTS 등 의도에 맞는 연산을 선택합니다."
+      }
+    ],
+    "example": {
+      "code": "SELECT c.id, c.name, COUNT(s.id) AS members\nFROM classes c LEFT JOIN students s ON s.class_id = c.id\nGROUP BY c.id, c.name\nHAVING COUNT(s.id) >= 2;",
+      "explanation": "class_id 열과 classes 테이블이 있다고 가정한 예시입니다. 학생이 없는 기수도 LEFT JOIN 중간 결과에는 남지만 HAVING에서 2명 미만은 제외됩니다."
+    },
+    "practice": {
+      "task": "기수별 평균 점수를 계산하고 평균 80 이상인 기수만 남기세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "SELECT class_id, AVG(score) AS avg_score FROM students\nGROUP BY class_id HAVING AVG(score) >= 80;"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "그룹 집계 결과를 필터링하는 절은?",
+        "options": [
+          "HAVING",
+          "WHERE만 가능",
+          "ORDER BY"
+        ],
+        "answer": 0,
+        "explanation": "GROUP BY 이후 집계 조건에는 HAVING을 사용합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "학생이 없는 기수도 우선 유지하려면?",
+        "options": [
+          "INNER JOIN",
+          "LEFT JOIN",
+          "CROSS JOIN만"
+        ],
+        "answer": 1,
+        "explanation": "기수를 왼쪽에 놓고 LEFT JOIN하면 매칭 없는 기수도 유지됩니다."
+      }
+    ]
+  },
+  {
+    "title": "제약 조건과 테이블 설계",
+    "minutes": 20,
+    "goals": [
+      "제약 조건",
+      "외래키",
+      "자료형"
+    ],
+    "concepts": [
+      {
+        "title": "제약 조건",
+        "body": "PRIMARY KEY는 행 식별, UNIQUE는 중복 제한, NOT NULL은 필수값, CHECK는 값의 조건을 표현합니다. 화면 검사뿐 아니라 DB 제약으로 잘못된 저장을 막아야 합니다."
+      },
+      {
+        "title": "외래키",
+        "body": "다른 테이블의 행을 참조하는 관계를 표현합니다. 삭제 시 참조를 유지할지 함께 삭제할지는 서비스의 보존 정책에 따라 결정합니다."
+      },
+      {
+        "title": "자료형",
+        "body": "정수·문자·날짜·정밀 소수 등 데이터 의미에 맞게 선택합니다. 금액을 부동소수점으로 저장하면 오차가 생길 수 있어 정밀 소수나 최소 화폐 단위 정수를 고려합니다."
+      }
+    ],
+    "example": {
+      "code": "CREATE TABLE classes (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nCREATE TABLE members (\n id INTEGER PRIMARY KEY,\n email TEXT UNIQUE NOT NULL,\n class_id INTEGER REFERENCES classes(id),\n points INTEGER NOT NULL CHECK (points >= 0)\n);",
+      "explanation": "없는 기수를 참조하거나 음수 포인트를 저장하려는 시도는 제약 조건으로 차단할 수 있습니다. DB 제품별 외래키 활성화·자료형 동작 차이는 사용 중인 문서로 확인하세요."
+    },
+    "practice": {
+      "task": "중복되지 않는 로그인 id와 음수가 아닌 재고를 갖는 테이블을 설계하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "CREATE TABLE stock (login TEXT PRIMARY KEY, quantity INTEGER NOT NULL CHECK(quantity >= 0));"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "음수 포인트를 막는 제약은?",
+        "options": [
+          "CHECK(points >= 0)",
+          "ORDER BY points",
+          "AS points"
+        ],
+        "answer": 0,
+        "explanation": "CHECK는 저장되는 값이 지정 조건을 만족하게 합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "다른 테이블 행을 참조하는 제약은?",
+        "options": [
+          "외래키",
+          "별칭",
+          "정렬"
+        ],
+        "answer": 0,
+        "explanation": "FOREIGN KEY/REFERENCES가 테이블 관계를 표현합니다."
+      }
+    ]
+  },
+  {
+    "title": "트랜잭션과 안전한 접근",
+    "minutes": 20,
+    "goals": [
+      "트랜잭션",
+      "동시성",
+      "매개변수 쿼리"
+    ],
+    "concepts": [
+      {
+        "title": "트랜잭션",
+        "body": "관련 변경을 하나의 단위로 묶습니다. 모두 성공하면 COMMIT, 오류면 ROLLBACK으로 되돌려 일부만 반영되는 상태를 방지합니다."
+      },
+      {
+        "title": "동시성",
+        "body": "두 요청이 같은 잔액을 읽고 변경하면 경쟁 상태가 생깁니다. DB 트랜잭션, 적절한 잠금 또는 조건부 UPDATE와 고유 제약을 함께 사용합니다."
+      },
+      {
+        "title": "매개변수 쿼리",
+        "body": "사용자 입력을 SQL 문자열에 이어 붙이지 말고 바인딩합니다. 인덱스는 조회에 도움을 주지만 쓰기·저장 비용도 있어 실제 쿼리 패턴을 기준으로 설계합니다."
+      }
+    ],
+    "example": {
+      "code": "BEGIN;\nUPDATE wallets SET points = points - 30\n WHERE id = 1 AND points >= 30;\n-- 앱에서 영향 행이 1인지 확인한 뒤 지급 기록 저장\n-- 영향 행이 0이거나 후속 저장 실패 시 ROLLBACK\nCOMMIT;",
+      "explanation": "실행 흐름 설명용 예시입니다. 실제 앱은 잔액 차감과 지급 기록을 같은 트랜잭션에서 처리하고 요청 고유키로 중복을 막아야 합니다. SQL 문만 실행한다고 모든 동시성 문제가 해결되지는 않습니다."
+    },
+    "practice": {
+      "task": "송금의 출금·입금 중 입금이 실패했을 때 어떤 처리가 필요한지 순서도를 적으세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "출금과 입금을 하나의 트랜잭션에서 실행합니다. 어느 단계든 실패하면 ROLLBACK하고 둘 다 성공했을 때만 COMMIT합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "중간 단계가 실패하면?",
+        "options": [
+          "일부만 저장",
+          "ROLLBACK",
+          "무조건 COMMIT"
+        ],
+        "answer": 1,
+        "explanation": "트랜잭션 전체를 되돌려 일관성을 유지합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "입력을 안전하게 SQL에 넣는 방식은?",
+        "options": [
+          "문자열 이어 붙이기",
+          "매개변수 바인딩",
+          "따옴표만 지우기"
+        ],
+        "answer": 1,
+        "explanation": "바인딩은 데이터와 SQL 코드를 분리합니다."
+      }
+    ]
+  }
+]

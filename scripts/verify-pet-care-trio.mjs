@@ -23,7 +23,7 @@ for(let choice=0;choice<3;choice++){
   const id=p.enhancement.pending.id;
   await Promise.all(Array.from({length:20},()=>s.petAction(u,{action:'enhance',item:id})));
   st=await s.state(u);p=st.data.pet;assert.equal(evolvedCharacter(p).formId,diglettForms[choice].id);assert.equal(p.enhancement.stage,2);assert.equal(st.data.coins,4970);assert.equal(p.diglettRecovery.id,recovery);
-  assert.deepEqual(queueEnhancements(p,10,20,now),[]);
+  assert.equal(queueEnhancements(p,10,20,now).length,1);
   const skin=diglettForms[choice].id+'-home';await s.petAction(u,{action:'skin',item:skin});
   st=await s.state(u);assert.equal(activeSkin(st.data.pet).id,skin);assert.equal(st.data.coins,3970);
   await assert.rejects(()=>s.petAction(u,{action:'skin',item:diglettForms[(choice+1)%3].id+'-home'}),e=>e.status===403);

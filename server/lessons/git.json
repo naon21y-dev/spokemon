@@ -1,0 +1,302 @@
+[
+  {
+    "title": "작업을 기록하고 원격과 연결하기",
+    "minutes": 20,
+    "goals": [
+      "저장소와 스냅샷",
+      "작업 트리·stage·commit",
+      "원격 협업"
+    ],
+    "concepts": [
+      {
+        "title": "저장소와 스냅샷",
+        "body": "Git은 프로젝트 변경을 커밋 단위로 기록합니다. 커밋은 파일 복사본 이름을 붙이는 방식이 아니라 추적한 파일 상태와 부모 커밋을 연결합니다."
+      },
+      {
+        "title": "작업 트리·stage·commit",
+        "body": "편집한 변경을 add로 stage에 선택하고 commit으로 기록합니다. 파일을 add한 뒤 다시 편집하면 stage와 작업 트리 내용이 달라질 수 있습니다."
+      },
+      {
+        "title": "원격 협업",
+        "body": "Git은 버전 관리 도구, GitHub는 저장소를 호스팅하는 서비스입니다. commit은 로컬 기록, push는 원격 전송이므로 커밋했다고 자동으로 공유되지는 않습니다."
+      }
+    ],
+    "example": {
+      "code": "git init\ngit status\ngit add README.md\ngit diff --staged\ngit commit -m \"Add project overview\"\n# 원격을 설정한 뒤: git push -u origin main",
+      "explanation": "연습 폴더에 README.md가 준비되어 있다고 가정합니다. status로 변경을 확인하고 필요한 파일만 stage한 뒤 커밋합니다. push에는 원격 주소와 인증이 필요합니다."
+    },
+    "practice": {
+      "task": "README를 수정하고 add 전·후·commit 후 status가 어떻게 바뀌는지 기록하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "수정됨 → stage됨 → 작업 트리 깨끗함 흐름을 확인합니다. GitHub 반영은 별도 push 이후입니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "다음 커밋에 넣을 변경을 선택하는 명령은?",
+        "options": [
+          "git add",
+          "git push",
+          "git log"
+        ],
+        "answer": 0,
+        "explanation": "add는 작업 트리 변경을 stage에 반영합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "commit만 하면 GitHub에 올라가나요?",
+        "options": [
+          "예",
+          "별도 push 필요",
+          "자동 이메일 전송"
+        ],
+        "answer": 1,
+        "explanation": "commit은 로컬 기록입니다."
+      }
+    ]
+  },
+  {
+    "title": "브랜치와 병합",
+    "minutes": 20,
+    "goals": [
+      "브랜치",
+      "전환과 작업 상태",
+      "병합과 충돌"
+    ],
+    "concepts": [
+      {
+        "title": "브랜치",
+        "body": "커밋을 가리키는 이름이며 작업 흐름을 분리합니다. 파일 폴더를 통째로 복제하지 않고 새 커밋을 다른 선으로 이어 갑니다."
+      },
+      {
+        "title": "전환과 작업 상태",
+        "body": "브랜치 전환 전 미커밋 변경을 확인합니다. 충돌할 변경이 있으면 전환이 막힐 수 있고 stash나 커밋을 먼저 고려합니다."
+      },
+      {
+        "title": "병합과 충돌",
+        "body": "서로 같은 부분을 다르게 수정하면 Git이 자동 결정하지 못할 수 있습니다. 의도에 맞게 충돌 표시를 정리하고 실행·테스트 후 해결을 기록합니다."
+      }
+    ],
+    "example": {
+      "code": "git switch -c feature/readme\n# README 수정 후\ngit add README.md\ngit commit -m \"Expand README\"\ngit switch main\ngit merge feature/readme",
+      "explanation": "새 브랜치에서 작업을 기록한 뒤 main에 병합합니다. 충돌이 생기면 두 변경 중 무엇을 유지할지 사람이 결정해야 하며 표시 문자열을 남기면 안 됩니다."
+    },
+    "practice": {
+      "task": "두 브랜치에서 README 같은 줄을 다르게 수정한 뒤 충돌 해결 과정을 연습하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "연습 저장소에서만 수행합니다. 충돌 줄을 최종 문장으로 수정 → git add README.md → git commit으로 병합을 마무리합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "브랜치 생성과 전환을 함께 하는 명령은?",
+        "options": [
+          "git switch -c 이름",
+          "git log 이름",
+          "git status -c"
+        ],
+        "answer": 0,
+        "explanation": "switch -c는 새 브랜치를 만들고 이동합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "병합 충돌이 나면?",
+        "options": [
+          "Git이 항상 정답 자동 선택",
+          "내용을 검토하고 직접 해결",
+          "원격 저장소 삭제"
+        ],
+        "answer": 1,
+        "explanation": "상반된 의도를 확인하고 최종 코드를 선택해야 합니다."
+      }
+    ]
+  },
+  {
+    "title": "변경 검토와 원격 추적",
+    "minutes": 20,
+    "goals": [
+      "diff와 log",
+      "fetch와 pull",
+      "stash"
+    ],
+    "concepts": [
+      {
+        "title": "diff와 log",
+        "body": "diff는 변경 내용, log는 커밋 이력을 보여 줍니다. 작업 트리 대 stage 비교와 stage 대 최근 커밋 비교를 구분해야 리뷰 대상을 정확히 볼 수 있습니다."
+      },
+      {
+        "title": "fetch와 pull",
+        "body": "fetch는 원격 정보를 가져오고 현재 작업에 곧바로 통합하지 않습니다. pull은 가져온 내용을 현재 브랜치에 통합하므로 병합·리베이스 정책을 확인합니다."
+      },
+      {
+        "title": "stash",
+        "body": "미커밋 변경을 임시로 치워 다른 작업을 할 때 사용합니다. stash는 장기 백업이 아니며 적용 시 충돌할 수 있으므로 목록과 내용을 확인합니다."
+      }
+    ],
+    "example": {
+      "code": "git diff\ngit diff --staged\ngit log --oneline -5\ngit fetch origin\ngit log --oneline HEAD..origin/main",
+      "explanation": "첫 두 명령은 서로 다른 변경을 비교합니다. 마지막 명령은 origin/main에만 있는 커밋을 살펴보는 예시이며 원격 추적 브랜치가 존재해야 합니다."
+    },
+    "practice": {
+      "task": "로컬 변경을 stash한 뒤 목록과 내용을 확인하고 다시 적용하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "git stash push -m \"draft\"\ngit stash list\ngit stash show -p\ngit stash apply\n# 보존 여부 확인 후 불필요한 stash를 정리합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "fetch는 현재 브랜치에 자동 병합하나요?",
+        "options": [
+          "아니요",
+          "항상 병합",
+          "항상 강제 덮어쓰기"
+        ],
+        "answer": 0,
+        "explanation": "fetch는 원격 추적 정보를 가져옵니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "임시 미커밋 변경 보관 기능은?",
+        "options": [
+          "stash",
+          "tag만",
+          "remote remove"
+        ],
+        "answer": 0,
+        "explanation": "stash로 작업 중 변경을 임시 보관할 수 있습니다."
+      }
+    ]
+  },
+  {
+    "title": "안전하게 되돌리고 리뷰하기",
+    "minutes": 20,
+    "goals": [
+      "revert",
+      "reset과 restore",
+      "PR과 CI"
+    ],
+    "concepts": [
+      {
+        "title": "revert",
+        "body": "기존 커밋의 변경을 되돌리는 새 커밋을 만듭니다. 공유된 이력을 지우지 않아 협업 중 취소 기록을 남기기 좋습니다."
+      },
+      {
+        "title": "reset과 restore",
+        "body": "reset은 옵션에 따라 브랜치·stage·작업 트리에 영향을 주고 restore는 파일 내용을 복원합니다. 특히 --hard와 작업 트리 복원은 미커밋 변경을 잃을 수 있어 대상과 백업을 확인합니다."
+      },
+      {
+        "title": "PR과 CI",
+        "body": "Pull Request는 변경 검토와 토론의 공간이며 CI는 자동 빌드·테스트를 실행합니다. 테스트 통과가 요구사항 충족을 모두 보장하지는 않으므로 diff와 실제 동작도 리뷰합니다."
+      }
+    ],
+    "example": {
+      "code": "git status\ngit log --oneline -3\n# 공유된 잘못된 커밋을 새 커밋으로 되돌림\ngit revert <대상_커밋_ID>\ngit show --stat HEAD",
+      "explanation": "꺾쇠 부분은 실제 커밋 ID로 바꿉니다. revert도 충돌할 수 있으며 되돌린 코드가 이후 변경과 맞는지 테스트해야 합니다."
+    },
+    "practice": {
+      "task": "공유된 커밋을 취소할 때 revert와 reset 중 무엇을 선택할지 이유를 쓰세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "일반적으로 revert로 취소 커밋을 남기는 편이 공유 이력을 보존하기 쉽습니다. 이력 재작성은 팀과 명시적으로 합의한 경우에만 진행합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "새 취소 커밋을 만드는 명령은?",
+        "options": [
+          "revert",
+          "reset --hard",
+          "clean -fd"
+        ],
+        "answer": 0,
+        "explanation": "revert는 변경을 취소하는 새 커밋을 만듭니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "CI 통과만으로 리뷰가 끝나나요?",
+        "options": [
+          "항상 끝남",
+          "요구사항과 diff도 확인",
+          "파일 이름만 보면 됨"
+        ],
+        "answer": 1,
+        "explanation": "테스트 범위 밖의 오류와 요구사항도 확인해야 합니다."
+      }
+    ]
+  },
+  {
+    "title": "작은 커밋과 협업 문서",
+    "minutes": 20,
+    "goals": [
+      "커밋 단위",
+      "ignore와 추적",
+      "프로젝트 문서"
+    ],
+    "concepts": [
+      {
+        "title": "커밋 단위",
+        "body": "하나의 목적을 중심으로 변경을 묶으면 리뷰와 되돌리기가 쉬워집니다. 메시지는 무엇을 왜 바꿨는지 설명하고 비밀값과 생성물은 포함하지 않습니다."
+      },
+      {
+        "title": "ignore와 추적",
+        "body": ".gitignore는 추적하지 않는 파일의 추가를 방지하는 규칙입니다. 이미 추적된 파일을 자동으로 기록에서 지우지는 않습니다. 유출된 비밀은 파일 삭제만으로 해결되지 않으므로 폐기·재발급이 필요합니다."
+      },
+      {
+        "title": "프로젝트 문서",
+        "body": "README에는 실행·설정·검증 방법을 적고 실제 비밀값 대신 환경변수 이름과 예시를 둡니다. tag는 릴리스 지점을 식별하는 이름으로 사용할 수 있습니다."
+      }
+    ],
+    "example": {
+      "code": "# .gitignore 예시\n.env\nnode_modules/\ndist/\n\n# 추적 상태 확인\n# git ls-files .env\n# .env.example에는 실제 토큰 대신 변수명만 기록",
+      "explanation": "ignore 규칙과 추적 여부는 별개입니다. .env가 이미 커밋되었다면 비밀값을 즉시 교체하고 팀의 이력 정리 절차를 따라야 합니다."
+    },
+    "practice": {
+      "task": "실행 방법과 테스트 명령을 포함한 README 목차를 만들고 .env.example을 작성하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "README: 소개 / 필수 환경 / 설치 / 실행 / 테스트 / 배포 설정. 예시 환경변수에는 DATABASE_URL=처럼 비밀이 아닌 빈 값이나 명확한 가짜 값을 사용합니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "이미 추적된 .env에 ignore를 추가하면?",
+        "options": [
+          "과거 비밀도 모두 사라짐",
+          "추적 기록은 자동 삭제되지 않음",
+          "토큰이 자동 재발급"
+        ],
+        "answer": 1,
+        "explanation": "이미 커밋된 비밀은 노출된 것으로 보고 교체해야 합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "좋은 커밋 단위는?",
+        "options": [
+          "서로 무관한 모든 변경",
+          "하나의 목적을 가진 변경",
+          "비밀값 추가"
+        ],
+        "answer": 1,
+        "explanation": "작고 목적이 분명한 커밋은 검토와 복구에 유리합니다."
+      }
+    ]
+  }
+]

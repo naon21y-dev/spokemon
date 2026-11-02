@@ -1470,3 +1470,69 @@ accessoryAnchors["dugtrio"]={"ratio": 1, "head": [58, 5], "headWidth": 28, "eyes
 skinAccessoryAnchors["dugtrio-home"]={"ratio": 1, "head": [56, 13], "headWidth": 28, "eyes": [56, 28], "ear": [67.76, 28], "chest": [56, 48], "aura": [50, 70]};
 skinAccessoryAnchors["dugtrio-home-shiny"]={"ratio": 1, "head": [56, 13], "headWidth": 28, "eyes": [56, 28], "ear": [67.76, 28], "chest": [56, 48], "aura": [50, 70]};
 skinAccessoryAnchors["dugtrio-shiny"]={"ratio": 1, "head": [58, 5], "headWidth": 28, "eyes": [58, 19], "ear": [69.76, 19], "chest": [58, 39], "aura": [50, 70]};
+
+accessoryAnchors["diglett-muscle-gold"]={"ratio": 1, "head": [57, 10], "headWidth": 22, "eyes": [57, 17], "ear": [66.24, 17], "chest": [50, 60], "aura": [50, 70]};
+
+accessoryAnchors["diglett-muscle-trio"]={"ratio": 1.035, "head": [47, 42], "headWidth": 24, "eyes": [47, 48], "ear": [57.08, 48], "chest": [50, 60], "aura": [50, 70]};
+
+accessoryAnchors["diglett-muscle"]={"ratio": 1, "head": [47, 1], "headWidth": 28, "eyes": [46, 10], "ear": [58.76, 10], "chest": [50, 60], "aura": [50, 70]};
+
+accessoryAnchors["chimchar"]={"ratio": 1, "head": [44, 24], "headWidth": 40, "eyes": [42, 45], "ear": [60.8, 45], "chest": [44, 70], "aura": [50, 70]};
+skinAccessoryAnchors["chimchar-home"]={"ratio": 1, "head": [48, 31], "headWidth": 37, "eyes": [46, 50], "ear": [63.54, 50], "chest": [48, 75], "aura": [50, 70]};
+skinAccessoryAnchors["chimchar-home-shiny"]={"ratio": 1, "head": [48, 31], "headWidth": 37, "eyes": [46, 50], "ear": [63.54, 50], "chest": [48, 75], "aura": [50, 70]};
+skinAccessoryAnchors["chimchar-shiny"]={"ratio": 1, "head": [44, 24], "headWidth": 40, "eyes": [42, 45], "ear": [60.8, 45], "chest": [44, 70], "aura": [50, 70]};
+
+accessoryAnchors["monferno"]={"ratio": 1, "head": [45, 23], "headWidth": 30, "eyes": [43, 42], "ear": [57.6, 42], "chest": [45, 67], "aura": [50, 70]};
+skinAccessoryAnchors["monferno-home"]={"ratio": 1, "head": [44, 25], "headWidth": 30, "eyes": [43, 43], "ear": [56.6, 43], "chest": [44, 68], "aura": [50, 70]};
+skinAccessoryAnchors["monferno-home-shiny"]={"ratio": 1, "head": [44, 25], "headWidth": 30, "eyes": [43, 43], "ear": [56.6, 43], "chest": [44, 68], "aura": [50, 70]};
+skinAccessoryAnchors["monferno-shiny"]={"ratio": 1, "head": [45, 23], "headWidth": 30, "eyes": [43, 42], "ear": [57.6, 42], "chest": [45, 67], "aura": [50, 70]};
+
+accessoryAnchors["infernape"]={"ratio": 1, "head": [35, 25], "headWidth": 27, "eyes": [34, 39], "ear": [46.34, 39], "chest": [35, 64], "aura": [50, 70]};
+skinAccessoryAnchors["infernape-home"]={"ratio": 1, "head": [32, 38], "headWidth": 26, "eyes": [32, 46], "ear": [42.92, 46], "chest": [32, 71], "aura": [50, 70]};
+skinAccessoryAnchors["infernape-home-shiny"]={"ratio": 1, "head": [32, 38], "headWidth": 26, "eyes": [32, 46], "ear": [42.92, 46], "chest": [32, 71], "aura": [50, 70]};
+skinAccessoryAnchors["infernape-shiny"]={"ratio": 1, "head": [35, 25], "headWidth": 27, "eyes": [34, 39], "ear": [46.34, 39], "chest": [35, 64], "aura": [50, 70]};
+
+accessoryAnchors["slowpoke"]={"ratio": 1, "head": [30, 41], "headWidth": 40, "eyes": [32, 53], "ear": [46.8, 53], "chest": [30, 78], "aura": [50, 70]};
+skinAccessoryAnchors["slowpoke-home"]={"ratio": 1, "head": [30, 50], "headWidth": 40, "eyes": [30, 63], "ear": [46.8, 63], "chest": [30, 85], "aura": [50, 70]};
+skinAccessoryAnchors["slowpoke-home-shiny"]={"ratio": 1, "head": [30, 50], "headWidth": 40, "eyes": [30, 63], "ear": [46.8, 63], "chest": [30, 85], "aura": [50, 70]};
+skinAccessoryAnchors["slowpoke-shiny"]={"ratio": 1, "head": [30, 41], "headWidth": 40, "eyes": [32, 53], "ear": [46.8, 53], "chest": [30, 78], "aura": [50, 70]};
+
+accessoryAnchors["slowbro"]={"ratio": 1, "head": [38, 10], "headWidth": 35, "eyes": [38, 23], "ear": [52.7, 23], "chest": [38, 48], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-home"]={"ratio": 1, "head": [38, 13], "headWidth": 35, "eyes": [38, 28], "ear": [52.7, 28], "chest": [38, 53], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-home-shiny"]={"ratio": 1, "head": [38, 13], "headWidth": 35, "eyes": [38, 28], "ear": [52.7, 28], "chest": [38, 53], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-shiny"]={"ratio": 1, "head": [38, 10], "headWidth": 35, "eyes": [38, 23], "ear": [52.7, 23], "chest": [38, 48], "aura": [50, 70]};
+
+accessoryAnchors["slowbro-mega"]={"ratio": 1, "head": [50, 5], "headWidth": 28, "eyes": [50, 17], "ear": [61.76, 17], "chest": [50, 42], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-mega-home"]={"ratio": 1, "head": [50, 8], "headWidth": 28, "eyes": [50, 20], "ear": [61.76, 20], "chest": [50, 45], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-mega-home-shiny"]={"ratio": 1, "head": [50, 8], "headWidth": 28, "eyes": [50, 20], "ear": [61.76, 20], "chest": [50, 45], "aura": [50, 70]};
+skinAccessoryAnchors["slowbro-mega-shiny"]={"ratio": 1, "head": [50, 5], "headWidth": 28, "eyes": [50, 17], "ear": [61.76, 17], "chest": [50, 42], "aura": [50, 70]};
+
+accessoryAnchors["chikorita"]={"ratio": 1, "head": [40, 40], "headWidth": 32, "eyes": [38, 57], "ear": [53.44, 57], "chest": [40, 82], "aura": [50, 70]};
+skinAccessoryAnchors["chikorita-home"]={"ratio": 1, "head": [45, 47], "headWidth": 30, "eyes": [43, 62], "ear": [57.6, 62], "chest": [45, 85], "aura": [50, 70]};
+skinAccessoryAnchors["chikorita-home-shiny"]={"ratio": 1, "head": [45, 47], "headWidth": 30, "eyes": [43, 62], "ear": [57.6, 62], "chest": [45, 85], "aura": [50, 70]};
+skinAccessoryAnchors["chikorita-shiny"]={"ratio": 1, "head": [40, 40], "headWidth": 32, "eyes": [38, 57], "ear": [53.44, 57], "chest": [40, 82], "aura": [50, 70]};
+
+accessoryAnchors["bayleef"]={"ratio": 1, "head": [45, 30], "headWidth": 20, "eyes": [43, 42], "ear": [53.4, 42], "chest": [45, 67], "aura": [50, 70]};
+skinAccessoryAnchors["bayleef-home"]={"ratio": 1, "head": [47, 34], "headWidth": 20, "eyes": [46, 44], "ear": [55.4, 44], "chest": [47, 69], "aura": [50, 70]};
+skinAccessoryAnchors["bayleef-home-shiny"]={"ratio": 1, "head": [47, 34], "headWidth": 20, "eyes": [46, 44], "ear": [55.4, 44], "chest": [47, 69], "aura": [50, 70]};
+skinAccessoryAnchors["bayleef-shiny"]={"ratio": 1, "head": [45, 30], "headWidth": 20, "eyes": [43, 42], "ear": [53.4, 42], "chest": [45, 67], "aura": [50, 70]};
+
+accessoryAnchors["meganium"]={"ratio": 1, "head": [50, 14], "headWidth": 22, "eyes": [50, 25], "ear": [59.24, 25], "chest": [50, 50], "aura": [50, 70]};
+skinAccessoryAnchors["meganium-home"]={"ratio": 1, "head": [52, 19], "headWidth": 22, "eyes": [52, 30], "ear": [61.24, 30], "chest": [52, 55], "aura": [50, 70]};
+skinAccessoryAnchors["meganium-home-shiny"]={"ratio": 1, "head": [52, 19], "headWidth": 22, "eyes": [52, 30], "ear": [61.24, 30], "chest": [52, 55], "aura": [50, 70]};
+skinAccessoryAnchors["meganium-shiny"]={"ratio": 1, "head": [50, 14], "headWidth": 22, "eyes": [50, 25], "ear": [59.24, 25], "chest": [50, 50], "aura": [50, 70]};
+
+accessoryAnchors["riolu"]={"ratio": 1, "head": [43, 12], "headWidth": 29, "eyes": [43, 31], "ear": [55.18, 31], "chest": [43, 56], "aura": [50, 70]};
+skinAccessoryAnchors["riolu-home"]={"ratio": 1, "head": [42, 25], "headWidth": 28, "eyes": [42, 39], "ear": [53.76, 39], "chest": [42, 64], "aura": [50, 70]};
+skinAccessoryAnchors["riolu-home-shiny"]={"ratio": 1, "head": [42, 25], "headWidth": 28, "eyes": [42, 39], "ear": [53.76, 39], "chest": [42, 64], "aura": [50, 70]};
+skinAccessoryAnchors["riolu-shiny"]={"ratio": 1, "head": [43, 12], "headWidth": 29, "eyes": [43, 31], "ear": [55.18, 31], "chest": [43, 56], "aura": [50, 70]};
+
+accessoryAnchors["lucario"]={"ratio": 1, "head": [47, 22], "headWidth": 20, "eyes": [47, 31], "ear": [55.4, 31], "chest": [47, 56], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-home"]={"ratio": 1, "head": [46, 24], "headWidth": 20, "eyes": [46, 34], "ear": [54.4, 34], "chest": [46, 59], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-home-shiny"]={"ratio": 1, "head": [46, 24], "headWidth": 20, "eyes": [46, 34], "ear": [54.4, 34], "chest": [46, 59], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-shiny"]={"ratio": 1, "head": [47, 22], "headWidth": 20, "eyes": [47, 31], "ear": [55.4, 31], "chest": [47, 56], "aura": [50, 70]};
+
+accessoryAnchors["lucario-mega"]={"ratio": 1, "head": [47, 17], "headWidth": 24, "eyes": [47, 30], "ear": [57.08, 30], "chest": [47, 55], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-mega-home"]={"ratio": 1, "head": [46, 19], "headWidth": 24, "eyes": [46, 31], "ear": [56.08, 31], "chest": [46, 56], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-mega-home-shiny"]={"ratio": 1, "head": [46, 19], "headWidth": 24, "eyes": [46, 31], "ear": [56.08, 31], "chest": [46, 56], "aura": [50, 70]};
+skinAccessoryAnchors["lucario-mega-shiny"]={"ratio": 1, "head": [47, 17], "headWidth": 24, "eyes": [47, 30], "ear": [57.08, 30], "chest": [47, 55], "aura": [50, 70]};

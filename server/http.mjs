@@ -1,3 +1,6 @@
+import {createFiles} from './files.mjs';
+import {createSloud} from './sloud.mjs';
+import {createDailyGift} from './daily-gift.mjs';
 import {createRoom} from './room.mjs';
 import {createGameRankings} from './game-rankings.mjs';
 import {createHiddenGame} from './hidden-game.mjs';
@@ -24,7 +27,8 @@ export async function createHttp(service, {
     cards = await createCardGame(service),
     hidden = await createHiddenGame(service),
     rankings = await createGameRankings(service),
-    room = await createRoom(service);
+    room = await createRoom(service),
+    files=await createFiles(service,{mail,social}),sloud=await createSloud(service,files),gifts=await createDailyGift(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
       res.writeHead(status, {
@@ -117,6 +121,16 @@ export async function createHttp(service, {
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
+      let match;
+      if(p==='/api/files'&&method==='POST')return send(200,await files.upload(u,body));
+      if((match=p.match(/^\/api\/attachments\/(private|friend|sloud)\/([^/]+)$/))&&method==='GET')return send(200,await files.list(u,match[1],match[2]));
+      if((match=p.match(/^\/api\/files\/([^/]+)$/))&&method==='GET'){const f=await files.read(u,match[1]);res.writeHead(200,{'Content-Type':f.mime,'Content-Length':f.size,'Content-Disposition':(f.mime.startsWith('image/')?'inline':'attachment')+"; filename*=UTF-8''"+encodeURIComponent(f.name),'X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; sandbox",'Cache-Control':'private, no-store'});return res.end(Buffer.from(f.data));}
+      if(p==='/api/gift'&&method==='GET')return send(200,await gifts.read(u));
+      if(p==='/api/gift/pick'&&method==='POST')return send(200,await gifts.pick(u,body));
+      if(p==='/api/gift/claim'&&method==='POST')return send(200,await gifts.claim(u,body));
+      if(p==='/api/sloud'&&method==='GET')return send(200,await sloud.list(u,Object.fromEntries(url.searchParams)));
+      if(p==='/api/sloud'&&method==='POST')return send(200,await sloud.save(u,body));
+      if((match=p.match(/^\/api\/sloud\/([^/]+)(?:\/(comments)(?:\/([^/]+))?)?$/))){const [,id,action,cid]=match;if(method==='GET'&&!action)return send(200,await sloud.detail(u,id));if(method==='POST'&&action==='comments'&&!cid)return send(200,await sloud.comment(u,id,body));if(method==='DELETE')return send(200,await sloud.remove(u,id,cid));}
       if(p==='/api/admin/online'&&method==='GET')return send(200,await presence.list(u));
       if(p==='/api/room'&&method==='GET')return send(200,await room.read(u));
       if(p==='/api/room'&&method==='PUT')return send(200,await room.save(u,body));
@@ -137,13 +151,12 @@ export async function createHttp(service, {
       if(hiddenMatch&&method==='POST')return send(200,await hidden.act(u,hiddenMatch[1],body));
       const cardMatch=p.match(/^\/api\/cards\/([^/]+)\/flip$/);
       if(cardMatch&&method==='POST')return send(200,await cards.flip(u,cardMatch[1],body));
-      let match;
       if (p === '/api/curriculum' && method === 'GET') return send(200, await service.curriculum());
       if(p==='/api/admin/curriculum'&&method==='GET')return send(200,await service.archivedCurriculum(u));
       if(p==='/api/admin/curriculum'&&method==='PATCH')return send(200,await service.manageCurriculum(u,body));
       if (p === '/api/admin/curriculum' && method === 'POST') return send(200, await service.addCurriculum(u, body));
       if (p === '/api/admin/message-recipients' && method === 'GET') return send(200, await mail.recipients(u, url.searchParams.get('search') ?? ''));
-      if (p === '/api/admin/messages' && method === 'POST') return send(200, await mail.sendAdmin(u, body));
+      if (p === '/api/admin/messages' && method === 'POST') return send(200, await files.withFiles(u,'private',body,()=>mail.sendAdmin(u,body)));
       if (p === '/api/notes' && method === 'GET') return await send(200, await notes.read(u, (await url.searchParams.get('date')) ?? undefined));
       if ((match = p.match(/^\/api\/notes\/(\d{4}-\d{2}-\d{2})$/)) && method === 'PUT') return await send(200, await notes.save(u, match[1], body));
       if (p === '/api/workshop' && method === 'GET') return await send(200, await service.workshop.list(u, Object.fromEntries(url.searchParams)));
@@ -171,7 +184,7 @@ export async function createHttp(service, {
       if (p === '/api/friends' && method === 'GET') return await send(200, await social.list(u));
       if (p === '/api/friends' && method === 'POST') return await send(200, await social.add(u, body.studentId));
       if(p==='/api/friend-messages'&&method==='DELETE')return send(200,await social.clear(u,body));
-      if (p === '/api/friend-messages' && method === 'POST') return await send(200, await social.send(u, body));
+      if (p === '/api/friend-messages' && method === 'POST') return await send(200, await files.withFiles(u,'friend',body,()=>social.send(u,body)));
       if (match = p.match(/^\/api\/friend-messages\/([^/]+)(?:\/(read))?$/)) {
         if (method === 'DELETE' && !match[2]) return send(200, await social.remove(u, match[1]));
         if (method === 'GET' && !match[2]) return await send(200, await social.detail(u, match[1]));
@@ -187,10 +200,10 @@ export async function createHttp(service, {
       if(p==='/api/messages'&&method==='DELETE')return send(200,await mail.clear(u,body));
       if(p==='/api/admin/messages'&&method==='DELETE')return send(200,await mail.clear(u,body,true));
       if (p === '/api/messages' && method === 'GET') return await send(200, await mail.list(u));
-      if (p === '/api/messages' && method === 'POST') return await send(200, await mail.send(u, body));
+      if (p === '/api/messages' && method === 'POST') return await send(200, await files.withFiles(u,'private',body,()=>mail.send(u,body)));
       if (match = p.match(/^\/api\/messages\/([^/]+)(?:\/(read|reply))?$/)) {
         if (method === 'DELETE' && !match[2]) return send(200, await mail.remove(u, match[1]));
-        if (method === 'POST' && match[2] === 'reply') return send(200, await mail.studentReply(u, match[1], body));
+        if (method === 'POST' && match[2] === 'reply') return send(200, await files.withFiles(u,'private',body,()=>mail.studentReply(u,match[1],body),match[1]));
         if (method === 'GET' && !match[2]) return await send(200, await mail.detail(u, match[1]));
         if (method === 'POST' && match[2] === 'read') return await send(200, await mail.read(u, match[1], body));
       }
@@ -198,7 +211,7 @@ export async function createHttp(service, {
       if (match = p.match(/^\/api\/admin\/messages\/([^/]+)(?:\/(reply))?$/)) {
         if (method === 'DELETE' && !match[2]) return send(200, await mail.remove(u, match[1], true));
         if (method === 'GET' && !match[2]) return await send(200, await mail.detail(u, match[1], true));
-        if (method === 'POST' && match[2] === 'reply') return await send(200, await mail.reply(u, match[1], body));
+        if (method === 'POST' && match[2] === 'reply') return await send(200, await files.withFiles(u,'private',body,()=>mail.reply(u,match[1],body),match[1]));
       }
       if (p === '/api/me' && method === 'GET') return await send(200, await service.state(u));
       if (p === '/api/profile' && method === 'PATCH') return await send(200, await service.updateProfile(u, body));
@@ -237,6 +250,7 @@ export async function createHttp(service, {
           ok: true
         });
       }
+      if ((match = p.match(/^\/api\/lesson\/([^/]+)\/(\d+)\/complete$/)) && method === 'POST') return send(200,await service.completeLesson(u,match[1],Number(match[2]),body));
       if (p === '/api/study/heartbeat' && method === 'POST') return await send(200, await service.heartbeat(u, body));
       if (p === '/api/admin/dashboard' && method === 'GET') return await send(200, await service.adminData(u, Object.fromEntries(url.searchParams)));
       if (p === '/api/admin/classes' && method === 'POST') return await send(200, await service.createClass(u, body.name));
@@ -246,8 +260,9 @@ export async function createHttp(service, {
           ok: true
         });
       }
-      if (match = p.match(/^\/api\/admin\/students\/([^/]+)(?:\/(class|migration|points))?$/)) {
+      if (match = p.match(/^\/api\/admin\/students\/([^/]+)(?:\/(class|migration|points|private-name))?$/)) {
         const [, id, action] = match;
+        if(method==='PUT'&&action==='private-name')return send(200,await service.saveStudentPrivateName(u,id,body));
         if(method==='GET'&&action==='points')return send(200,await service.points.read(u,id));
         if(method==='POST'&&action==='points')return send(200,await service.points.grant(u,id,body));
         if (method === 'DELETE' && !action) return await send(200, await service.deleteStudent(u, id, body));

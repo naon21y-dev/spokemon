@@ -1,8 +1,9 @@
+import {lessonGuide,guidePublic,gradeGuide} from './lessons/index.mjs';
 import {petCareActions,petCondition} from '../src/data/petCare.js';
 import {createAttendance} from './attendance.mjs';
 import {characters} from '../src/data/characters.js';
 import {createQuests} from './quests.mjs';
-import {evolutionStage,enhancementCost,characterAtStage} from '../src/data/evolutions.js';
+import {evolutionStage,enhancementCost,characterAtStage,evolvedCharacter} from '../src/data/evolutions.js';
 import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhancement} from './evolution.mjs';
 import { skinMap,skinMatchesForm } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
@@ -93,6 +94,8 @@ export async function createService(filename, {
       }
       ;
       if (!columns.has('deleted_at')) await db.exec('ALTER TABLE users ADD COLUMN deleted_at INTEGER');
+      if (!columns.has('admin_student_name')) await db.exec("ALTER TABLE users ADD COLUMN admin_student_name TEXT NOT NULL DEFAULT ''");
+      if (!columns.has('last_seen_at')) await db.exec('ALTER TABLE users ADD COLUMN last_seen_at INTEGER');
       if (!columns.has('deleted_by')) await db.exec('ALTER TABLE users ADD COLUMN deleted_by TEXT');
     });
     const run = async (sql, ...args) => await db.prepare(sql).run(...args),
@@ -146,6 +149,7 @@ export async function createService(filename, {
       return await newSession(u);
     }
     async function newSession(u) {
+      await run('UPDATE users SET last_seen_at=? WHERE id=?',clock(),u.id);
       if ((await fresh(u)).deleted_at != null) fail(401, '삭제된 계정입니다.');
       const token = randomBytes(32).toString('base64url');
       await run('DELETE FROM auth_sessions WHERE expires<?', clock());
@@ -238,7 +242,7 @@ export async function createService(filename, {
         subject: q.subject,
         unit: unitOf(q),
         type: q.type,
-        prompt: q.prompt
+        prompt: q.prompt,code:q.code??'',format:q.format??q.type
       };
       if (q.options) output.options = q.options;
       if (answer) {
@@ -562,6 +566,7 @@ export async function createService(filename, {
         subject,
         unit,
         title: label(subject, unit),
+        guide:guidePublic(lessonGuide(subject,unit,questions.filter(q=>q.subject===subject&&unitOf(q)===unit),label(subject,unit))),
         items: questions.filter(q => q.subject === subject && unitOf(q) === unit).map(q => ({
           id: q.id,
           title: q.prompt,
@@ -570,6 +575,9 @@ export async function createService(filename, {
         })),
         source: subjectMap[subject].source
       };
+    }
+    async function completeLesson(u,subject,unit,body){
+      student(u);return tx(async()=>{await checkUnit(u,subject,unit);const items=questions.filter(q=>q.subject===subject&&unitOf(q)===unit);if(!items.length)fail(400,'학습 항목이 없는 단원입니다.');const guide=lessonGuide(subject,unit,items,label(subject,unit));const feedback=gradeGuide(guide,body?.answers);const passed=feedback.length>0&&feedback.every(x=>x.correct);if(passed)for(const q of items)await run('INSERT OR IGNORE INTO completions VALUES (?,?,?)',u.id,q.id,clock());return {passed,feedback,completed:passed?items.length:0};});
     }
     async function complete(u, id) {
       student(u);
@@ -805,14 +813,14 @@ export async function createService(filename, {
         await run('UPDATE migrations SET status=?,approved_at=? WHERE user_id=?', 'approved', clock(), id);
       });
     }
-    const memberGameStats = account => ({level:Math.max(1,Math.floor((Number(parse(account.pet).xp)||0)/100)+1),coins:account.coins});
+    const memberGameStats = account => {const pet=parse(account.pet),partner=evolvedCharacter(pet);return {level:Math.max(1,Math.floor((Number(pet.xp)||0)/100)+1),coins:account.coins,lastSeenAt:account.last_seen_at??null,privateName:account.admin_student_name??'',partner:{character:partner.id,stage:partner.stage,formId:partner.formId,name:partner.name,nickname:pet.nickname??''}}};
     async function adminData(u, filters = {}) {
       admin(u);
       await refreshContent();
       return {
         classes: await all('SELECT * FROM classes ORDER BY name'),
         subjects,
-        students: await Promise.all((await all("SELECT * FROM users WHERE role='student' AND deleted_at IS NULL ORDER BY name")).filter(s => (!filters.classId || s.class_id === filters.classId) && (!filters.search || (s.name + ' ' + s.login).toLowerCase().includes(filters.search.toLowerCase()))).map(async s => ({
+        students: await Promise.all((await all("SELECT * FROM users WHERE role='student' AND deleted_at IS NULL ORDER BY name")).filter(s => (!filters.classId || s.class_id === filters.classId) && (!filters.search || (s.name + ' ' + s.login + ' ' + (s.admin_student_name??'')).toLowerCase().includes(filters.search.toLowerCase()))).map(async s => ({
           ...(await publicUser(s)),
           ...(await summary(s, filters.subject ?? 'all')),
           ...memberGameStats(s),
@@ -828,6 +836,12 @@ export async function createService(filename, {
           claimedCoins: parse(m.snapshot).coins
         }))
       };
+    }
+    async function saveStudentPrivateName(u,id,body){
+      admin(u);
+      if(typeof body?.name!=='string')fail(400,'학생 이름을 입력해 주세요.');
+      const name=body.name.trim();if(Array.from(name).length>40||/[\u0000-\u001f\u007f]/.test(name))fail(400,'학생 이름은 40자 이내로 입력해 주세요.');
+      return tx(async()=>{const target=await get("SELECT id FROM users WHERE id=? AND role='student' AND deleted_at IS NULL",id);if(!target)fail(404,'학생을 찾을 수 없어요.');await run('UPDATE users SET admin_student_name=? WHERE id=?',name,id);return {privateName:name};});
     }
     async function studentDetail(u, id) {
       admin(u);
@@ -941,6 +955,7 @@ export async function createService(filename, {
       next,
       draft,
       lesson,
+      completeLesson,
       complete,
       updateProfile,
       petAction,
@@ -950,6 +965,7 @@ export async function createService(filename, {
       approveMigration,
       adminData,
       studentDetail,
+      saveStudentPrivateName,
       deleteStudent,
       createClass,
       assignClass,

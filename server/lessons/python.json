@@ -1,0 +1,303 @@
+[
+  {
+    "title": "자료형과 값의 표현",
+    "minutes": 20,
+    "goals": [
+      "기본 자료형",
+      "문자열과 리스트",
+      "출력과 들여쓰기"
+    ],
+    "concepts": [
+      {
+        "title": "기본 자료형",
+        "body": "int·float·str·bool은 서로 다른 종류의 값을 표현합니다. input 결과는 문자열이므로 숫자 계산에는 변환과 입력 오류 처리가 필요합니다."
+      },
+      {
+        "title": "문자열과 리스트",
+        "body": "문자열은 변경할 수 없고 리스트는 원소를 변경할 수 있습니다. 같은 변수에 새 문자열을 대입하는 것과 기존 문자열을 수정하는 것은 다릅니다."
+      },
+      {
+        "title": "출력과 들여쓰기",
+        "body": "print는 화면에 값을 출력하고 들여쓰기는 코드 블록을 구분합니다. f-string으로 값을 읽기 쉬운 문장에 포함할 수 있습니다."
+      }
+    ],
+    "example": {
+      "code": "name = \"민지\"\nscore = 85\npassed = score >= 80\nprint(f\"{name}: {score}점, 통과={passed}\")",
+      "explanation": "score는 정수이고 비교 결과 passed는 bool입니다. f-string의 중괄호 안 표현식이 평가되어 한 문장으로 출력됩니다."
+    },
+    "practice": {
+      "task": "이름·국어·영어 점수를 변수로 두고 평균을 출력하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "korean, english = 80, 90\naverage = (korean + english) / 2\nprint(f\"평균 {average:.1f}점\")"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "input의 기본 반환 타입은?",
+        "options": [
+          "int",
+          "str",
+          "bool"
+        ],
+        "answer": 1,
+        "explanation": "input은 입력한 내용을 문자열로 반환합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "변경 가능한 자료형은?",
+        "options": [
+          "str",
+          "tuple",
+          "list"
+        ],
+        "answer": 2,
+        "explanation": "list는 원소 추가·수정이 가능합니다."
+      }
+    ]
+  },
+  {
+    "title": "조건·반복·인덱싱",
+    "minutes": 20,
+    "goals": [
+      "조건 분기",
+      "반복",
+      "슬라이싱"
+    ],
+    "concepts": [
+      {
+        "title": "조건 분기",
+        "body": "if·elif·else는 위에서부터 조건을 검사합니다. 범위가 겹치는 조건은 구체적인 조건을 먼저 써야 의도한 분기로 갑니다."
+      },
+      {
+        "title": "반복",
+        "body": "for는 순회 가능한 값에서 원소를 꺼내고 range의 끝 값은 포함하지 않습니다. while은 종료 조건이 바뀌지 않으면 무한 반복이 됩니다."
+      },
+      {
+        "title": "슬라이싱",
+        "body": "a[start:stop:step]은 stop 앞까지 선택합니다. 음수 인덱스 -1은 마지막 원소이며 append와 extend는 추가하는 단위가 다릅니다."
+      }
+    ],
+    "example": {
+      "code": "scores = [90, 65, 80]\npassed = []\nfor i in range(len(scores)):\n    if scores[i] >= 80:\n        passed.append(scores[i])\nprint(passed)",
+      "explanation": "range(3)은 0,1,2를 만듭니다. 90과 80만 조건을 만족하므로 passed는 [90,80]입니다. 원소가 필요할 뿐이면 for score in scores가 더 간단합니다."
+    },
+    "practice": {
+      "task": "1부터 10까지의 짝수를 새 리스트에 모으세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "evens = []\nfor n in range(1, 11):\n    if n % 2 == 0:\n        evens.append(n)\nprint(evens)"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "range(1,4)의 값은?",
+        "options": [
+          "1,2,3",
+          "1,2,3,4",
+          "0,1,2,3"
+        ],
+        "answer": 0,
+        "explanation": "종료 값 4는 포함하지 않습니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "a[-1]의 의미는?",
+        "options": [
+          "첫 원소",
+          "마지막 원소",
+          "무조건 오류"
+        ],
+        "answer": 1,
+        "explanation": "비어 있지 않은 시퀀스에서 마지막 원소를 뜻합니다."
+      }
+    ]
+  },
+  {
+    "title": "딕셔너리·집합·비교",
+    "minutes": 20,
+    "goals": [
+      "딕셔너리",
+      "집합",
+      "연산과 비교"
+    ],
+    "concepts": [
+      {
+        "title": "딕셔너리",
+        "body": "키로 값을 찾는 구조입니다. 없는 키에 [] 접근하면 KeyError가 나고 get은 기본값을 줄 수 있습니다. 키는 해시 가능해야 합니다."
+      },
+      {
+        "title": "집합",
+        "body": "중복을 제거하고 포함 검사·합집합·교집합을 수행합니다. 순서가 필요한 결과는 별도로 정렬하고 빈 집합은 {}가 아니라 set()으로 만듭니다."
+      },
+      {
+        "title": "연산과 비교",
+        "body": "==는 값 비교, is는 동일 객체 여부입니다. /는 나눗셈, //는 내림 나눗셈, %는 나머지이므로 음수에서의 동작도 직접 확인해 보세요."
+      }
+    ],
+    "example": {
+      "code": "scores = {\"민지\": 90, \"준호\": 70}\nprint(scores.get(\"지수\", 0))\nunique = set([\"Python\", \"SQL\", \"Python\"])\nprint(sorted(unique))",
+      "explanation": "없는 지수의 점수는 기본값 0이고 중복된 Python은 집합에 한 번만 남습니다. sorted로 정렬된 리스트를 만들면 출력 순서를 예측할 수 있습니다."
+    },
+    "practice": {
+      "task": "두 학생의 수강 과목 중 공통 과목만 정렬해 출력하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "a = {\"Python\", \"SQL\"}\nb = {\"SQL\", \"Git\"}\nprint(sorted(a & b)) # ['SQL']"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "없는 키에 기본값을 주는 메서드는?",
+        "options": [
+          "get",
+          "append",
+          "split"
+        ],
+        "answer": 0,
+        "explanation": "dict.get(key, default)는 키가 없을 때 기본값을 반환합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "값이 같은지 비교하는 연산자는?",
+        "options": [
+          "is만",
+          "==",
+          "=",
+          ""
+        ],
+        "answer": 1,
+        "explanation": "==는 값 동등성을 비교하고 is는 객체 동일성을 검사합니다."
+      }
+    ]
+  },
+  {
+    "title": "문자열·컴프리헨션·순회",
+    "minutes": 20,
+    "goals": [
+      "문자열 처리",
+      "컴프리헨션",
+      "enumerate와 zip"
+    ],
+    "concepts": [
+      {
+        "title": "문자열 처리",
+        "body": "strip은 양끝 문자를 정리하고 split은 나누고 join은 문자열들을 연결합니다. 원본 문자열을 수정하지 않고 새 결과를 반환합니다."
+      },
+      {
+        "title": "컴프리헨션",
+        "body": "반복과 조건으로 새 리스트를 간결하게 만듭니다. 중첩과 부수 효과가 많아 읽기 어려워지면 일반 for문으로 풀어 쓰세요."
+      },
+      {
+        "title": "enumerate와 zip",
+        "body": "enumerate는 인덱스와 원소를 함께 주고 zip은 여러 시퀀스를 나란히 묶습니다. 기본 zip은 가장 짧은 입력 길이에 맞춰 종료합니다."
+      }
+    ],
+    "example": {
+      "code": "raw = \" 80, 90, 60 \"\nscores = [int(x.strip()) for x in raw.strip().split(\",\")]\npassed = [x for x in scores if x >= 80]\nfor index, score in enumerate(passed, start=1):\n    print(index, score)",
+      "explanation": "문자열을 세 조각으로 나눠 정수 리스트를 만들고 80 이상만 남깁니다. enumerate의 start=1로 사람이 읽는 번호를 출력합니다."
+    },
+    "practice": {
+      "task": "이름 배열과 점수 배열을 zip으로 묶어 80점 이상 이름만 출력하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "names = [\"민지\", \"준호\", \"지수\"]\nprint([name for name, score in zip(names, scores) if score >= 80])"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "공백을 양끝에서 정리하는 메서드는?",
+        "options": [
+          "strip",
+          "append",
+          "sort"
+        ],
+        "answer": 0,
+        "explanation": "strip은 양끝을 정리하며 내부 공백은 유지합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "zip 기본 종료 길이는?",
+        "options": [
+          "긴 입력 길이",
+          "짧은 입력 길이",
+          "항상 무한"
+        ],
+        "answer": 1,
+        "explanation": "가장 짧은 입력이 끝나면 순회를 멈춥니다."
+      }
+    ]
+  },
+  {
+    "title": "함수·클래스·예외·환경",
+    "minutes": 20,
+    "goals": [
+      "함수와 클래스",
+      "예외와 파일",
+      "모듈과 가상환경"
+    ],
+    "concepts": [
+      {
+        "title": "함수와 클래스",
+        "body": "함수는 동작을 재사용하고 클래스는 관련 상태와 동작을 묶습니다. 인스턴스 메서드의 self는 그 객체를 가리킵니다. 가변 기본 인자는 호출 사이 공유될 수 있어 주의합니다."
+      },
+      {
+        "title": "예외와 파일",
+        "body": "예측 가능한 입력 오류는 구체적인 except로 처리합니다. with open은 블록을 나갈 때 파일 자원을 정리하며 finally는 성공·실패와 관계없이 정리 작업을 실행합니다."
+      },
+      {
+        "title": "모듈과 가상환경",
+        "body": "import로 모듈을 사용하고 가상환경으로 프로젝트 의존성을 분리합니다. 패키지 설치는 실행 중인 Python 환경과 같은 환경에서 해야 ModuleNotFoundError 혼란을 줄입니다."
+      }
+    ],
+    "example": {
+      "code": "def parse_score(text):\n    try:\n        value = int(text)\n    except ValueError:\n        return None\n    return value if 0 <= value <= 100 else None\n\nprint(parse_score(\"90\"), parse_score(\"abc\"))",
+      "explanation": "출력은 90 None입니다. 숫자로 변환할 수 없는 입력과 범위를 벗어난 입력을 모두 None으로 구분합니다. 모든 예외를 무작정 삼키지 않도록 예외 종류를 제한합니다."
+    },
+    "practice": {
+      "task": "Student 클래스를 만들고 이름과 점수를 저장한 뒤 합격 여부를 반환하는 메서드를 작성하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "class Student:\n    def __init__(self, name, score):\n        self.name, self.score = name, score\n    def passed(self):\n        return self.score >= 80"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "int(\"abc\")에서 예상되는 예외는?",
+        "options": [
+          "ValueError",
+          "정상적으로 0",
+          "항상 None"
+        ],
+        "answer": 0,
+        "explanation": "변환할 수 없는 문자열은 ValueError를 발생시킵니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "가상환경의 목적은?",
+        "options": [
+          "프로젝트 의존성 분리",
+          "코드를 자동 정답으로 수정",
+          "DB 자동 백업"
+        ],
+        "answer": 0,
+        "explanation": "서로 다른 프로젝트의 패키지 환경을 분리합니다."
+      }
+    ]
+  }
+]

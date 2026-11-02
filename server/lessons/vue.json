@@ -1,0 +1,302 @@
+[
+  {
+    "title": "상태가 화면이 되는 과정",
+    "minutes": 20,
+    "goals": [
+      "컴포넌트와 SFC",
+      "ref와 텍스트 출력",
+      "이벤트와 화면 갱신"
+    ],
+    "concepts": [
+      {
+        "title": "컴포넌트와 SFC",
+        "body": "화면을 재사용 가능한 조각으로 나눕니다. .vue 파일의 script setup은 로직, template은 화면 구조, style은 표현을 담당합니다. 작은 책임으로 나누면 수정 영향을 찾기 쉽습니다."
+      },
+      {
+        "title": "ref와 텍스트 출력",
+        "body": "ref는 변경을 추적하는 값을 만듭니다. JavaScript에서는 count.value를 변경하고, 템플릿에서는 count를 사용합니다. {{ }}는 HTML을 실행하지 않고 텍스트로 출력합니다."
+      },
+      {
+        "title": "이벤트와 화면 갱신",
+        "body": "@click은 클릭 때 함수를 실행합니다. 반응형 상태가 바뀌면 Vue가 관련 화면을 갱신하므로 DOM 텍스트를 직접 바꿀 필요가 없습니다."
+      }
+    ],
+    "example": {
+      "code": "<script setup>\nimport { ref } from \"vue\"\nconst count = ref(0)\nconst add = () => count.value++\n</script>\n<template>\n  <button @click=\"add\">{{ count }}번 클릭</button>\n</template>",
+      "explanation": "초기 화면은 0번 클릭입니다. 버튼을 누르면 ref의 값이 1이 되고 템플릿도 1번 클릭으로 갱신됩니다. 스크립트와 템플릿의 .value 사용 차이를 비교하세요."
+    },
+    "practice": {
+      "task": "감소 버튼과 0으로 초기화하는 버튼을 추가하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "const subtract = () => count.value--\nconst reset = () => count.value = 0"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "스크립트에서 ref 값을 1 증가시키는 표현은?",
+        "options": [
+          "count.value++",
+          "count = 1",
+          "count.text++"
+        ],
+        "answer": 0,
+        "explanation": "ref 객체 자체를 바꾸지 않고 .value를 변경합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "화면을 구성하는 .vue 파일 확장자는?",
+        "options": [
+          ".vue",
+          ".htmlx",
+          ".java"
+        ],
+        "answer": 0,
+        "explanation": "단일 파일 컴포넌트는 .vue를 사용합니다."
+      }
+    ]
+  },
+  {
+    "title": "조건·목록·컴포넌트의 데이터 흐름",
+    "minutes": 20,
+    "goals": [
+      "조건과 목록",
+      "props",
+      "emit"
+    ],
+    "concepts": [
+      {
+        "title": "조건과 목록",
+        "body": "v-if는 조건에 따라 요소를 생성·제거하고 v-show는 CSS 표시 여부를 바꿉니다. v-for는 배열을 반복하며 안정적인 고유 key로 각 항목의 정체성을 알려 줍니다."
+      },
+      {
+        "title": "props",
+        "body": "부모가 자식에게 전달하는 입력입니다. 자식이 props를 직접 수정하면 데이터의 소유자가 흐려지므로 새 변경 요청을 이벤트로 부모에게 전달합니다."
+      },
+      {
+        "title": "emit",
+        "body": "자식이 부모에게 사건을 알립니다. 부모가 상태를 수정하고 변경된 props를 내려주는 단방향 흐름으로 추적하기 쉬운 화면을 만듭니다."
+      }
+    ],
+    "example": {
+      "code": "<script setup>\ndefineProps({ title: String })\nconst emit = defineEmits([\"choose\"])\n</script>\n<template>\n  <button @click=\"emit('choose')\">{{ title }}</button>\n</template>",
+      "explanation": "자식은 title을 읽어 버튼을 그리고 choose 이벤트를 보냅니다. 부모는 <Choice title=\"물\" @choose=\"selectWater\" />처럼 사용하며 실제 선택 상태를 관리합니다."
+    },
+    "practice": {
+      "task": "부모에 3개의 선택지를 만들고 선택했을 때만 상세 설명을 v-if로 표시하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "부모: const selected = ref(false)\n자식 사용: <Choice title=\"물\" @choose=\"selected = true\" />\n상세: <p v-if=\"selected\">선택 완료</p>"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "리스트 key로 더 적합한 것은?",
+        "options": [
+          "배열 순서만 나타내는 index",
+          "항목의 고유 id",
+          "매번 바뀌는 난수"
+        ],
+        "answer": 1,
+        "explanation": "삽입·삭제 때 항목 정체성을 유지하는 고유 id가 적합합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "자식이 부모의 데이터를 변경하고 싶다면?",
+        "options": [
+          "props 직접 수정",
+          "이벤트를 emit",
+          "DOM 삭제"
+        ],
+        "answer": 1,
+        "explanation": "자식은 사건을 알리고 부모가 자신의 상태를 변경합니다."
+      }
+    ]
+  },
+  {
+    "title": "입력과 표현을 연결하기",
+    "minutes": 20,
+    "goals": [
+      "v-model",
+      "동적 클래스",
+      "슬롯"
+    ],
+    "concepts": [
+      {
+        "title": "v-model",
+        "body": "폼 입력과 상태를 연결합니다. 기본 input은 문자열이므로 숫자 계산에는 .number 또는 명시적 변환이 필요합니다. 빈 입력과 0을 구분해서 검사하세요."
+      },
+      {
+        "title": "동적 클래스",
+        "body": ":class와 :style로 상태에 따른 표현을 선언합니다. 클래스 객체의 값이 참일 때만 해당 클래스가 적용됩니다."
+      },
+      {
+        "title": "슬롯",
+        "body": "부모가 자식의 특정 위치에 화면 내용을 전달합니다. 데이터 props와 화면 조각 slot의 역할을 분리하면 재사용 범위가 넓어집니다."
+      }
+    ],
+    "example": {
+      "code": "<script setup>\nimport { ref } from \"vue\"\nconst name = ref(\"\")\n</script>\n<template>\n <input v-model.trim=\"name\" />\n <p :class=\"{ ready: name.length >= 2 }\">{{ name }}</p>\n</template>",
+      "explanation": "앞뒤 공백을 제거한 이름이 상태에 반영됩니다. 길이가 2 이상일 때 ready 클래스가 붙습니다. 이 코드만으로 저장 권한 검사가 끝나는 것은 아니며 서버 검증도 필요합니다."
+    },
+    "practice": {
+      "task": "이름이 2글자 미만이면 저장 버튼을 비활성화하고 안내 문구를 표시하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "<button :disabled=\"name.length < 2\">저장</button>\n<p v-if=\"name.length < 2\">두 글자 이상 입력하세요.</p>"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "v-model.trim의 역할은?",
+        "options": [
+          "앞뒤 공백 제거",
+          "숫자로 정렬",
+          "서버 저장"
+        ],
+        "answer": 0,
+        "explanation": "입력의 앞뒤 공백을 정리합니다. 내부 공백을 모두 지우지는 않습니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "부모가 카드 안쪽에 임의의 화면을 넣는 기능은?",
+        "options": [
+          "watch",
+          "slot",
+          "ref"
+        ],
+        "answer": 1,
+        "explanation": "slot은 자식 컴포넌트가 제공하는 콘텐츠 자리입니다."
+      }
+    ]
+  },
+  {
+    "title": "화면 이동과 공유 상태",
+    "minutes": 20,
+    "goals": [
+      "라우터",
+      "Pinia",
+      "동적 컴포넌트"
+    ],
+    "concepts": [
+      {
+        "title": "라우터",
+        "body": "URL을 컴포넌트 화면에 연결합니다. RouterLink는 앱 내부 이동, RouterView는 매칭된 화면을 보여 줍니다. params와 query를 읽을 때는 타입과 유효성을 확인합니다."
+      },
+      {
+        "title": "Pinia",
+        "body": "여러 화면이 함께 사용하는 상태와 동작을 store에 모읍니다. 화면별 임시 입력까지 모두 전역으로 만들기보다 실제 공유 범위에 맞춰 사용합니다."
+      },
+      {
+        "title": "동적 컴포넌트",
+        "body": "component의 :is에 따라 사용할 컴포넌트를 선택합니다. KeepAlive는 해당 컴포넌트 상태를 캐시하므로 항상 재시작해야 하는 게임에는 수명 주기를 신중하게 정합니다."
+      }
+    ],
+    "example": {
+      "code": "import { defineStore } from \"pinia\"\nexport const useCart = defineStore(\"cart\", {\n state: () => ({ count: 0 }),\n actions: { add() { this.count++ } }\n})",
+      "explanation": "서로 다른 컴포넌트에서 같은 store를 사용하면 count를 공유합니다. store의 값은 브라우저 새로고침 후 자동 보존되지 않으며 서버나 별도 저장 정책이 필요합니다."
+    },
+    "practice": {
+      "task": "상품 화면에서 수량을 올리고 다른 화면에서 같은 수량을 확인하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "const cart = useCart()\ncart.add()\n// 다른 화면도 useCart().count를 읽습니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "라우트가 결정한 화면이 표시되는 곳은?",
+        "options": [
+          "RouterView",
+          "RouterLink",
+          "localStorage"
+        ],
+        "answer": 0,
+        "explanation": "RouterView는 현재 경로에 매칭된 컴포넌트를 표시합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "Pinia 상태가 자동으로 서버 DB에 저장되나요?",
+        "options": [
+          "항상 그렇다",
+          "별도 저장 구현이 필요하다",
+          "관리자만 자동 저장된다"
+        ],
+        "answer": 1,
+        "explanation": "Pinia는 상태 관리 도구이며 저장과 인증은 별도 기능입니다."
+      }
+    ]
+  },
+  {
+    "title": "계산·감시·생명주기",
+    "minutes": 20,
+    "goals": [
+      "computed",
+      "watch",
+      "컴포저블과 정리"
+    ],
+    "concepts": [
+      {
+        "title": "computed",
+        "body": "다른 반응형 값에서 계산되는 파생 값을 표현합니다. 의존 값이 바뀔 때 다시 계산하며 getter에서 네트워크 요청 같은 부수 효과를 만들지 않습니다."
+      },
+      {
+        "title": "watch",
+        "body": "특정 상태의 변화에 반응해 저장이나 요청 같은 부수 효과를 실행할 때 사용합니다. 연속 입력 시 이전 요청 취소와 응답 순서 문제를 고려해야 합니다."
+      },
+      {
+        "title": "컴포저블과 정리",
+        "body": "반복되는 상태·동작을 useSomething 함수로 묶습니다. 타이머·이벤트·요청은 onUnmounted 또는 watch 정리 함수로 해제해야 화면 이동 후에도 작업이 남지 않습니다."
+      }
+    ],
+    "example": {
+      "code": "import { ref, computed, onMounted, onUnmounted } from \"vue\"\nconst seconds = ref(0)\nconst label = computed(() => seconds.value + \"초\")\nlet timer\nonMounted(() => timer = setInterval(() => seconds.value++, 1000))\nonUnmounted(() => clearInterval(timer))",
+      "explanation": "label은 seconds에 의존하는 표시 값입니다. 컴포넌트가 사라질 때 interval을 정리하므로 다시 들어와도 이전 타이머와 중복되지 않습니다."
+    },
+    "practice": {
+      "task": "타이머를 별도 useTimer 컴포저블로 옮기고 시작·중지 기능을 추가하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "useTimer 안에서 seconds와 timer를 관리하고 start/stop/seconds를 반환합니다. stop에서 clearInterval을 호출하고 timer를 비웁니다."
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "계산 결과 표시만 필요할 때 적합한 것은?",
+        "options": [
+          "computed",
+          "DOM 직접 수정",
+          "무한 interval"
+        ],
+        "answer": 0,
+        "explanation": "반응형 입력에서 계산한 값은 computed로 표현합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "화면을 떠날 때 interval은?",
+        "options": [
+          "그대로 둔다",
+          "clearInterval로 정리한다",
+          "한 개 더 만든다"
+        ],
+        "answer": 1,
+        "explanation": "남아 있는 타이머는 중복 실행과 메모리 사용의 원인이 됩니다."
+      }
+    ]
+  }
+]

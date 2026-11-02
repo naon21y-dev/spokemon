@@ -1,0 +1,317 @@
+{
+  "source": "https://github.com/PokeAPI/sprites",
+  "forms": [
+    {
+      "family": "chimchar",
+      "id": "chimchar",
+      "name": "불꽃숭이",
+      "stage": 1,
+      "pokemonId": 390,
+      "image": "/images/characters/chimchar.png",
+      "assets": [
+        {
+          "path": "/images/characters/chimchar.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/390.png"
+        },
+        {
+          "path": "/images/skins/evolved/chimchar-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/390.png"
+        },
+        {
+          "path": "/images/skins/evolved/chimchar-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/390.png"
+        },
+        {
+          "path": "/images/skins/evolved/chimchar-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/390.png"
+        }
+      ]
+    },
+    {
+      "family": "chimchar",
+      "id": "monferno",
+      "name": "파이숭이",
+      "stage": 2,
+      "pokemonId": 391,
+      "image": "/images/evolutions/monferno.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/monferno.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/391.png"
+        },
+        {
+          "path": "/images/skins/evolved/monferno-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/391.png"
+        },
+        {
+          "path": "/images/skins/evolved/monferno-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/391.png"
+        },
+        {
+          "path": "/images/skins/evolved/monferno-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/391.png"
+        }
+      ]
+    },
+    {
+      "family": "chimchar",
+      "id": "infernape",
+      "name": "초염몽",
+      "stage": 3,
+      "pokemonId": 392,
+      "image": "/images/evolutions/infernape.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/infernape.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/392.png"
+        },
+        {
+          "path": "/images/skins/evolved/infernape-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/392.png"
+        },
+        {
+          "path": "/images/skins/evolved/infernape-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/392.png"
+        },
+        {
+          "path": "/images/skins/evolved/infernape-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/392.png"
+        }
+      ]
+    },
+    {
+      "family": "slowpoke",
+      "id": "slowpoke",
+      "name": "야돈",
+      "stage": 1,
+      "pokemonId": 79,
+      "image": "/images/characters/slowpoke.png",
+      "assets": [
+        {
+          "path": "/images/characters/slowpoke.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/79.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowpoke-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/79.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowpoke-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/79.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowpoke-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/79.png"
+        }
+      ]
+    },
+    {
+      "family": "slowpoke",
+      "id": "slowbro",
+      "name": "야도란",
+      "stage": 2,
+      "pokemonId": 80,
+      "image": "/images/evolutions/slowbro.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/slowbro.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/80.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/80.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/80.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/80.png"
+        }
+      ]
+    },
+    {
+      "family": "slowpoke",
+      "id": "slowbro-mega",
+      "name": "메가야도란",
+      "stage": 3,
+      "pokemonId": 10071,
+      "image": "/images/evolutions/slowbro-mega.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/slowbro-mega.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10071.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-mega-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10071.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-mega-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10071.png"
+        },
+        {
+          "path": "/images/skins/evolved/slowbro-mega-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10071.png"
+        }
+      ]
+    },
+    {
+      "family": "chikorita",
+      "id": "chikorita",
+      "name": "치코리타",
+      "stage": 1,
+      "pokemonId": 152,
+      "image": "/images/characters/chikorita.png",
+      "assets": [
+        {
+          "path": "/images/characters/chikorita.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/152.png"
+        },
+        {
+          "path": "/images/skins/evolved/chikorita-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/152.png"
+        },
+        {
+          "path": "/images/skins/evolved/chikorita-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/152.png"
+        },
+        {
+          "path": "/images/skins/evolved/chikorita-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/152.png"
+        }
+      ]
+    },
+    {
+      "family": "chikorita",
+      "id": "bayleef",
+      "name": "베이리프",
+      "stage": 2,
+      "pokemonId": 153,
+      "image": "/images/evolutions/bayleef.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/bayleef.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/153.png"
+        },
+        {
+          "path": "/images/skins/evolved/bayleef-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/153.png"
+        },
+        {
+          "path": "/images/skins/evolved/bayleef-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/153.png"
+        },
+        {
+          "path": "/images/skins/evolved/bayleef-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/153.png"
+        }
+      ]
+    },
+    {
+      "family": "chikorita",
+      "id": "meganium",
+      "name": "메가니움",
+      "stage": 3,
+      "pokemonId": 154,
+      "image": "/images/evolutions/meganium.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/meganium.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/154.png"
+        },
+        {
+          "path": "/images/skins/evolved/meganium-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/154.png"
+        },
+        {
+          "path": "/images/skins/evolved/meganium-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/154.png"
+        },
+        {
+          "path": "/images/skins/evolved/meganium-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/154.png"
+        }
+      ]
+    },
+    {
+      "family": "riolu",
+      "id": "riolu",
+      "name": "리오르",
+      "stage": 1,
+      "pokemonId": 447,
+      "image": "/images/characters/riolu.png",
+      "assets": [
+        {
+          "path": "/images/characters/riolu.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/447.png"
+        },
+        {
+          "path": "/images/skins/evolved/riolu-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/447.png"
+        },
+        {
+          "path": "/images/skins/evolved/riolu-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/447.png"
+        },
+        {
+          "path": "/images/skins/evolved/riolu-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/447.png"
+        }
+      ]
+    },
+    {
+      "family": "riolu",
+      "id": "lucario",
+      "name": "루카리오",
+      "stage": 2,
+      "pokemonId": 448,
+      "image": "/images/evolutions/lucario.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/lucario.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/448.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/448.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/448.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/448.png"
+        }
+      ]
+    },
+    {
+      "family": "riolu",
+      "id": "lucario-mega",
+      "name": "메가 루카리오",
+      "stage": 3,
+      "pokemonId": 10059,
+      "image": "/images/evolutions/lucario-mega.png",
+      "assets": [
+        {
+          "path": "/images/evolutions/lucario-mega.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10059.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-mega-home.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10059.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-mega-home-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10059.png"
+        },
+        {
+          "path": "/images/skins/evolved/lucario-mega-shiny.png",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10059.png"
+        }
+      ]
+    }
+  ]
+}

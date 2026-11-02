@@ -1,0 +1,302 @@
+[
+  {
+    "title": "값·함수·배열의 기초",
+    "minutes": 20,
+    "goals": [
+      "변수 선언",
+      "함수",
+      "배열"
+    ],
+    "concepts": [
+      {
+        "title": "변수 선언",
+        "body": "const는 재할당을 막고 let은 재할당을 허용합니다. const 객체의 내부 값은 바꿀 수 있으므로 상수 선언과 불변 데이터를 같은 뜻으로 생각하면 안 됩니다."
+      },
+      {
+        "title": "함수",
+        "body": "입력을 매개변수로 받고 return으로 결과를 돌려줍니다. 출력용 console.log와 호출자에게 값을 반환하는 return은 다릅니다."
+      },
+      {
+        "title": "배열",
+        "body": "여러 값을 순서대로 저장하고 인덱스는 0부터 시작합니다. length는 원소 수이며 마지막 인덱스는 length-1입니다."
+      }
+    ],
+    "example": {
+      "code": "const prices = [1000, 2000, 3000];\nfunction discount(price) { return price * 0.9; }\nconsole.log(discount(prices[0]));",
+      "explanation": "첫 원소는 1000이고 함수 결과는 900입니다. 함수 안의 계산 결과가 return을 통해 console.log에 전달됩니다."
+    },
+    "practice": {
+      "task": "배열의 두 번째 가격에 20% 할인을 적용해 출력하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "const result = prices[1] * 0.8;\nconsole.log(result); // 1600"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "const 배열에서 push는 가능한가요?",
+        "options": [
+          "가능",
+          "항상 문법 오류",
+          "변수를 let으로 바꿔야만 가능"
+        ],
+        "answer": 0,
+        "explanation": "const는 배열 변수의 재할당을 막을 뿐 원소 변경을 막지 않습니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "첫 원소의 인덱스는?",
+        "options": [
+          "1",
+          "0",
+          "length"
+        ],
+        "answer": 1,
+        "explanation": "JavaScript 배열 인덱스는 0부터 시작합니다."
+      }
+    ]
+  },
+  {
+    "title": "자료형과 조건·배열 변경",
+    "minutes": 20,
+    "goals": [
+      "타입 검사",
+      "비교와 조건",
+      "배열 변경"
+    ],
+    "concepts": [
+      {
+        "title": "타입 검사",
+        "body": "typeof로 기본적인 타입을 확인할 수 있지만 배열은 object로 나옵니다. 배열 여부는 Array.isArray로 확인하고 null도 별도 검사합니다."
+      },
+      {
+        "title": "비교와 조건",
+        "body": "===는 타입 변환 없는 동등 비교입니다. 문자열 입력과 숫자를 비교하기 전 Number 변환과 NaN 검사를 해야 잘못된 입력을 구분할 수 있습니다."
+      },
+      {
+        "title": "배열 변경",
+        "body": "push·pop·splice는 원본을 바꿉니다. slice는 선택한 구간의 새 배열을 만들며, 객체 원소까지 깊게 복제하지는 않습니다."
+      }
+    ],
+    "example": {
+      "code": "const input = \"20\";\nconst age = Number(input);\nif (!Number.isNaN(age) && age >= 20) {\n console.log(\"성인\");\n}\nconst original = [1, 2, 3];\nconst copy = original.slice(1);",
+      "explanation": "age는 숫자 20이 됩니다. copy는 [2,3]이며 original은 유지됩니다. Number(빈 문자열)은 0이므로 필수 입력 검사는 변환 전에 별도로 해야 합니다."
+    },
+    "practice": {
+      "task": "빈 입력은 거절하고 0 이상의 정수만 통과하는 검사를 만드세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "const raw = input.trim();\nconst n = Number(raw);\nconst valid = raw !== \"\" && Number.isInteger(n) && n >= 0;"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "배열 검사에 적절한 것은?",
+        "options": [
+          "typeof x === \"array\"",
+          "Array.isArray(x)",
+          "x === Array"
+        ],
+        "answer": 1,
+        "explanation": "Array.isArray는 배열인지 직접 검사합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "원본을 수정하지 않는 구간 추출은?",
+        "options": [
+          "splice",
+          "pop",
+          "slice"
+        ],
+        "answer": 2,
+        "explanation": "slice는 새 배열을 반환합니다."
+      }
+    ]
+  },
+  {
+    "title": "배열 탐색과 객체 변환",
+    "minutes": 20,
+    "goals": [
+      "map과 filter",
+      "find와 includes",
+      "객체와 문자열"
+    ],
+    "concepts": [
+      {
+        "title": "map과 filter",
+        "body": "map은 원소마다 변환한 새 배열을, filter는 조건을 통과한 원소들의 새 배열을 만듭니다. forEach의 반환값으로 새 배열을 기대하면 안 됩니다."
+      },
+      {
+        "title": "find와 includes",
+        "body": "find는 첫 번째 일치 원소 또는 undefined를 반환합니다. includes는 포함 여부를 불리언으로 반환하므로 필요한 결과 형태에 맞춰 선택합니다."
+      },
+      {
+        "title": "객체와 문자열",
+        "body": "객체 속성은 점이나 대괄호로 접근합니다. trim·split·join으로 문자열을 정리할 수 있고 전개 문법 복사는 한 단계만 복사하는 얕은 복사입니다."
+      }
+    ],
+    "example": {
+      "code": "const users = [{name:\"민지\", score:90}, {name:\"준호\", score:60}];\nconst names = users.filter(u => u.score >= 80).map(u => u.name);\nconsole.log(names);",
+      "explanation": "먼저 80점 이상 객체를 남기고 그 객체의 name만 추출하므로 [\"민지\"]가 됩니다. 원본 users 배열의 구성은 변하지 않습니다."
+    },
+    "practice": {
+      "task": "점수가 70 이상인 학생 이름을 쉼표로 연결하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "const text = users.filter(u => u.score >= 70).map(u => u.name).join(\", \");"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "map의 결과는?",
+        "options": [
+          "변환한 새 배열",
+          "항상 undefined",
+          "첫 원소만"
+        ],
+        "answer": 0,
+        "explanation": "map은 콜백 반환값으로 새 배열을 만듭니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "find가 못 찾았을 때는?",
+        "options": [
+          "0",
+          "undefined",
+          "빈 객체"
+        ],
+        "answer": 1,
+        "explanation": "결과 사용 전에 undefined 여부를 확인해야 합니다."
+      }
+    ]
+  },
+  {
+    "title": "비동기 요청과 오류 처리",
+    "minutes": 20,
+    "goals": [
+      "Promise",
+      "async와 await",
+      "요청의 실패"
+    ],
+    "concepts": [
+      {
+        "title": "Promise",
+        "body": "지금은 결과가 없지만 나중에 성공하거나 실패할 작업을 표현합니다. then과 catch 또는 async/await로 결과를 이어서 처리합니다."
+      },
+      {
+        "title": "async와 await",
+        "body": "async 함수는 Promise를 반환합니다. await는 해당 함수의 진행을 기다리게 하지만 브라우저 전체를 멈추는 동기 대기와는 다릅니다."
+      },
+      {
+        "title": "요청의 실패",
+        "body": "fetch는 HTTP 404·500에도 보통 Promise를 resolve합니다. response.ok를 검사하고 네트워크 실패·JSON 파싱 실패도 처리해야 합니다."
+      }
+    ],
+    "example": {
+      "code": "async function loadUsers() {\n try {\n  const response = await fetch(\"/api/users\");\n  if (!response.ok) throw new Error(\"조회 실패\");\n  return await response.json();\n } catch (error) {\n  console.error(error.message);\n  throw error;\n }\n}",
+      "explanation": "요청 성공 여부를 확인한 다음 JSON을 읽습니다. catch에서 다시 throw하면 호출한 화면이 오류 안내를 표시할 수 있습니다. 실제 실행에는 /api/users 서버가 필요합니다."
+    },
+    "practice": {
+      "task": "로딩 시작·종료 상태를 만들고 실패해도 finally에서 로딩이 꺼지게 하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "let loading = true;\ntry { await loadUsers(); }\ncatch (e) { console.error(e.message); }\nfinally { loading = false; }"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "fetch가 404 응답을 받았다면?",
+        "options": [
+          "항상 catch 자동 실행",
+          "response.ok 검사 필요",
+          "JSON이 무조건 배열"
+        ],
+        "answer": 1,
+        "explanation": "HTTP 실패 상태를 코드에서 검사해야 합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "async 함수의 반환 형태는?",
+        "options": [
+          "항상 문자열",
+          "Promise",
+          "DOM 요소만"
+        ],
+        "answer": 1,
+        "explanation": "async 함수는 반환값을 감싼 Promise를 반환합니다."
+      }
+    ]
+  },
+  {
+    "title": "브라우저 이벤트·저장·모듈",
+    "minutes": 20,
+    "goals": [
+      "DOM 이벤트",
+      "저장소",
+      "모듈"
+    ],
+    "concepts": [
+      {
+        "title": "DOM 이벤트",
+        "body": "addEventListener로 동작을 등록하고 필요하면 removeEventListener로 해제합니다. preventDefault는 폼 제출 등 기본 동작을 막고 전파 중지는 별도 기능입니다."
+      },
+      {
+        "title": "저장소",
+        "body": "localStorage는 문자열을 저장합니다. 객체는 JSON.stringify로 저장하고 JSON.parse 오류를 처리해야 합니다. 비밀 토큰·민감 데이터 보관은 별도 보안 설계가 필요합니다."
+      },
+      {
+        "title": "모듈",
+        "body": "export와 import로 코드 경계를 만듭니다. 브라우저 모듈은 type=\"module\" 또는 빌드 환경을 사용하며 파일 경로와 named/default export 형태를 맞춰야 합니다."
+      }
+    ],
+    "example": {
+      "code": "const form = document.querySelector(\"form\");\nfunction submit(event) {\n event.preventDefault();\n localStorage.setItem(\"draft\", JSON.stringify({title:\"복습\"}));\n}\nform.addEventListener(\"submit\", submit);\n// 화면을 정리할 때: form.removeEventListener(\"submit\", submit);",
+      "explanation": "form 요소가 있는 화면에서 실행하는 예시입니다. 같은 함수 참조를 보관해야 나중에 리스너를 해제할 수 있습니다. 저장된 문자열이 손상된 경우도 고려하세요."
+    },
+    "practice": {
+      "task": "저장된 draft를 불러오되 파싱 실패 시 빈 객체를 사용하세요.",
+      "steps": [
+        "예제를 직접 입력하고 실행 결과를 먼저 예상해 보세요.",
+        "요구 조건에 맞게 값을 변경하고 실행 결과를 비교하세요.",
+        "오류가 발생하면 메시지와 입력값을 확인한 뒤 수정 이유를 한 문장으로 정리하세요."
+      ],
+      "solution": "let draft = {};\ntry { draft = JSON.parse(localStorage.getItem(\"draft\") || \"{}\"); }\ncatch { draft = {}; }"
+    },
+    "checks": [
+      {
+        "id": "check-1",
+        "prompt": "localStorage에 객체를 저장할 때는?",
+        "options": [
+          "JSON.stringify",
+          "객체 주소만 저장",
+          "항상 불가능"
+        ],
+        "answer": 0,
+        "explanation": "문자열로 직렬화한 뒤 저장합니다."
+      },
+      {
+        "id": "check-2",
+        "prompt": "기본 폼 제출을 막는 메서드는?",
+        "options": [
+          "stopPropagation만",
+          "preventDefault",
+          "removeAttribute"
+        ],
+        "answer": 1,
+        "explanation": "preventDefault는 이벤트의 기본 동작을 방지합니다."
+      }
+    ]
+  }
+]

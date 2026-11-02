@@ -7,6 +7,10 @@ export const characters = [
  {id:'dratini',name:'미뇽',type:'드래곤',description:'Lv.20에서 만나는 신비로운 친구',minLevel:20,color:'#dce1fa',image:'/images/characters/dratini.png'},
  {id:'froakie',name:'개구마르',type:'물',description:'Lv.20에서 만나는 날렵한 친구',minLevel:20,color:'#cfeefa',image:'/images/characters/froakie.png'},
  {id:'pichu',name:'피츄',type:'전기',description:'Lv.20에서 만나는 반짝이는 친구',minLevel:20,color:'#fff1b9',image:'/images/characters/pichu.png'},
+ {"id": "chimchar", "name": "불꽃숭이", "type": "불꽃", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#ffe1bf", "image": "/images/characters/chimchar.png"},
+ {"id": "slowpoke", "name": "야돈", "type": "물 · 에스퍼", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#f6d4e3", "image": "/images/characters/slowpoke.png"},
+ {"id": "chikorita", "name": "치코리타", "type": "풀", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#dff1bb", "image": "/images/characters/chikorita.png"},
+ {"id": "riolu", "name": "리오르", "type": "격투", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#cce7fb", "image": "/images/characters/riolu.png"},
  {id:'mew',name:'뮤',type:'에스퍼',description:'Lv.30에서 만나는 환상의 친구',minLevel:30,color:'#f6d6e9',image:'/images/characters/mew.png'},
 ]
 export const diglett={id:'diglett',name:'디그다',type:'땅',description:'강화 실패로 잠시 변한 모습',color:'#ead5c2',image:'/images/characters/diglett.png'}
