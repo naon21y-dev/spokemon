@@ -1,9 +1,10 @@
 <script setup>
-import {computed,ref,watch,nextTick} from 'vue'
+import {computed,ref,watch,nextTick,onMounted,onUnmounted} from 'vue'
 import {useActivity} from '../stores/activity'
 import {useArcade} from '../stores/arcade'
 const activity=useActivity(),arcade=useArcade(),dialog=ref(null),event=computed(()=>activity.queue[0]);
-watch(event,async value=>{await nextTick();if(value&&!dialog.value.open)dialog.value.showModal();else if(!value&&dialog.value.open)dialog.value.close()})
+function sync(){if(!dialog.value)return;if(!event.value){if(dialog.value.open)dialog.value.close();return}if(!document.hidden&&!dialog.value.open&&!document.querySelector('dialog[open]'))dialog.value.showModal()}
+watch(event,async()=>{await nextTick();sync()});let popupTimer;onMounted(()=>popupTimer=setInterval(sync,400));onUnmounted(()=>{clearInterval(popupTimer);dialog.value?.close()})
 </script>
 <template><dialog ref="dialog" class="activity-popup" :aria-label="event?.kind==='points'?'포인트 수령 알림':'친구 요청 알림'" @cancel.prevent="activity.dismiss()"><template v-if="event&&arcade.user"><button class="text-button activity-close" aria-label="활동 알림 닫기" :disabled="activity.busy" @click="activity.dismiss()">✕</button><div class="activity-symbol" aria-hidden="true">{{event.kind==='points'?'🪙':'🤝'}}</div><template v-if="event.kind==='points'"><h2>포인트를 받았어요!</h2><strong class="activity-amount">+{{event.amount.toLocaleString()}} P</strong><p>{{event.reason}}</p><p class="activity-detail">{{event.detail}}</p><small>현재 보유 {{arcade.data.coins.toLocaleString()}} P</small><div class="toolbar"><button :disabled="activity.busy" @click="activity.dismiss()">확인</button></div></template><template v-else><h2>친구 요청이 왔어요!</h2><p><b>{{event.name}}</b> · @{{event.login}}</p><p>친구가 되면 쪽지를 주고받을 수 있어요.</p><div class="toolbar"><button :disabled="activity.busy" @click="activity.dismiss(true)">{{activity.busy?'처리 중…':'친구 요청 수락'}}</button><button class="light" :disabled="activity.busy" @click="activity.dismiss()">나중에</button></div></template><p v-if="activity.error" role="alert">{{activity.error}}</p><small v-if="activity.queue.length>1">다른 알림 {{activity.queue.length-1}}개</small></template></dialog></template>
 <style scoped>

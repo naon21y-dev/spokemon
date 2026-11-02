@@ -1,3 +1,4 @@
+import {createDungeon} from './dungeon/service.mjs';
 import {createFiles} from './files.mjs';
 import {createSloud} from './sloud.mjs';
 import {createDailyGift} from './daily-gift.mjs';
@@ -28,6 +29,7 @@ export async function createHttp(service, {
     hidden = await createHiddenGame(service),
     rankings = await createGameRankings(service),
     room = await createRoom(service),
+    dungeon=await createDungeon(service),
     files=await createFiles(service,{mail,social}),sloud=await createSloud(service,files),gifts=await createDailyGift(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
@@ -218,6 +220,10 @@ export async function createHttp(service, {
         const result=await service.changePassword(u,body);setCookie('');return send(200,result);
       }
       if((match=p.match(/^\/api\/admin\/students\/([^/]+)\/password-reset$/))&&method==='POST')return send(200,await service.resetStudentPassword(u,match[1],body));
+      if(p==='/api/dungeon/reset'&&method==='POST')return send(200,await dungeon.reset(u));
+      if(p==='/api/dungeon/start'&&method==='POST')return send(200,await dungeon.start(u,body));
+      if(p==='/api/dungeon/history'&&method==='GET')return send(200,await dungeon.history(u));
+      if((match=p.match(/^\/api\/dungeon\/([^/]+)(?:\/(enter|answer|end|pause))?$/))){const [,id,action]=match;if(method==='GET'&&!action)return send(200,await dungeon.view(u,id));if(method==='POST'&&['enter','answer','end','pause'].includes(action))return send(200,await dungeon[action](u,id,body));}
       if(p==='/api/tickets'&&method==='GET')return send(200,await service.tickets.list(u));
       if((match=p.match(/^\/api\/tickets\/([^/]+)\/claim$/))&&method==='POST')return send(200,await service.tickets.claim(u,match[1]));
       if((match=p.match(/^\/api\/admin\/students\/([^/]+)\/gifts$/))){if(method==='GET')return send(200,await service.tickets.read(u,match[1]));if(method==='POST')return send(200,await service.tickets.send(u,match[1],body));}

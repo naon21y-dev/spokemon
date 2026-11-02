@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/check-dungeon-runtime.mjs && vite build",
     "preview": "vite preview",
     "test:learning": "node scripts/verify-server.mjs && node scripts/verify-persistence.mjs",
     "server": "node server/index.mjs",
@@ -45,7 +45,9 @@
     "test:pet-care-trio": "node scripts/verify-pet-care-trio.mjs",
     "test:launch-features": "node scripts/verify-diglett-final-admin.mjs && node scripts/verify-learning-community-gifts.mjs",
     "test:gift-tickets": "node scripts/verify-gift-tickets.mjs",
-    "test:password-reset": "node scripts/verify-password-reset.mjs"
+    "test:password-reset": "node scripts/verify-password-reset.mjs",
+    "test:dungeon": "node scripts/verify-dungeon.mjs && node scripts/verify-dungeon-notice.mjs",
+    "check:dungeon-runtime": "node scripts/check-dungeon-runtime.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

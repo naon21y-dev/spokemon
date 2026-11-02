@@ -90,3 +90,15 @@ npm run test:render
 트랜잭션은 SDK의 `transaction('write')`를 사용하며 오류 시 롤백합니다. 포인트 최초 지급 키·원본 문제 키·일일 상한·잔액·원장은 같은 트랜잭션에서 처리합니다. 같은 프로세스의 요청은 DB 연결별 큐로 정리하고, 여러 프로세스 간에는 DB 쓰기 트랜잭션과 고유 제약이 중복 지급을 막습니다. 통계/문제 등록/이전의 반복 쿼리는 묶어서 전송합니다.
 
 공식 문서: [Turso TypeScript/libSQL](https://docs.turso.tech/sdk/ts/quickstart), [libSQL transactions](https://tursodatabase.github.io/libsql-client-ts/interfaces/Client.html), [Render Free](https://render.com/docs/free).
+
+## Python 코딩 던전 실행기
+
+Node Free 서비스를 유지합니다. `SPOKEMON_PYTHON=python3`로 서버 Python 인터프리터를 지정합니다. Render 네이티브 환경의 Python 도구는 [공식 런타임 안내](https://render.com/docs/native-runtimes)를 참고하세요. 빌드는 `npm run check:dungeon-runtime`에서 실제 제한 실행을 검사한 뒤 Vue를 빌드합니다. 실행기를 준비하지 못하면 새 배포를 중단하고 기존 서비스는 그대로 유지합니다.
+
+채점은 별도 자식 프로세스에서 `-I -S` 격리 모드, 2초 CPU/2.5초 외부 타임아웃, 프로세스당 128MB 메모리 제한을 적용합니다. Linux는 resource rlimit, Windows 개발 환경은 Job Object를 사용합니다. 환경변수는 PATH·SystemRoot·LANG만 전달하며 Turso 토큰·관리자 비밀번호는 전달하지 않습니다. 최대 2개 채점 프로세스와 제한된 대기열을 사용합니다.
+
+이 실행기는 Python 입문 학습용 부분집합입니다. AST 허용 목록과 제한된 builtins를 사용하며 import, 파일·네트워크, 클래스·데코레이터, dunder/환경 접근은 차단합니다. 일반 Python 패키지나 임의 시스템 코드를 실행하는 범용 서비스가 아닙니다. 입력/AST/출력/메모리/시간 제한과 숨겨진 테스트를 모두 통과해야 정답입니다. 실행기 검사 실패 시 문자열 비교로 대체해 정답 처리하지 않습니다.
+
+`dungeon_sessions`는 현재 모험, `dungeon_questions`는 사용자별 정규화 해시와 출제 이력, `dungeon_attempts`는 답안과 판정, `dungeon_awards`는 최초 라운드 보상, `dungeon_concepts`는 코딩 도감을 저장합니다. 새로 입장하면 이전 활성 세션을 종료하며 진행은 재개하지 않습니다. 브라우저 종료 신호는 keepalive로 전송하고, 비정상 종료 시에도 다음 입장의 reset과 서버 만료 검사로 이전 세션을 차단합니다. 새 테이블은 자동 생성하며 기존 데이터는 삭제하지 않습니다.
+
+검증: `npm run test:dungeon`, `npm run check:dungeon-runtime`, `npm run build`.
