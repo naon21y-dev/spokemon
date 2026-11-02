@@ -620,6 +620,7 @@ export async function createService(filename, {
           student(u);
           if (!characters.some(c=>c.id===character)) fail(400, '캐릭터를 확인해 주세요.');
           const pet = parse(u.pet);await hydrateCollection(db,u,pet);const selectedCharacter=characters.find(c=>c.id===character);if(Math.floor(pet.xp/100)+1<(selectedCharacter.minLevel??1))fail(403,selectedCharacter.name+'는 '+selectedCharacter.minLevel+'레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
+          if(ticketId!=null&&pet.collection[character])fail(400,'이미 입양한 포켓몬은 도감에서 무료로 선택해 주세요. 입양권은 미보유 포켓몬에만 사용할 수 있어요.');
           if(ticketId!=null&&(!u.partner_locked||pet.character===character))fail(400,'사용권은 다른 포켓몬으로 변경할 때만 사용할 수 있어요.');
           if (u.partner_locked && pet.character !== character) {
             if(ticketId!=null)await api.tickets.consume(u,ticketId,requestKey,'partner-change',character);else if(!pet.collection[character]) {

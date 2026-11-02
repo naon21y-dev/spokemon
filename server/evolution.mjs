@@ -9,7 +9,7 @@ export function ensureEnhancement(pet,level,now){
 export function queueEnhancements(pet,previousLevel,newLevel,now){
  const state=ensureEnhancement(pet,previousLevel,now),offers=[];if(!evolutionChains[pet.character])return offers;
  for(let boundary=(Math.floor(previousLevel/10)+1)*10;boundary<=newLevel;boundary+=10){
-  if(boundary<=state.lastOpportunityLevel)continue;state.lastOpportunityLevel=boundary;if(state.stage>=evolutionMaxStage(pet.character)||pet.character==='mew'&&boundary<30)continue;
+  if(boundary<=state.lastOpportunityLevel)continue;state.lastOpportunityLevel=boundary;if(state.stage>=evolutionMaxStage(pet.character)||pet.character==='mew'&&boundary<50)continue;
   const offer={id:randomUUID(),level:boundary,at:now};if(!state.pending)state.pending=offer;else state.queued.push(offer);offers.push(offer);
  }
  return offers;

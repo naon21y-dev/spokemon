@@ -81,3 +81,11 @@ html[data-partner="riolu"]{--rpg-ink:hsl(207 40% 24%);--rpg-edge:hsl(207 42% 38%
 .shell:not(.auth-shell) .question-toolbar{display:flex;align-items:center;gap:8px;flex-shrink:0}.shell:not(.auth-shell) .sloud-shortcut{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:auto;min-width:0;height:40px;margin:0;padding:8px 14px;line-height:1.2;font-size:12px;white-space:nowrap}.shell:not(.auth-shell) .question-toolbar .question-composer{margin:0}.shell:not(.auth-shell) .question-toolbar .question-launch{white-space:nowrap}
 @media(max-width:600px){.shell:not(.auth-shell) .navigation-row{flex-wrap:wrap}.shell:not(.auth-shell) .navigation-row nav{flex-basis:100%;width:100%;order:1}.shell:not(.auth-shell) .question-toolbar{order:2;width:100%;justify-content:flex-end;margin:3px 0 0!important}.shell:not(.auth-shell) .sloud-shortcut{height:34px;padding:6px 11px;font-size:10px}}
 .shell:not(.auth-shell) .question-toolbar .question-composer{width:auto;flex:0 0 auto;gap:0}.shell:not(.auth-shell) .question-toolbar{position:relative}.shell:not(.auth-shell) .question-toolbar .mail-success{position:absolute;right:0;top:100%;z-index:5;width:max-content;max-width:min(85vw,400px)}
+
+html[data-partner="treecko"]{--rpg-ink:hsl(110 40% 24%);--rpg-edge:hsl(110 42% 38%);--rpg-mid:hsl(110 48% 65%);--rpg-bright:hsl(110 75% 86%);--rpg-soft:hsl(110 65% 94%);--rpg-paper:hsl(110 60% 99%);--rpg-shadow:hsl(110 40% 29%);--rpg-panel:hsl(110 65% 97%)}
+
+html[data-partner="charmander"]{--rpg-ink:hsl(24 40% 24%);--rpg-edge:hsl(24 42% 38%);--rpg-mid:hsl(24 48% 65%);--rpg-bright:hsl(24 75% 86%);--rpg-soft:hsl(24 65% 94%);--rpg-paper:hsl(24 60% 99%);--rpg-shadow:hsl(24 40% 29%);--rpg-panel:hsl(24 65% 97%)}
+
+html[data-partner="clefairy"]{--rpg-ink:hsl(329 40% 24%);--rpg-edge:hsl(329 42% 38%);--rpg-mid:hsl(329 48% 65%);--rpg-bright:hsl(329 75% 86%);--rpg-soft:hsl(329 65% 94%);--rpg-paper:hsl(329 60% 99%);--rpg-shadow:hsl(329 40% 29%);--rpg-panel:hsl(329 65% 97%)}
+
+html[data-partner="machop"]{--rpg-ink:hsl(191 40% 24%);--rpg-edge:hsl(191 42% 38%);--rpg-mid:hsl(191 48% 65%);--rpg-bright:hsl(191 75% 86%);--rpg-soft:hsl(191 65% 94%);--rpg-paper:hsl(191 60% 99%);--rpg-shadow:hsl(191 40% 29%);--rpg-panel:hsl(191 65% 97%)}

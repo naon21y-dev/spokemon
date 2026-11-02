@@ -1,0 +1,146 @@
+[
+  {
+    "name": "treecko",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/252.png"
+  },
+  {
+    "name": "treecko-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/252.png"
+  },
+  {
+    "name": "treecko-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/252.png"
+  },
+  {
+    "name": "grovyle",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/253.png"
+  },
+  {
+    "name": "grovyle-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/253.png"
+  },
+  {
+    "name": "grovyle-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/253.png"
+  },
+  {
+    "name": "sceptile",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/254.png"
+  },
+  {
+    "name": "sceptile-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/254.png"
+  },
+  {
+    "name": "sceptile-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/254.png"
+  },
+  {
+    "name": "charmander",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"
+  },
+  {
+    "name": "charmander-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/4.png"
+  },
+  {
+    "name": "charmander-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/4.png"
+  },
+  {
+    "name": "charmeleon",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/5.png"
+  },
+  {
+    "name": "charmeleon-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/5.png"
+  },
+  {
+    "name": "charmeleon-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/5.png"
+  },
+  {
+    "name": "charizard",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
+  },
+  {
+    "name": "charizard-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/6.png"
+  },
+  {
+    "name": "charizard-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/6.png"
+  },
+  {
+    "name": "clefairy",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/35.png"
+  },
+  {
+    "name": "clefairy-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/35.png"
+  },
+  {
+    "name": "clefairy-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/35.png"
+  },
+  {
+    "name": "clefable",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/36.png"
+  },
+  {
+    "name": "clefable-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/36.png"
+  },
+  {
+    "name": "clefable-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/36.png"
+  },
+  {
+    "name": "clefable-mega",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10278.png"
+  },
+  {
+    "name": "clefable-mega-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10278.png"
+  },
+  {
+    "name": "clefable-mega-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10278.png"
+  },
+  {
+    "name": "machop",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/66.png"
+  },
+  {
+    "name": "machop-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/66.png"
+  },
+  {
+    "name": "machop-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/66.png"
+  },
+  {
+    "name": "machoke",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/67.png"
+  },
+  {
+    "name": "machoke-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/67.png"
+  },
+  {
+    "name": "machoke-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/67.png"
+  },
+  {
+    "name": "machamp",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/68.png"
+  },
+  {
+    "name": "machamp-home",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/68.png"
+  },
+  {
+    "name": "machamp-shiny",
+    "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/68.png"
+  }
+]

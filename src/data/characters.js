@@ -11,7 +11,11 @@ export const characters = [
  {"id": "slowpoke", "introducedAt": "2026-11-02", "name": "야돈", "type": "물 · 에스퍼", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#f6d4e3", "image": "/images/characters/slowpoke.png"},
  {"id": "chikorita", "introducedAt": "2026-11-02", "name": "치코리타", "type": "풀", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#dff1bb", "image": "/images/characters/chikorita.png"},
  {"id": "riolu", "introducedAt": "2026-11-02", "name": "리오르", "type": "격투", "minLevel": 25, "description": "Lv.25에서 만나는 새로운 친구", "color": "#cce7fb", "image": "/images/characters/riolu.png"},
- {id:'mew',name:'뮤',type:'에스퍼',description:'Lv.30에서 만나는 환상의 친구',minLevel:30,color:'#f6d6e9',image:'/images/characters/mew.png'},
+ {"id": "treecko", "introducedAt": "2026-11-02-wave2", "name": "나무지기", "type": "풀", "minLevel": 30, "description": "Lv.30에서 입양할 수 있는 새 친구", "color": "#d9efb7", "image": "/images/characters/treecko.png"},
+ {"id": "charmander", "introducedAt": "2026-11-02-wave2", "name": "파이리", "type": "불꽃", "minLevel": 30, "description": "Lv.30에서 입양할 수 있는 새 친구", "color": "#ffe0bc", "image": "/images/characters/charmander.png"},
+ {"id": "clefairy", "introducedAt": "2026-11-02-wave2", "name": "삐삐", "type": "페어리", "minLevel": 30, "description": "Lv.30에서 입양할 수 있는 새 친구", "color": "#f7d7e6", "image": "/images/characters/clefairy.png"},
+ {"id": "machop", "introducedAt": "2026-11-02-wave2", "name": "알통몬", "type": "격투", "minLevel": 30, "description": "Lv.30에서 입양할 수 있는 새 친구", "color": "#d0e8e9", "image": "/images/characters/machop.png"},
+ {id:'mew',name:'뮤',type:'에스퍼',description:'Lv.50에서 만나는 환상의 친구',minLevel:50,color:'#f6d6e9',image:'/images/characters/mew.png'},
 ]
 export const diglett={id:'diglett',name:'디그다',type:'땅',description:'강화 실패로 잠시 변한 모습',color:'#ead5c2',image:'/images/characters/diglett.png'}
 export const findCharacter = id => id==='diglett'?diglett:characters.find(c=>c.id===id)||characters[0]

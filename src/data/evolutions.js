@@ -3,6 +3,11 @@ export const diglettForms=[{"id": "wugtrio", "name": "바닥트리오", "image":
 export const diglettFinalForms=[{"id": "diglett-muscle-gold", "name": "금빛 근육 디그다", "image": "/images/evolutions/diglett-muscle-gold.png"}, {"id": "diglett-muscle-trio", "name": "근육 닥트리오", "image": "/images/evolutions/diglett-muscle-trio.png"}, {"id": "diglett-muscle", "name": "근육 디그다", "image": "/images/evolutions/diglett-muscle.png"}];
 export const diglettFormsAtStage=stage=>stage===3?diglettFinalForms:diglettForms;
 export const evolutionChains={
+treecko:[{"id": "treecko", "name": "나무지기", "image": "/images/characters/treecko.png"}, {"id": "grovyle", "name": "나무돌이", "image": "/images/evolutions/grovyle.png"}, {"id": "sceptile", "name": "나무킹", "image": "/images/evolutions/sceptile.png"}],
+charmander:[{"id": "charmander", "name": "파이리", "image": "/images/characters/charmander.png"}, {"id": "charmeleon", "name": "리자드", "image": "/images/evolutions/charmeleon.png"}, {"id": "charizard", "name": "리자몽", "image": "/images/evolutions/charizard.png"}],
+clefairy:[{"id": "clefairy", "name": "삐삐", "image": "/images/characters/clefairy.png"}, {"id": "clefable", "name": "픽시", "image": "/images/evolutions/clefable.png"}, {"id": "clefable-mega", "name": "메가픽시", "image": "/images/evolutions/clefable-mega.png"}],
+machop:[{"id": "machop", "name": "알통몬", "image": "/images/characters/machop.png"}, {"id": "machoke", "name": "근육몬", "image": "/images/evolutions/machoke.png"}, {"id": "machamp", "name": "괴력몬", "image": "/images/evolutions/machamp.png"}],
+
  chimchar:[{"id": "chimchar", "name": "불꽃숭이", "image": "/images/characters/chimchar.png"}, {"id": "monferno", "name": "파이숭이", "image": "/images/evolutions/monferno.png"}, {"id": "infernape", "name": "초염몽", "image": "/images/evolutions/infernape.png"}],
  slowpoke:[{"id": "slowpoke", "name": "야돈", "image": "/images/characters/slowpoke.png"}, {"id": "slowbro", "name": "야도란", "image": "/images/evolutions/slowbro.png"}, {"id": "slowbro-mega", "name": "메가야도란", "image": "/images/evolutions/slowbro-mega.png"}],
  chikorita:[{"id": "chikorita", "name": "치코리타", "image": "/images/characters/chikorita.png"}, {"id": "bayleef", "name": "베이리프", "image": "/images/evolutions/bayleef.png"}, {"id": "meganium", "name": "메가니움", "image": "/images/evolutions/meganium.png"}],
