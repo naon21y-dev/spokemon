@@ -1,0 +1,24 @@
+{
+  "method": "Built-in image_gen tool, transparent-background edits of existing final-form assets",
+  "sharedPrompt": "Use case: precise-object-edit. Asset type: alternate costume sprite for an existing web pet game. Preserve exact character identity, number of heads, pose, silhouette, camera angle, size in canvas, crop and illustration/rendering style. Change only stated colors/material. One asset, no extra characters, text, logo, background, floor or border. Real transparent alpha for existing room overlay.",
+  "assets": [
+    {
+      "id": "diglett-muscle-gold-platinum",
+      "reference": "/images/evolutions/diglett-muscle-gold.png",
+      "prompt": "Change the gold torso and arms to platinum silver with cool blue highlights; preserve the brown head, pink nose, black eyes and waistband.",
+      "output": "diglett-muscle-gold-platinum.png"
+    },
+    {
+      "id": "diglett-muscle-trio-golden",
+      "reference": "/images/evolutions/diglett-muscle-trio.png",
+      "prompt": "Change the muscular trio to golden bronze champion material; preserve pink noses, black eyes, outlines and gray rocks.",
+      "output": "diglett-muscle-trio-golden.png"
+    },
+    {
+      "id": "diglett-muscle-ice",
+      "reference": "/images/evolutions/diglett-muscle.png",
+      "prompt": "Change the head and body to glossy pale icy cyan blue; preserve black eyes, pink nose, blush and gold sparkles.",
+      "output": "diglett-muscle-ice.png"
+    }
+  ]
+}

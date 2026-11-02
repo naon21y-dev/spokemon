@@ -1536,3 +1536,8 @@ accessoryAnchors["lucario-mega"]={"ratio": 1, "head": [47, 17], "headWidth": 24,
 skinAccessoryAnchors["lucario-mega-home"]={"ratio": 1, "head": [46, 19], "headWidth": 24, "eyes": [46, 31], "ear": [56.08, 31], "chest": [46, 56], "aura": [50, 70]};
 skinAccessoryAnchors["lucario-mega-home-shiny"]={"ratio": 1, "head": [46, 19], "headWidth": 24, "eyes": [46, 31], "ear": [56.08, 31], "chest": [46, 56], "aura": [50, 70]};
 skinAccessoryAnchors["lucario-mega-shiny"]={"ratio": 1, "head": [47, 17], "headWidth": 24, "eyes": [47, 30], "ear": [57.08, 30], "chest": [47, 55], "aura": [50, 70]};
+
+// Alternate materials preserve the final-form poses and accessory attachment points.
+skinAccessoryAnchors["diglett-muscle-gold-platinum"]={...accessoryAnchors["diglett-muscle-gold"],ratio:1};
+skinAccessoryAnchors["diglett-muscle-trio-golden"]={...accessoryAnchors["diglett-muscle-trio"],ratio:1};
+skinAccessoryAnchors["diglett-muscle-ice"]={...accessoryAnchors["diglett-muscle"],ratio:1};

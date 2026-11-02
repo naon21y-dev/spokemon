@@ -396,7 +396,10 @@ export const skins = [
     "name": "색이 다른 이상해꽃",
     "price": 1500,
     "image": "/images/skins/evolved/venusaur-shiny.png"
-  }
+  },
+{"id": "diglett-muscle-gold-platinum", "character": "diglett", "formId": "diglett-muscle-gold", "stage": 3, "name": "백금 근육 디그다", "price": 1500, "image": "/images/skins/diglett/diglett-muscle-gold-platinum.png"},
+{"id": "diglett-muscle-trio-golden", "character": "diglett", "formId": "diglett-muscle-trio", "stage": 3, "name": "황금 근육 닥트리오", "price": 1500, "image": "/images/skins/diglett/diglett-muscle-trio-golden.png"},
+{"id": "diglett-muscle-ice", "character": "diglett", "formId": "diglett-muscle", "stage": 3, "name": "아이스 근육 디그다", "price": 1500, "image": "/images/skins/diglett/diglett-muscle-ice.png"}
 ];
 export const skinMap = Object.fromEntries(skins.map(s => [s.id, s]));
 export const skinMatchesForm=(skin,pet)=>!skin?.formId||skin.formId===pet?.enhancement?.diglettForm;
