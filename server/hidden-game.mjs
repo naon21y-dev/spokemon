@@ -4,7 +4,7 @@ import {fail} from './service.mjs';
 import {hiddenLevels} from '../src/data/hidden-levels.js';
 const emojis=['🍎','🍓','🍋','🍒','🥕','🍄','🌻','🌷','🍀','🌙','⭐','🦋','🐞','🐝','🐟','🐚','🎀','💎','🔑','🎈','🧩','🍬','🪶','🧸','🎲','🌈','🧁','⚽'];
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=randomInt(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
-export async function createHiddenGame(service){
+export async function createHiddenGame(service,{items}={}){
  const db=service.db;
  await db.exec(`CREATE TABLE IF NOT EXISTS hidden_sessions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),request_key TEXT NOT NULL,level INTEGER NOT NULL,state TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(user_id,request_key));`);
  const rankings=await createGameRankings(service);
@@ -23,8 +23,9 @@ export async function createHiddenGame(service){
    const item=g.objects.find(o=>o.id===b.objectId);if(!item)fail(400,'그림을 확인해 주세요.');if(item.target){if(!g.found.includes(item.id))g.found.push(item.id)}else g.misses++;
   }else if(b?.action==='miss')g.misses++;else fail(400,'행동을 확인해 주세요.');
   g.done=g.found.length===10;
-  if(g.done){const completedAt=Date.now();g.durationMs=Math.max(1,completedAt-row.created_at);await rankings.record({game:'hidden',sessionId:id,userId:u.id,level:row.level,durationMs:g.durationMs,metric:g.misses,hints:g.hints.length,completedAt});await db.prepare('INSERT INTO ledger VALUES(?,?,?,?,?,?,?)').run(randomUUID(),u.id,3,'숨은그림 클리어','LEVEL '+row.level+' · 이모지 10개 완성','hidden-clear:'+id,Date.now());await db.prepare('UPDATE users SET coins=coins+3 WHERE id=?').run(u.id);}
+  if(g.done){const completedAt=Date.now();g.durationMs=Math.max(1,completedAt-row.created_at);await rankings.record({game:'hidden',sessionId:id,userId:u.id,level:row.level,durationMs:g.durationMs,metric:g.misses,hints:g.hints.length+(g.paidHints??0),completedAt});await db.prepare('INSERT INTO ledger VALUES(?,?,?,?,?,?,?)').run(randomUUID(),u.id,3,'숨은그림 클리어','LEVEL '+row.level+' · 이모지 10개 완성','hidden-clear:'+id,Date.now());await db.prepare('UPDATE users SET coins=coins+3 WHERE id=?').run(u.id);}
   await db.prepare('UPDATE hidden_sessions SET state=? WHERE id=?').run(JSON.stringify(g),id);return view(row,g);
  });}
- return {start,act};
+ async function reveal(u,id,b){if(b.item!=='hidden-reveal')fail(400,'숨은그림 아이템을 확인해 주세요.');return items.use(u,b,id,async()=>{const row=await db.prepare('SELECT * FROM hidden_sessions WHERE id=? AND user_id=?').get(id,u.id);if(!row)fail(404,'내 게임을 찾을 수 없어요.');const g=JSON.parse(row.state);if(g.done||Date.now()-row.created_at>2*3600000)fail(409,'진행 중인 게임에서 사용해 주세요.');const target=g.objects.find(o=>o.target&&!g.found.includes(o.id));g.paidHints=(g.paidHints??0)+1;await db.prepare('UPDATE hidden_sessions SET state=? WHERE id=?').run(JSON.stringify(g),id);return {hint:target.id,duration:4000}})}
+ return {start,act,reveal};
 }

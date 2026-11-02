@@ -1,3 +1,4 @@
+import {hydrateCollection} from './collection.mjs';
 import {lessonGuide,guidePublic,gradeGuide} from './lessons/index.mjs';
 import {petCareActions,petCondition} from '../src/data/petCare.js';
 import {createTickets} from './tickets.mjs';
@@ -532,7 +533,7 @@ export async function createService(filename, {
         };
         if (correct) {
           if (q.source !== 'student') await run('INSERT OR IGNORE INTO completions VALUES (?,?,?)', u.id, qid, now);
-          awarded = await workshop.grant(u, q, now);
+          awarded = await workshop.grant(u, q, now, id);
           await run('UPDATE mistakes SET reviewed=1,last_answer=?,updated_at=? WHERE user_id=? AND question_id=?', answerText(q, answer), now, u.id, qid);
         } else await run('INSERT INTO mistakes VALUES (?,?,?,?,?,?,?) ON CONFLICT(user_id,question_id) DO UPDATE SET last_answer=excluded.last_answer,last_wrong=excluded.last_wrong,wrong_count=mistakes.wrong_count+1,reviewed=0,updated_at=excluded.updated_at', u.id, qid, answerText(q, answer), answerText(q, answer), 1, 0, now);
         await quests.record(u, q, correct);
@@ -615,13 +616,13 @@ export async function createService(filename, {
         }
         if(ticketId!=null){student(u);if(character==null)fail(400,'변경할 포켓몬을 선택해 주세요.');if(await api.tickets.previous(u,requestKey,'partner-change',character,ticketId))return state(u);}
         if (character != null) {
-          if(parse(u.pet).character==='diglett')fail(403,'먼저 디그다를 복구해 주세요. 500포인트 또는 탈출권을 사용할 수 있어요.');
+          if(parse(u.pet).character==='diglett'&&parse(u.pet).diglettRecovery)fail(403,'먼저 디그다를 복구해 주세요. 500포인트 또는 탈출권을 사용할 수 있어요.');
           student(u);
           if (!characters.some(c=>c.id===character)) fail(400, '캐릭터를 확인해 주세요.');
-          const pet = parse(u.pet);const selectedCharacter=characters.find(c=>c.id===character);if(Math.floor(pet.xp/100)+1<(selectedCharacter.minLevel??1))fail(403,selectedCharacter.name+'는 '+selectedCharacter.minLevel+'레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
+          const pet = parse(u.pet);await hydrateCollection(db,u,pet);const selectedCharacter=characters.find(c=>c.id===character);if(Math.floor(pet.xp/100)+1<(selectedCharacter.minLevel??1))fail(403,selectedCharacter.name+'는 '+selectedCharacter.minLevel+'레벨부터 선택할 수 있어요.');ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
           if(ticketId!=null&&(!u.partner_locked||pet.character===character))fail(400,'사용권은 다른 포켓몬으로 변경할 때만 사용할 수 있어요.');
           if (u.partner_locked && pet.character !== character) {
-            if(ticketId!=null)await api.tickets.consume(u,ticketId,requestKey,'partner-change',character);else {
+            if(ticketId!=null)await api.tickets.consume(u,ticketId,requestKey,'partner-change',character);else if(!pet.collection[character]) {
             if (u.coins < 5000) fail(400, '파트너 변경에는 5,000포인트가 필요해요.');
             await run('UPDATE users SET coins=coins-5000 WHERE id=?', u.id);
             await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -5000, '파트너 변경', pet.character + ' → ' + character, randomUUID(), clock());
@@ -629,9 +630,9 @@ export async function createService(filename, {
           }
           if (!u.partner_locked || pet.character !== character) {
             const enhancement=ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
-            if(pet.character!==character){enhancement.stage=1;for(const offer of [enhancement.pending,...enhancement.queued].filter(Boolean))enhancement.history.push({...offer,character:pet.character,decision:'character-change',success:null,at:clock()});enhancement.pending=null;enhancement.queued=[];enhancement.lastResult=null;if(pet.skinByCharacter?.[character])pet.skinByCharacter[character]='';}
-            if(pet.character!==character&&character==='mew'){const enhancement=pet.enhancement;enhancement.pending={id:randomUUID(),level:Math.floor((Math.floor(pet.xp/100)+1)/10)*10,at:clock()};enhancement.lastOpportunityLevel=enhancement.pending.level}
-            pet.character = character;
+            if(pet.character!==character){enhancement.stage=pet.collection[character]?.completed?3:1;enhancement.diglettForm=null;for(const offer of [enhancement.pending,...enhancement.queued].filter(Boolean))enhancement.history.push({...offer,character:pet.character,decision:'character-change',success:null,at:clock()});enhancement.pending=null;enhancement.queued=[];enhancement.lastResult=null;if(pet.skinByCharacter?.[character])pet.skinByCharacter[character]='';}
+            if(pet.character!==character&&character==='mew'&&enhancement.stage<3){const enhancement=pet.enhancement;enhancement.pending={id:randomUUID(),level:Math.floor((Math.floor(pet.xp/100)+1)/10)*10,at:clock()};enhancement.lastOpportunityLevel=enhancement.pending.level}
+            pet.character = character;pet.collection[character]??={completed:false};
             await run('UPDATE users SET pet=?,partner_locked=1 WHERE id=?', json(pet), u.id);
           }
         }

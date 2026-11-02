@@ -46,6 +46,7 @@
     "test:launch-features": "node scripts/verify-diglett-final-admin.mjs && node scripts/verify-learning-community-gifts.mjs",
     "test:gift-tickets": "node scripts/verify-gift-tickets.mjs",
     "test:password-reset": "node scripts/verify-password-reset.mjs",
+    "test:ui-items": "node scripts/verify-ui-items.mjs",
     "test:dungeon": "node scripts/verify-dungeon.mjs && node scripts/verify-dungeon-notice.mjs",
     "check:dungeon-runtime": "node scripts/check-dungeon-runtime.mjs"
   },

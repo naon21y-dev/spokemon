@@ -1,3 +1,5 @@
+import {createGameItems} from './game-items.mjs';
+import {createCollection} from './collection.mjs';
 import {createDungeon} from './dungeon/service.mjs';
 import {createFiles} from './files.mjs';
 import {createSloud} from './sloud.mjs';
@@ -25,11 +27,12 @@ export async function createHttp(service, {
     presence = await createPresence(service),
     notes = await createNotes(service),
     activity = await createActivity(service),
-    cards = await createCardGame(service),
-    hidden = await createHiddenGame(service),
+    items=await createGameItems(service),collection=await createCollection(service),
+    cards = await createCardGame(service,{items}),
+    hidden = await createHiddenGame(service,{items}),
     rankings = await createGameRankings(service),
     room = await createRoom(service),
-    dungeon=await createDungeon(service),
+    dungeon=await createDungeon(service,{items}),
     files=await createFiles(service,{mail,social}),sloud=await createSloud(service,files),gifts=await createDailyGift(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
@@ -124,6 +127,12 @@ export async function createHttp(service, {
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
       let match;
+      if(p==='/api/collection'&&method==='GET')return send(200,await collection.read(u));
+      if(p==='/api/collection'&&method==='POST')return send(200,await collection.act(u,body));
+      if(p==='/api/game-items'&&method==='GET')return send(200,await items.inventory(u));
+      if(p==='/api/game-items/buy'&&method==='POST')return send(200,await items.buy(u,body));
+      if(p==='/api/game-items/use'&&method==='POST'){const game=body.item?.split('-')[0];if(game==='cards')return send(200,await cards.memory(u,body.sessionId,body));if(game==='hidden')return send(200,await hidden.reveal(u,body.sessionId,body));if(game==='dungeon')return send(200,await dungeon.item(u,body.sessionId,body));fail(400,'아이템을 확인해 주세요.');}
+
       if(p==='/api/files'&&method==='POST')return send(200,await files.upload(u,body));
       if((match=p.match(/^\/api\/attachments\/(private|friend|sloud)\/([^/]+)$/))&&method==='GET')return send(200,await files.list(u,match[1],match[2]));
       if((match=p.match(/^\/api\/files\/([^/]+)$/))&&method==='GET'){const f=await files.read(u,match[1]);res.writeHead(200,{'Content-Type':f.mime,'Content-Length':f.size,'Content-Disposition':(f.mime.startsWith('image/')?'inline':'attachment')+"; filename*=UTF-8''"+encodeURIComponent(f.name),'X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; sandbox",'Cache-Control':'private, no-store'});return res.end(Buffer.from(f.data));}

@@ -5,4 +5,4 @@ export const dungeonLevels=[
  {id:4,name:'함수의 성',reward:50,biome:'castle',concepts:['리스트와 인덱스','매개변수와 return','문자열과 리스트 처리','함수의 조합'],npcs:['사서 이브','연구원 나루','정원사 모아','성의 마법사'],items:['리스트 두루마리','반환의 수정','문자열 렌즈','성 열쇠']},
  {id:5,name:'최종 보스의 성',reward:100,biome:'boss',concepts:['함수 실행 추적','누적 오류 수정','반복·조건의 조합','종합 함수 구현'],npcs:['코드 골렘','코드 골렘','코드 골렘','코드 골렘'],items:['용기의 조각','방어 파괴 룬','정확성의 문장','탈출의 인장']}
 ];
-export const dungeonHeroes=[{id:'ranger',name:'숲의 탐험가',color:'#5cac77',description:'길을 읽는 작은 모험가'},{id:'scholar',name:'별의 기록자',color:'#72a5d6',description:'코드의 비밀을 기록해요'},{id:'smith',name:'불꽃 기술자',color:'#d79b51',description:'고장 난 주문을 고쳐요'}];
+export const dungeonHeroes=[{id:'ranger',name:'숲의 탐험가',color:'#5cac77',description:'새싹 등에 꿈을 싣는 초록 친구'},{id:'scholar',name:'별의 기록자',color:'#72a5d6',description:'소원을 기록하는 작은 별 친구'},{id:'smith',name:'불꽃 기술자',color:'#d79b51',description:'꼬리 불꽃으로 길을 밝히는 친구'}];

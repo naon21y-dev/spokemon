@@ -87,7 +87,7 @@ assert.equal((await solve(user, first.id, 'choice-1')).awarded, 0);
 assert.equal((await s.learningState(user)).mistakes[publicView.id].wrongCount, 1);
 assert.equal((await solve(user, first.id)).awarded, 10);
 assert.equal((await s.learningState(user)).mistakes[publicView.id].reviewed, true);
-assert.equal((await solve(user, first.id)).awarded, 0);
+assert.equal((await solve(user, first.id)).awarded, 10);
 const revision = await s.workshop.save(author, {
   ...body,
   baseVersion: 1,
@@ -95,7 +95,7 @@ const revision = await s.workshop.save(author, {
 }, first.id);
 assert.equal(revision.version, 2);
 assert.equal((await s.workshop.detail(user, first.id)).originalId, first.id);
-assert.equal((await solve(user, first.id)).awarded, 0);
+assert.equal((await solve(user, first.id)).awarded, 10);
 await assert.rejects(async () => await s.workshop.save(author, {
   ...body,
   baseVersion: 1
@@ -104,7 +104,7 @@ assert.equal((await s.catalog(user)).find(q => q.id === 'vue').completed, 0);
 await s.workshop.settings(admin, {
   official: 7,
   student: 10,
-  dailyCap: 15
+  dailyCap: 35
 });
 const second = await post('한도 일부 지급');
 assert.equal((await solve(user, second.id)).awarded, 5);
@@ -112,7 +112,7 @@ const third = await post('내일 재도전');
 assert.equal((await solve(user, third.id)).awarded, 0);
 now += 60000;
 assert.equal((await solve(user, third.id)).awarded, 10);
-assert.equal((await s.db.prepare('SELECT count(*) n FROM quiz_awards WHERE user_id=? AND question_id=?').get(user.id, first.id)).n, 1);
+assert.equal((await s.db.prepare('SELECT count(*) n FROM quiz_awards WHERE user_id=? AND question_id LIKE ?').get(user.id, first.id+':session:%')).n, 3);
 const q = await s.startQuiz(user, {
     subject: 'vue',
     type: 'multiple'
@@ -205,8 +205,8 @@ try {
       answer: 'choice-0'
     })
   }).then(r => r.json()))));
-  assert.equal(results.reduce((n, r) => n + r.awarded, 0), 12);
-  assert.equal((await s.db.prepare('SELECT count(*) n FROM quiz_awards WHERE user_id=? AND question_id=?').get(user.id, fourth.id)).n, 1);
+  assert.equal(results.reduce((n, r) => n + r.awarded, 0), 90);
+  assert.equal((await s.db.prepare('SELECT count(*) n FROM quiz_awards WHERE user_id=? AND question_id LIKE ?').get(user.id, fourth.id+':session:%')).n, 8);
   const config = await fetch(base + '/api/admin/reward-settings', {
     method: 'PUT',
     headers: {
@@ -240,7 +240,7 @@ assert.notEqual(shortSession.question.originalId, first.id);
 assert.equal((await s.submit(user, shortSession.id, {
   questionId: shortSession.question.id,
   answer: '  ReF  '
-})).awarded, 12);
+})).awarded, 0);
 const balance = (await s.state(user)).data.coins;
 await s.close();
 s = await createService(filename, {
@@ -252,4 +252,4 @@ assert.equal((await s.state(user)).data.coins, balance);
 assert.equal((await s.workshop.settings()).official, 7);
 assert.equal((await s.workshop.analytics(user)).time.studentSeconds, 20);
 await s.close();
-console.log('PASS: authorship/source/version, locked direct APIs, no answer leaks, self no award, wrong/retry, original+revision dedupe, KST daily cap/partial/day rollover, settings, 24 concurrent submissions once, official progress isolation, source stats/time, moderation, SQLite restart persistence.');
+console.log('PASS: authorship/source/version, locked direct APIs, no answer leaks, self no award, wrong/retry, session dedupe and repeat/revision rewards, KST daily cap/partial/day rollover, settings, 24 concurrent submissions limited per session and daily cap, official progress isolation, source stats/time, moderation, SQLite restart persistence.');

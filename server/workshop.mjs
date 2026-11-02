@@ -78,9 +78,10 @@ export async function createWorkshop(service, {
       dailyCap: row.daily_cap
     };
   }
-  async function grant(u, q, now) {
+  async function grant(u, q, now, sessionId) {
     const source = q.source ?? 'official',
-      root = q.originalId ?? q.id,
+      original = q.originalId ?? q.id,
+      root = q.source==='student'&&sessionId?original+':session:'+sessionId:original,
       config = await settings(),
       amount = source === 'official' ? config.official : config.student;
     if (amount === 0 || source === 'student' && q.creatorId === u.id) return 0;
@@ -93,11 +94,11 @@ export async function createWorkshop(service, {
     if (!won.changes) return 0;
     if (source === 'student') await run('INSERT INTO reward_days VALUES(?,?,?) ON CONFLICT(user_id,day) DO UPDATE SET amount=amount+excluded.amount', u.id, day, pay);
     const retry = !!(await get('SELECT 1 FROM mistakes WHERE user_id=? AND question_id=?', u.id, q.id)),
-      reason = (retry ? '재도전 최초 정답' : '최초 정답') + (pay < amount ? ' · 일일 한도 일부 지급' : ''),
+      reason = (source==='student'?'학생 제작 문제 정답':retry ? '재도전 최초 정답' : '최초 정답') + (pay < amount ? ' · 일일 한도 일부 지급' : ''),
       id = randomUUID();
     await run('UPDATE users SET coins=coins+? WHERE id=?', pay, u.id);
     await run('INSERT INTO ledger VALUES(?,?,?,?,?,?,?)', id, u.id, pay, source === 'student' ? '학생 제작 문제 정답' : '퀴즈 최초 정답', (source === 'student' ? '학생 제작' : '공식 문제') + ' · ' + q.creatorName + ' · ' + (q.title ?? q.prompt) + ' · ' + reason, u.id + ':quiz:' + root, now);
-    await run('INSERT INTO ledger_details VALUES(?,?,?,?,?,?,?,?)', id, source, q.creatorId ?? null, q.creatorName ?? '관리자', q.title ?? q.prompt, root, q.version ?? 1, reason);
+    await run('INSERT INTO ledger_details VALUES(?,?,?,?,?,?,?,?)', id, source, q.creatorId ?? null, q.creatorName ?? '관리자', q.title ?? q.prompt, original, q.version ?? 1, reason);
     return pay;
   }
   function validate(body) {

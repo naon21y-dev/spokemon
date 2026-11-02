@@ -3,7 +3,7 @@ import {randomUUID,randomInt} from 'node:crypto';
 import {fail} from './service.mjs';
 import {cardLevels} from '../src/data/card-levels.js';
 const TTL=2*3600000;
-export async function createCardGame(service,{checkpointMs=1500,maxCached=500}={}){
+export async function createCardGame(service,{checkpointMs=1500,maxCached=500,items}={}){
  const db=service.db;
  await db.exec(`CREATE TABLE IF NOT EXISTS card_sessions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),request_key TEXT NOT NULL,level INTEGER NOT NULL,state TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(user_id,request_key));`);
  const rankings=await createGameRankings(service),sessions=new Map(),gates=new Map();
@@ -62,6 +62,7 @@ export async function createCardGame(service,{checkpointMs=1500,maxCached=500}={
    return view(row,entry.g);
   });
  }
+ async function memory(u,id,b){if(b.item!=='cards-memory')fail(400,'카드 아이템을 확인해 주세요.');return serial(id,()=>items.use(u,b,id,async()=>{const entry=sessions.get(id),row=entry?.row??await db.prepare('SELECT * FROM card_sessions WHERE id=? AND user_id=?').get(id,u.id);if(!row||row.user_id!==u.id)fail(404,'내 게임을 찾을 수 없어요.');const g=entry?.g??JSON.parse(row.state);if(g.done||Date.now()-row.created_at>TTL)fail(409,'진행 중인 게임에서 사용해 주세요.');return {deck:g.deck,duration:4000}}))}
  async function flush(){await Promise.all([...sessions.values()].map(entry=>checkpoint(entry)))}
- return {start,flip,flush};
+ return {start,flip,flush,memory};
 }
