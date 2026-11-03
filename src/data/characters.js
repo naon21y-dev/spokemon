@@ -18,7 +18,8 @@ export const characters = [
  {id:'mew',name:'뮤',type:'에스퍼',description:'Lv.50에서 만나는 환상의 친구',minLevel:50,color:'#f6d6e9',image:'/images/characters/mew.png'},
 ]
 export const diglett={id:'diglett',name:'디그다',type:'땅',description:'강화 실패로 잠시 변한 모습',color:'#ead5c2',image:'/images/characters/diglett.png'}
-export const findCharacter = id => id==='diglett'?diglett:characters.find(c=>c.id===id)||characters[0]
+const ditto={id:'ditto',name:'메타몽',type:'노말',color:'#ebd3f2',image:'/images/characters/ditto.png'}
+export const findCharacter = id => id==='ditto'?ditto:id==='diglett'?diglett:characters.find(c=>c.id===id)||characters[0]
 
 // NEW follows the latest release batch, independently of unlock level.
 export const latestCharacterRelease=characters.map(c=>c.introducedAt).filter(Boolean).sort().at(-1);

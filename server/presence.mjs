@@ -18,12 +18,22 @@ export async function createPresence(service) {
       if(u)service.admin(u);
       return {
         items: (await db.prepare("SELECT u.pet,u.id,u.login,u.name,c.name AS class_name FROM presence p JOIN users u ON u.id=p.user_id LEFT JOIN classes c ON c.id=u.class_id WHERE p.seen_at>? AND u.deleted_at IS NULL AND EXISTS(SELECT 1 FROM auth_sessions s WHERE s.user_id=u.id AND s.expires>?) ORDER BY p.seen_at DESC,u.login").all(Date.now() - 75000, Date.now())).map(person => {
-          let character = 'piplup', stage = 1, wear = '',formId='';
+          let character = 'piplup', stage = 1, wear = '',formId='',wearPosition=null;
           try {
-            const pet=JSON.parse(person.pet);character=pet.character;stage=evolutionStage(pet);formId=character==='diglett'&&stage>=2?evolvedCharacter(pet).formId:'';wear=itemMap[pet.wear]&&Array.isArray(pet.owned)&&pet.owned.includes(pet.wear)?pet.wear:'';
+            const pet = JSON.parse(person.pet);
+            if (typeof pet.character==='string' && pet.character.startsWith('legendary-')) {
+              character = 'ditto';
+            } else {
+              character = pet.character;
+              stage = evolutionStage(pet);
+              const form = evolvedCharacter(pet).formId;
+              formId = character==='diglett' && stage>=2 ? form : '';
+              wear = itemMap[pet.wear] && Array.isArray(pet.owned) && pet.owned.includes(pet.wear) ? pet.wear : '';
+              wearPosition = pet.wearPositions?.[JSON.stringify([form,'',wear])] ?? null;
+            }
           } catch {}
           return {
-            character, stage, wear, wearPosition:(()=>{try{const pet=JSON.parse(person.pet),form=evolvedCharacter(pet).formId;return pet.wearPositions?.[JSON.stringify([form,'',wear])]??null}catch{return null}})(), ...(formId?{formId}:{}), ...(u ? {id:person.id,login:person.login,nickname:person.name,className:person.class_name??'미배정'} : {})
+            character, stage, wear, wearPosition, ...(formId?{formId}:{}), ...(u ? {id:person.id,login:person.login,nickname:person.name,className:person.class_name??'미배정'} : {})
           };
         })
       };
