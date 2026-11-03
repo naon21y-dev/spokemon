@@ -3,6 +3,7 @@ import {onMounted,ref} from 'vue'
 import {api} from '../lib/api'
 import {useTimeline} from '../stores/timeline'
 
+const emit=defineEmits(['navigate'])
 const timeline=useTimeline()
 const items=ref([]),busy=ref(false),more=ref(false),error=ref('')
 const labels={update:'업데이트','comment-written':'남긴 댓글','comment-received':'받은 댓글',legendary:'전설의 포켓몬'}
@@ -39,8 +40,8 @@ onMounted(()=>load())
         <h2>{{item.kind==='legendary'?item.title+'을(를) 획득했어요!':item.title}}</h2>
         <p v-if="item.kind==='comment-received'">{{item.detail}}님이 내 게시글에 댓글을 남겼어요.</p>
         <p v-else-if="item.kind==='update'">{{item.detail}}</p>
-        <RouterLink v-if="item.target" :to="{path:'/sloud',query:{post:item.target}}">게시글 보기 →</RouterLink>
-        <RouterLink v-else-if="item.kind==='legendary'" to="/legendary">전설의 포켓몬 도감 →</RouterLink>
+        <RouterLink @click="emit('navigate')" v-if="item.target" :to="{path:'/sloud',query:{post:item.target}}">게시글 보기 →</RouterLink>
+        <RouterLink @click="emit('navigate')" v-else-if="item.kind==='legendary'" to="/legendary">전설의 포켓몬 도감 →</RouterLink>
       </li>
     </ol>
     <button v-if="more" type="button" class="light" :disabled="busy" @click="load(true)">이전 활동 더 보기</button>

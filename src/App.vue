@@ -1,7 +1,7 @@
 <script setup>
 import {useArcade} from './stores/arcade'
 import {partnerTheme} from './data/evolutions'
-import {ref,watch,onMounted,onUnmounted} from 'vue'
+import {ref,watch,onMounted,onUnmounted,defineAsyncComponent} from 'vue'
 import NewDungeonPopup from './components/NewDungeonPopup.vue'
 import GiftCenter from './components/GiftCenter.vue'
 import PartnerWaitingPopup from './components/PartnerWaitingPopup.vue'
@@ -29,6 +29,11 @@ function presence(){if(s.user?.role==='student')api('/presence',{method:'POST',b
 async function confirmLogout(){if(logoutBusy.value)return;logoutBusy.value=true;logoutError.value='';try{await s.logout();logoutDialog.value?.close();await router.replace('/account')}catch(e){logoutError.value=e.message}finally{logoutBusy.value=false}}
 const s=useArcade(),learning=useLearning(),messages=useMessages(),activity=useActivity(),quests=useQuests();let mailTimer
 const timeline=useTimeline()
+const TimelineView=defineAsyncComponent(()=>import('./views/TimelineView.vue'))
+const timelineDialog=ref(null),timelineOpen=ref(false)
+function openTimeline(){
+ if(!timelineDialog.value?.open){timelineDialog.value.showModal();timelineOpen.value=true}
+}
 function updateMail(){presence();if(s.user&&document.visibilityState==='visible'){messages.refresh();activity.refresh();quests.refresh();if(s.user.role==='student')timeline.refresh()}}
 watch(()=>[s.user?.role,s.partner.id,s.partner.stage],()=>{document.documentElement.dataset.partner=s.user?.role==='student'?partnerTheme(s.partner):'system'},{immediate:true})
 watch(()=>!!s.user,value=>document.documentElement.classList.toggle('auth-mode',!value),{immediate:true})
@@ -37,7 +42,11 @@ onMounted(()=>{document.addEventListener('keydown',sidebarKey);presence();presen
 onUnmounted(()=>{document.removeEventListener('keydown',sidebarKey);clearInterval(presenceTimer);clearInterval(mailTimer);document.removeEventListener('visibilitychange',updateMail);window.removeEventListener('spokemon-points-refresh',updateMail)})
 </script>
 <template><PartnerWaitingPopup/><NewDungeonPopup/><AttendancePopup/><ActivityPopups/><MailArrivalPopup/><div :class="['shell',{'auth-shell':!s.user}]"><header v-if="s.user"><RouterLink class="brand brand-logo" :to="s.user?.role==='admin'?'/admin':'/home'" :aria-label="s.user?.role==='admin'?'Spokemon 관리자 페이지로':'Spokemon 메인으로'"><img class="site-logo" src="/images/pokemon-logo.png" alt="Spokemon" width="1869" height="854" fetchpriority="high"/><span class="brand-title">Spokemon</span></RouterLink><div class="wallet"><template v-if="s.user.role==='student'"><RouterLink to="/pet" class="partner-wallet"><PartnerImage size="tiny"/> Lv.{{s.level}}</RouterLink><RouterLink to="/quests" class="profile-link quest-wallet">📖 퀘스트<i v-if="quests.ready" class="quest-ready-light" :aria-label="'수령할 퀘스트 '+quests.ready+'개'"/></RouterLink><span>🪙 <b>{{s.data.coins.toLocaleString()}}</b></span></template><button v-if="s.user.role==='admin'" class="profile-link admin-logout" @click="logoutDialog.showModal()">{{s.user.nickname}}님 ⏻</button><RouterLink v-else to="/account" class="profile-link">{{s.user.nickname}}님 ⚙</RouterLink></div></header>
- <div v-if="s.user" class="navigation-row"><button v-if="s.user.role==='student'" class="menu-toggle" :aria-expanded="sidebarOpen" aria-controls="student-navigation" @click="sidebarOpen=!sidebarOpen">☰ 메뉴</button><nav v-else><RouterLink to="/admin">관리자 페이지</RouterLink><RouterLink to="/workshop">공유 문제 관리</RouterLink></nav><div class="question-toolbar"><RouterLink v-if="s.user.role==='admin'" to="/sloud" class="button sloud-shortcut">Sloud</RouterLink><template v-if="s.user.role==='student'"><QuestionComposer/><RouterLink to="/timeline" class="button">🔔 알림 <b v-if="timeline.unread" aria-live="polite">{{timeline.unread}}</b></RouterLink><GiftCenter/></template></div></div>
+ <div v-if="s.user" class="navigation-row"><button v-if="s.user.role==='student'" class="menu-toggle" :aria-expanded="sidebarOpen" aria-controls="student-navigation" @click="sidebarOpen=!sidebarOpen">☰ 메뉴</button><nav v-else><RouterLink to="/admin">관리자 페이지</RouterLink><RouterLink to="/workshop">공유 문제 관리</RouterLink></nav><div class="question-toolbar"><RouterLink v-if="s.user.role==='admin'" to="/sloud" class="button sloud-shortcut">Sloud</RouterLink><template v-if="s.user.role==='student'"><QuestionComposer/><button type="button" class="timeline-launch" aria-haspopup="dialog" @click="openTimeline">🔔 알림 <b v-if="timeline.unread" aria-live="polite">{{timeline.unread}}</b></button>
+<Teleport to="body"><dialog ref="timelineDialog" class="timeline-dialog" aria-label="알림" @close="timelineOpen=false">
+ <div class="timeline-dialog-bar"><b>알림</b><button type="button" autofocus aria-label="알림 닫기" @click="timelineDialog.close()">✕</button></div>
+ <div class="timeline-dialog-content"><TimelineView v-if="timelineOpen" @navigate="timelineDialog.close()"/></div>
+</dialog></Teleport><GiftCenter/></template></div></div>
  <template v-if="s.user?.role==='student'&&sidebarOpen"><div class="student-sidebar-shade" @click="sidebarOpen=false"></div><aside id="student-navigation" class="student-sidebar" aria-label="사용자 메뉴" @keydown.esc="sidebarOpen=false"><div class="sidebar-title"><b>모험 메뉴</b><button aria-label="메뉴 닫기" @click="sidebarOpen=false">✕</button></div><nav class="sidebar-menu-body" @click="$event.target.closest('a')&&(sidebarOpen=false)"><RouterLink to="/guide" class="sidebar-main-link sidebar-guide-link" aria-label="Spokemon 이용 가이드" @click="sidebarOpen=false"><img src="/images/pokemon-logo.png" alt="" width="1869" height="854"/><span>이용 가이드</span></RouterLink><section class="sidebar-menu-group" @mouseenter="hoverMenu('study')" @mouseleave="leaveMenu"><div class="sidebar-group-heading"><RouterLink to="/student" class="sidebar-main-link" @focus="openMenu='study'">내 학습</RouterLink><button class="submenu-toggle" :aria-expanded="openMenu==='study'" aria-controls="submenu-study" aria-label="내 학습 하위 메뉴" @click="openMenu=openMenu==='study'?'':'study'">{{openMenu==='study'?'⌃':'⌄'}}</button></div><div v-if="openMenu==='study'" id="submenu-study" class="sidebar-submenu"><RouterLink to="/workshop">문제 제작소</RouterLink><RouterLink to="/sloud">Sloud(게시판)</RouterLink></div></section><RouterLink to="/quiz" class="sidebar-main-link">문제풀기(퀴즈타임)</RouterLink><section class="sidebar-menu-group" @mouseenter="hoverMenu('games')" @mouseleave="leaveMenu"><button class="sidebar-games-toggle" :aria-expanded="openMenu==='games'" aria-controls="submenu-games" @click="openMenu=openMenu==='games'?'':'games'">게임하기 <span>{{openMenu==='games'?'⌃':'⌄'}}</span></button><div v-if="openMenu==='games'" id="submenu-games" class="sidebar-submenu"><RouterLink to="/cards">카드 뒤집기</RouterLink><RouterLink to="/hidden">숨은그림 찾기</RouterLink><RouterLink to="/python-dungeon">코딩 던전</RouterLink><RouterLink to="/sql-detective">SQL 미스터리 탐정단 <small>NEW!</small></RouterLink></div></section><section class="sidebar-menu-group" @mouseenter="hoverMenu('pet')" @mouseleave="leaveMenu"><div class="sidebar-group-heading"><RouterLink to="/pet" class="sidebar-main-link" @focus="openMenu='pet'">마이 리틀 펫</RouterLink><button class="submenu-toggle" :aria-expanded="openMenu==='pet'" aria-controls="submenu-pet" aria-label="마이 리틀 펫 하위 메뉴" @click="openMenu=openMenu==='pet'?'':'pet'">{{openMenu==='pet'?'⌃':'⌄'}}</button></div><div v-if="openMenu==='pet'" id="submenu-pet" class="sidebar-submenu"><RouterLink to="/collection">포켓몬 도감</RouterLink><RouterLink to="/legendary">전설의 포켓몬 도감</RouterLink></div></section><RouterLink to="/pet/mailbox" class="sidebar-main-link">내 쪽지함 <b v-if="messages.unread">{{messages.unread}}</b></RouterLink></nav><div class="sidebar-account-actions"><RouterLink to="/account" class="sidebar-profile" aria-label="회원정보" @click="sidebarOpen=false">
  <PartnerImage size="tiny"/>
  <span><b>{{s.user.nickname}}</b><small>@{{s.user.login}}</small><small>{{s.data.pet.nickname || s.partner.name}}</small></span>
@@ -82,8 +91,18 @@ onUnmounted(()=>{document.removeEventListener('keydown',sidebarKey);clearInterva
 </style>
 
 <style scoped>
-.sidebar-account-actions .sidebar-profile{display:grid!important;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:8px;text-align:left;padding:9px}
+.student-sidebar .sidebar-account-actions>a.sidebar-profile{height:auto!important;min-height:76px!important;padding:8px 12px!important;display:grid!important;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:8px;text-align:left;padding:9px}
 .sidebar-profile img{width:44px;height:44px;object-fit:contain}
 .sidebar-profile span,.sidebar-profile small{display:block;overflow-wrap:anywhere}
 .sidebar-profile small{font-size:11px;line-height:1.5}
+</style>
+
+<style scoped>
+.question-toolbar .timeline-launch{min-height:42px;margin:0;font-size:12px}
+.timeline-dialog{width:min(720px,calc(100vw - 28px));max-height:85dvh;padding:0;border:2px solid var(--rpg-edge);border-radius:12px;background:var(--rpg-paper);color:var(--rpg-ink);overflow:hidden}
+.timeline-dialog::backdrop{background:#182436a0}
+.timeline-dialog-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--rpg-soft)}
+.timeline-dialog-bar button{margin:0}
+.timeline-dialog-content{max-height:calc(85dvh - 65px);overflow:auto;overscroll-behavior:contain;padding:12px}
+.timeline-dialog-content :deep(.timeline){margin:0}
 </style>
