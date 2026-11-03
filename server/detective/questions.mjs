@@ -21,4 +21,4 @@ export function makeCase(level){
  q.hash=createHash('sha256').update(JSON.stringify([level,prompt,sql,fixture])).digest('hex');return q});
  return {id:nonce,title:detectiveLevels[level-1].name+' · '+['비밀 발자국','사라진 소포','의문의 초대장','반짝이는 흔적'][randomInt(4)],place,fixture,culprit,suspects:all,candidates:all,questions,clues:[],solved:0,captured:false,dialog:`탐정님! ${place}에서 ${item} 관련 사건이 일어났어요. 사건 번호 ${nonce}, 목격 시간은 ${hour}시예요. 다섯 친구의 진술과 증거를 SQL로 확인해 주세요!`}
 }
-export function publicCase(c){const q=c.questions[c.solved];return {id:c.id,title:c.title,place:c.place,dialog:c.dialog,fixture:c.fixture,candidates:c.candidates,clues:c.clues,solved:c.solved,captured:c.captured,question:q?{id:q.id,index:q.index,type:q.type,prompt:q.prompt,template:q.template,options:q.options}:null}}
+export function publicCase(c){const q=c.questions[c.solved];return {id:c.id,title:c.title,place:c.place,dialog:c.dialog,fixture:c.fixture,candidates:c.candidates,clues:c.clues,solved:c.solved,captured:c.captured,question:q?{id:q.id,index:q.index,type:q.type,prompt:q.prompt,template:q.template,options:q.options,hint:c.hints?.[q.id]}:null}}

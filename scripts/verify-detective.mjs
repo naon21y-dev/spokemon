@@ -29,6 +29,13 @@ try{
  const firstKey=key();let g=await d.start(u,{requestKey:firstKey});assert.equal((await d.start(u,{requestKey:firstKey})).id,g.id);assert.equal(g.unlocked,1);assert(!JSON.stringify(g).includes('correctOptionId'));assert(!('culprit' in g.case));assert(!('sql' in g.case.question));
  await assert.rejects(()=>d.enter(u,g.id,{level:5}),e=>e.status===403);await assert.rejects(()=>d.view(other,g.id),e=>e.status===404);await assert.rejects(()=>d.accuse(u,g.id,{answer:'1',requestKey:key()}),e=>e.status===403);
  await d.pause(u,g.id,{paused:true});await assert.rejects(()=>d.answer(u,g.id,{questionId:g.case.question.id,answer:'bad',requestKey:key()}),e=>e.status===409);await d.pause(u,g.id,{paused:false});
+ const questionId=g.case.question.id;
+ assert.equal(g.case.question.hint,undefined);
+ await assert.rejects(()=>d.hint(other,g.id,{questionId}),e=>e.status===404);
+ await assert.rejects(()=>d.hint(u,g.id,{questionId:'another'}),e=>e.status===409);
+ const hints=await Promise.all([d.hint(u,g.id,{questionId}),d.hint(u,g.id,{questionId})]);
+ assert(hints[0].hint);assert.deepEqual(hints[0],hints[1]);
+ assert.equal((await d.view(u,g.id)).case.question.hint,hints[0].hint);
  const wrong=await d.answer(u,g.id,{questionId:g.case.question.id,answer:'bad',requestKey:key()});assert.equal(wrong.correct,false);assert(wrong.hint);assert.equal(wrong.explanation,'');assert.equal(wrong.session.case.solved,0);
  async function solve(game,concurrent){for(let level=1;level<=5;level++){
   if(level>1)game=await d.enter(u,game.id,{level});

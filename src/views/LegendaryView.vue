@@ -129,17 +129,17 @@ onMounted(() => act(refresh))
 .legendary-grid button{font-size:11px;padding:6px 10px}
 .secret-mark{font-size:48px;color:var(--rpg-edge)}
 .legendary-checks{list-style:none;padding:0;display:grid;gap:8px}
-.legendary-checks li{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:10px;background:var(--rpg-soft);border-radius:6px;font-size:13px}
-.legendary-checks strong{white-space:nowrap}
+.legendary-checks li{display:grid;grid-template-columns:minmax(0,1fr) 9ch 104px;gap:12px;align-items:center;padding:10px;background:var(--rpg-soft);border-radius:6px;font-size:13px}
+.legendary-checks strong{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}.legendary-checks button{width:100%;padding:6px 8px;font-size:11px}@media(max-width:480px){.legendary-checks li{grid-template-columns:minmax(0,1fr) 8ch;gap:6px 10px}.legendary-checks button{grid-column:2}}
 .capture-dialog{width:min(420px,calc(100vw - 24px));text-align:center;background:var(--rpg-paper);color:var(--rpg-ink);border:3px solid var(--rpg-edge);border-radius:14px;padding:20px}
 .capture-dialog::backdrop{background:#152539a8}
 .capture-stage{height:208px;position:relative;overflow:hidden;background:var(--rpg-soft);border-radius:10px;margin-bottom:14px}
-.capture-stage img{position:absolute;width:138px;height:138px;object-fit:contain;left:calc(50% - 69px);top:12px;animation:capture-in 1.5s ease-in-out forwards}
-.capture-ball{position:absolute;bottom:17px;left:calc(50% - 25px);width:50px;height:50px;border:4px solid #253147;border-radius:50%;background:linear-gradient(#f35962 0 45%,#253147 45% 55%,#fff 55%);animation:capture-wiggle 1.5s ease-in-out}
+.capture-stage img{position:absolute;width:138px;height:138px;object-fit:contain;left:calc(50% - 69px);top:12px;animation:capture-in 3.2s ease-in-out forwards}
+.capture-ball{position:absolute;bottom:17px;left:calc(50% - 25px);width:50px;height:50px;border:4px solid #253147;border-radius:50%;background:linear-gradient(#f35962 0 45%,#253147 45% 55%,#fff 55%);animation:capture-wiggle 3.2s ease-in-out}
 .capture-ball::after{content:'';position:absolute;inset:13px;border:3px solid #253147;border-radius:50%;background:white}
 .capture-star{display:none;position:absolute;top:43%;left:calc(var(--star)*11%);color:#9a6a00;font-size:26px}
 .radiant{background:radial-gradient(circle,#fff6bd,var(--rpg-soft) 74%)}
-.radiant .capture-star{display:block;animation:capture-spark 1.2s ease-out both;animation-delay:calc(.6s + var(--star)*.07s)}
+.radiant .capture-star{display:block;animation:capture-spark 1.2s ease-out both;animation-delay:calc(1.9s + var(--star)*.07s)}
 @keyframes capture-in{0%,32%{opacity:1;transform:none}75%,100%{opacity:0;transform:translateY(112px) scale(.06)}}
 @keyframes capture-wiggle{0%,55%,100%{transform:none}67%,87%{transform:rotate(-13deg)}77%{transform:rotate(13deg)}}
 @keyframes capture-spark{0%{opacity:0;transform:scale(.3)}40%{opacity:1}100%{opacity:.45;transform:translateY(-55px) scale(1.2)}}

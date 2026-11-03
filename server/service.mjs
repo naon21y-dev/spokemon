@@ -673,7 +673,17 @@ export async function createService(filename, {
           const form=evolvedCharacter(p).formId,skinId=p.skinByCharacter?.[p.character]??'';
           if(!item||typeof item!=='object'||item.formId!==form||item.skinId!==skinId||item.wear!==p.wear)fail(409,'포켓몬이나 착용 아이템이 바뀌었어요. 편집창을 다시 열어 주세요.');
           const positionKey=JSON.stringify([form,skinId,p.wear]);p.wearPositions??={};
-          if(item.reset===true)delete p.wearPositions[positionKey];else{if(!Number.isFinite(item.x)||!Number.isFinite(item.y)||item.x<0||item.x>100||item.y<0||item.y>100)fail(400,'위치는 0~100 범위로 지정해 주세요.');p.wearPositions[positionKey]={x:Math.round(item.x*100)/100,y:Math.round(item.y*100)/100};}
+          if(item.reset===true)delete p.wearPositions[positionKey];else{if(!Number.isFinite(item.x)||!Number.isFinite(item.y)||item.x<0||item.x>100||item.y<0||item.y>100)fail(400,'위치는 0~100 범위로 지정해 주세요.');const previous = p.wearPositions[positionKey];
+            for (const [field,min,max] of [['scale',25,200],['rotation',-180,180]]) {
+              if (item[field] !== undefined && (!Number.isInteger(item[field]) || item[field]<min || item[field]>max)) fail(400,'아이템 크기나 각도 범위를 확인해 주세요.');
+            }
+            p.wearPositions[positionKey] = {
+              ...previous,
+              x: Math.round(item.x*100)/100,
+              y: Math.round(item.y*100)/100,
+              ...(item.scale===undefined?{}:{scale:item.scale}),
+              ...(item.rotation===undefined?{}:{rotation:item.rotation})
+            };}
         } else if(action==='diglett-restore'){
           if(!p.diglettRecovery){if(p.lastDiglettRecovery===item)return await state(u);fail(400,'복구할 디그다가 없어요.');}
           if(p.character!=='diglett'||item!==p.diglettRecovery.id)fail(409,'복구 요청을 다시 확인해 주세요.');

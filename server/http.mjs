@@ -242,7 +242,7 @@ export async function createHttp(service, {
       if(p==='/api/detective/reset'&&method==='POST')return send(200,await detective.reset(u));
       if(p==='/api/detective/start'&&method==='POST')return send(200,await detective.start(u,body));
       if(p==='/api/detective/history'&&method==='GET')return send(200,await detective.history(u));
-      if((match=p.match(/^\/api\/detective\/([^/]+)(?:\/(enter|answer|accuse|end|pause))?$/))){const [,id,action]=match;if(method==='GET'&&!action)return send(200,await detective.view(u,id));if(method==='POST'&&['enter','answer','accuse','end','pause'].includes(action))return send(200,await detective[action](u,id,body));}
+      if((match=p.match(/^\/api\/detective\/([^/]+)(?:\/(enter|answer|accuse|end|pause|hint))?$/))){const [,id,action]=match;if(method==='GET'&&!action)return send(200,await detective.view(u,id));if(method==='POST'&&['enter','answer','accuse','end','pause','hint'].includes(action))return send(200,await detective[action](u,id,body));}
       if(p==='/api/dungeon/reset'&&method==='POST')return send(200,await dungeon.reset(u));
       if(p==='/api/dungeon/start'&&method==='POST')return send(200,await dungeon.start(u,body));
       if(p==='/api/dungeon/history'&&method==='GET')return send(200,await dungeon.history(u));
