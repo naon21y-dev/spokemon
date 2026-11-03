@@ -1,5 +1,7 @@
 <script setup>
-import {ref,onMounted} from 'vue'
+import {ref,onMounted,watch} from 'vue'
+import {useRoute} from 'vue-router'
+const route=useRoute()
 import {api} from '../lib/api'
 import {useArcade} from '../stores/arcade'
 import FilePicker from '../components/FilePicker.vue'
@@ -16,7 +18,8 @@ function remove(commentId){if(!window.confirm(commentId?'이 댓글을 삭제할
 function askFriend(c){if(s.user.role!=='student'||c.role!=='student'||c.author===s.user.id)return;friendTarget.value=c;friendDialog.value.showModal()}
 function addFriend(){act(async()=>{await api('/friends',{method:'POST',body:{studentId:friendTarget.value.author}});notice.value='친구 요청을 보냈어요. 이미 받은 요청이 있다면 친구로 연결됩니다.';friendDialog.value.close();window.dispatchEvent(new Event('spokemon-friends-refresh'))})}
 function turn(n){page.value=n;act(load)}
-onMounted(()=>act(load))
+onMounted(()=>typeof route.query.post==='string'?open(route.query.post):act(load))
+watch(()=>route.query.post,id=>{if(typeof id==='string')open(id)})
 </script>
 <template><section class="sloud-page"><div class="sloud-heading"><div><p class="eyebrow">SPOKEMON COMMUNITY</p><h1>Sloud</h1><p>오늘 배운 것, 함께 나누고 싶은 내용을 공유해요.</p></div><button v-if="mode==='list'" @click="write">＋ 글쓰기</button><button v-else class="light" @click="list">목록으로</button></div><p v-if="error" class="notice" role="alert">{{error}}</p><p v-if="notice" class="notice" role="status">{{notice}}</p><section v-if="mode==='list'" class="panel"><form class="sloud-search" @submit.prevent="page=1;act(load)"><label>글 검색<input v-model="search" maxlength="100" placeholder="제목 또는 내용"/></label><button :disabled="busy">검색</button></form><div class="sloud-table"><table><thead><tr><th>제목</th><th>작성자</th><th>작성일</th></tr></thead><tbody><tr v-for="p in items" :key="p.id"><td><button class="text-button" @click="open(p.id)">{{p.title}} <b v-if="p.comments">[{{p.comments}}]</b></button></td><td>{{p.authorName}}</td><td>{{new Date(p.created_at).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'})}}</td></tr></tbody></table></div><p v-if="!items.length">첫 번째 이야기를 공유해 보세요!</p><div class="sloud-pagination"><button class="light" :disabled="busy||page<=1" @click="turn(page-1)">이전</button><span>{{page}} / {{Math.max(1,Math.ceil(total/20))}}</span><button class="light" :disabled="busy||page*20>=total" @click="turn(page+1)">다음</button></div></section><form v-else-if="mode==='write'" class="panel sloud-compose" @submit.prevent="save"><h2>새 이야기</h2><label>제목<input v-model="title" required maxlength="120"/></label><label>내용<textarea v-model="content" required maxlength="12000" rows="12" placeholder="오늘 공부한 내용이나 공유하고 싶은 이야기를 적어 주세요."/></label><FilePicker v-model="attachments" :disabled="busy" @busy="attachmentBusy=$event"/><small>텍스트·코드 파일, PDF, PNG·JPG·GIF·WEBP를 첨부할 수 있어요.</small><div class="toolbar"><button :disabled="busy||attachmentBusy||!title.trim()||!content.trim()">{{busy?'저장 중…':'공유하기'}}</button><button type="button" class="light" @click="list">취소</button></div></form><div v-else-if="post" class="sloud-detail">
 <article class="panel sloud-post"><p class="sloud-section-label">게시글</p><h2>{{post.title}}</h2><p>{{post.authorName}} · {{new Date(post.created_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}}</p><p class="sloud-body">{{post.body}}</p><AttachmentList kind="sloud" :resource="post.id"/><button v-if="post.author===s.user.id||s.user.role==='admin'" class="text-button" @click="remove()">게시글 삭제</button></article>

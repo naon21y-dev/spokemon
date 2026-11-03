@@ -10,6 +10,7 @@ import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhance
 import {legendarySkin} from './legendary.mjs';
 import { skinMap,skinMatchesForm } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
+import {AWAY_HOURS} from "../src/data/petCare.js";
 import { createCurriculum } from './curriculum.mjs';
 import { createWorkshop } from './workshop.mjs';
 import { openDatabase } from './database.mjs';
@@ -154,6 +155,7 @@ export async function createService(filename, {
       return await newSession(u);
       });
     }
+    const isReturningStudent = u => u.role === "student" && u.last_seen_at != null && clock() - u.last_seen_at >= AWAY_HOURS * 3600000;
     async function newSession(u) {
       await run('UPDATE users SET last_seen_at=? WHERE id=?',clock(),u.id);
       if ((await fresh(u)).deleted_at != null) fail(401, '삭제된 계정입니다.');
@@ -162,7 +164,8 @@ export async function createService(filename, {
       await run('INSERT INTO auth_sessions VALUES (?,?,?)', createHash('sha256').update(token).digest('hex'), u.id, clock() + 7 * 86400000);
       return {
         token,
-        user: await publicUser(u)
+        user: await publicUser(u),
+        partnerWaiting: isReturningStudent(u)
       };
     }
     async function authenticate(token) {
@@ -373,6 +376,7 @@ export async function createService(filename, {
       const ledger = await all('SELECT l.*,d.source,d.creator_id,d.creator_name,d.problem_title,d.original_id,d.version,d.reason FROM ledger l LEFT JOIN ledger_details d ON d.ledger_id=l.id WHERE l.user_id=? ORDER BY l.created_at DESC LIMIT 50', u.id);
       return {
         user: await publicUser(u),
+        partnerWaiting: isReturningStudent(u),
         data: {
           partnerLocked: !!u.partner_locked,
           tickets:u.role==='student'?await api.tickets.inventory(u):[],

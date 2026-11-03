@@ -21,6 +21,7 @@ const catalog = new Map(species.map(([key,name,type]) => {
     skin:{id:id+'-shiny',character:id,stage:1,name:'이로치 '+name,price:500,image:'/api/legendary/art/'+key+'/shiny'},
   }];
 }));
+export const legendaryName = id => catalog.get(id)?.name ?? "전설의 포켓몬"
 const conditionIds = ['quests','dungeon','detective','workshop','quiz','study','partners'];
 const finalId = 'legendary-arceus';
 const regularIds = [...catalog.keys()].filter(id => id !== finalId);

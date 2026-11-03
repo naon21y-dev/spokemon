@@ -15,6 +15,7 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fail } from './service.mjs';
+import {createTimeline} from './timeline.mjs';
 import { createPresence } from './presence.mjs';
 import { createSocialMailbox as createSocial, createPrivateMailbox as createMail } from './mailbox.mjs';
 import { createNotes } from './notes.mjs';
@@ -26,6 +27,7 @@ export async function createHttp(service, {
   const attempts = new Map(),
     mail = await createMail(service),
     social = await createSocial(service),
+    timeline = createTimeline(service),
     presence = await createPresence(service),
     notes = await createNotes(service),
     activity = await createActivity(service),
@@ -123,7 +125,7 @@ export async function createHttp(service, {
           }));
         } else result = await service.login(body.login, body.password);
         setCookie(result.token);
-        return await send(200, await service.state(await service.authenticate(result.token)));
+        return await send(200, {...await service.state(await service.authenticate(result.token)),partnerWaiting:result.partnerWaiting === true});
       }
       if (p === '/api/online' && method === 'GET') return await send(200, await presence.list());
       if (!u) fail(401, '로그인이 필요해요.');
@@ -160,6 +162,8 @@ export async function createHttp(service, {
       if(p==='/api/quests'&&method==='GET')return send(200,await service.quests.list(u));
       if(p==='/api/quests/claim-all'&&method==='POST')return send(200,await service.quests.claimAll(u));
       if(p==='/api/quests/claim'&&method==='POST')return send(200,await service.quests.claim(u,body.questId));
+      if(p==='/api/timeline'&&method==='GET')return send(200,await timeline.list(u,url.searchParams.get('offset')));
+      if(p==='/api/timeline/read'&&method==='POST')return send(200,await timeline.readAll(u));
       if(p==='/api/activity/notifications'&&method==='GET')return send(200,await activity.list(u));
       if(p==='/api/activity/notifications/read'&&method==='POST')return send(200,await activity.acknowledge(u,body));
       if(p==='/api/cards/start'&&method==='POST')return send(200,await cards.start(u,body));
