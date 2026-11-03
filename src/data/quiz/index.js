@@ -7,6 +7,7 @@ export const subjects = reactive([
  {id:'javascript',name:'JavaScript',icon:'JS',description:'변수 · 배열 · 함수 · 비동기',source:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide'},
  {id:'python',name:'Python',icon:'Py',description:'자료형 · 제어문 · 함수 · 예외',source:'https://docs.python.org/3/tutorial/'},
  {id:'deeplearning',name:'딥러닝',icon:'AI',description:'신경망 · 학습 · 검증 · 과적합',source:'https://www.tensorflow.org/tutorials/keras/overfit_and_underfit'},
+ {id:'fastapi',name:'FastAPI',icon:'API',description:'라우팅 · 검증 · HTTP 응답 · API 문서',source:'https://fastapi.tiangolo.com/tutorial/'},
  {id:'git',name:'Git·GitHub',icon:'Git',description:'커밋 · 브랜치 · 원격 · 협업',source:'https://git-scm.com/docs/gittutorial'}
 ])
 

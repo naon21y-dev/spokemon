@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { subjects } from './questions/index.js';
+import { subjects, questions } from './questions/index.js';
 import { unitTitle } from '../src/data/curriculum.js';
 import { fail } from './service.mjs';
 export async function createCurriculum(db) {
@@ -17,7 +17,29 @@ export async function createCurriculum(db) {
       args: [s.id, i, unitTitle(s.id, i)]
     });
   }
-  await db.batch(seed);
+  const existingFastApi = await db.prepare("SELECT id FROM curriculum_subjects WHERE name='FastAPI' COLLATE NOCASE").get();
+  if (existingFastApi && existingFastApi.id !== 'fastapi') {
+    const subjectId = existingFastApi.id;
+    const units = await db.prepare('SELECT number,title FROM curriculum_units WHERE subject=?').all(subjectId);
+    let nextNumber = Math.max(0, ...units.map(unit => unit.number));
+    const numbers = new Map();
+    for (let unit = 1; unit <= 5; unit++) {
+      const title = unitTitle('fastapi', unit);
+      const existing = units.find(row => row.title === title);
+      const number = existing?.number ?? ++nextNumber;
+      numbers.set(unit, number);
+      if (!existing) seed.push({sql:'INSERT OR IGNORE INTO curriculum_units VALUES(?,?,?)',args:[subjectId,number,title]});
+    }
+    for (const question of questions.filter(question => question.subject === 'fastapi')) {
+      seed.push({
+        sql:'INSERT OR IGNORE INTO curriculum_question_locations VALUES(?,?,?)',
+        args:[question.id,subjectId,numbers.get(question.unit)]
+      });
+    }
+  }
+  await db.batch(seed.filter(statement =>
+    !existingFastApi || existingFastApi.id === 'fastapi' || statement.args[0] !== 'fastapi'
+  ));
   async function list(includeDeleted=false) {
     const [subjects, units] = await Promise.all([db.prepare('SELECT s.*,EXISTS(SELECT 1 FROM curriculum_archives a WHERE a.subject=s.id) archived FROM curriculum_subjects s ORDER BY s.rowid').all(), db.prepare('SELECT * FROM curriculum_units ORDER BY number').all()]);
     return subjects.filter(s=>includeDeleted||!s.archived).map(s => ({

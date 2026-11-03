@@ -12,6 +12,8 @@ import javascript from './javascript.js'
 import python from './python.js'
 import deeplearning from './deeplearning.js'
 import git from './git.js'
+import deeplearningExtra from './deeplearning-extra.js'
+import fastapi from './fastapi.js'
 export const subjects = [
  {id:'vue',name:'Vue.js',icon:'V',description:'반응성 · 컴포넌트 · 템플릿',source:'https://vuejs.org/guide/'},
  {id:'intellij',name:'IntelliJ IDEA',icon:'IJ',description:'IDE · 실행 · 디버깅 · 리팩터링',source:'https://www.jetbrains.com/help/idea/working-with-source-code.html'},
@@ -19,9 +21,10 @@ export const subjects = [
  {id:'javascript',name:'JavaScript',icon:'JS',description:'변수 · 배열 · 함수 · 비동기',source:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide'},
  {id:'python',name:'Python',icon:'Py',description:'자료형 · 제어문 · 함수 · 예외',source:'https://docs.python.org/3/tutorial/'},
  {id:'deeplearning',name:'딥러닝',icon:'AI',description:'신경망 · 학습 · 검증 · 과적합',source:'https://www.tensorflow.org/tutorials/keras/overfit_and_underfit'},
+ {id:'fastapi',name:'FastAPI',icon:'API',description:'라우팅 · 검증 · HTTP 응답 · API 문서',source:'https://fastapi.tiangolo.com/tutorial/'},
  {id:'git',name:'Git·GitHub',icon:'Git',description:'커밋 · 브랜치 · 원격 · 협업',source:'https://git-scm.com/docs/gittutorial'}
 ]
-export const questions = [...vue,...vueMore,...intellij,...intellijMore,...sql,...sqlMore,...javascript,...javascriptMore,...python,...pythonMore,...deeplearning,...deeplearningMore,...git,...gitMore]
+export const questions = [...vue,...vueMore,...intellij,...intellijMore,...sql,...sqlMore,...javascript,...javascriptMore,...python,...pythonMore,...deeplearning,...deeplearningMore,...git,...gitMore,...deeplearningExtra,...fastapi]
 export const questionMap = Object.fromEntries(questions.map(q=>[q.id,q]))
 export const subjectMap = Object.fromEntries(subjects.map(s=>[s.id,s]))
 export const typeNames = {all:'전체',multiple:'객관식',short:'주관식'}

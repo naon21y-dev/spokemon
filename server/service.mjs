@@ -259,9 +259,10 @@ export async function createService(filename, {
         subject: q.subject,
         unit: unitOf(q),
         type: q.type,
+        difficulty: q.difficulty,
         prompt: q.prompt,code:q.code??'',format:q.format??q.type
       };
-      if (q.options) output.options = q.options;
+      if (q.options) output.options = q.difficulty ? shuffle(q.options) : q.options;
       if (answer) {
         output.explanation = q.explanation;
         output.correctAnswer = correctText(q);
@@ -496,7 +497,7 @@ export async function createService(filename, {
       ids
     } = {}) {
       student(u);
-      if (!Array.isArray(ids) || !ids.length || ids.length > 700) fail(400, '복습 문제를 선택해 주세요.');
+      if (!Array.isArray(ids) || !ids.length || ids.length > Math.max(700, questions.length)) fail(400, '복습 문제를 선택해 주세요.');
       ids = [...new Set(ids)];
       const flags = await accessFlags(u, ids),
         owned = new Set((await all('SELECT question_id FROM mistakes WHERE user_id=?', u.id)).map(r => r.question_id));
