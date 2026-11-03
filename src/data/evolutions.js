@@ -24,11 +24,11 @@ machop:[{"id": "machop", "name": "알통몬", "image": "/images/characters/macho
  gengar:[{id:'gengar',name:'팬텀',image:'/images/characters/gengar.png'},{id:'gengar-mega',name:'메가팬텀',image:'/images/evolutions/gengar-mega.png'},{id:'gengar-gmax',name:'거다이맥스 팬텀',image:'/images/evolutions/gengar-gmax.png'}],
  bulbasaur:[{id:'bulbasaur',name:'이상해씨',image:'/images/characters/bulbasaur.png'},{id:'ivysaur',name:'이상해풀',image:'/images/evolutions/ivysaur.png'},{id:'venusaur',name:'이상해꽃',image:'/images/evolutions/venusaur.png'}]
 };
-export const evolutionMaxStage=character=>evolutionChains[character]?.length??3;
+export const evolutionMaxStage=character=>character?.startsWith('legendary-')?1:(evolutionChains[character]?.length??3);
 export const enhancementCost=character=>character==='mew'?1000:0;
 export function evolutionStage(pet){const current=pet?.enhancement?.stage;if(Number.isInteger(current)&&current>=1&&current<=3)return Math.min(current,evolutionMaxStage(pet.character));const legacy=pet?.evolutions?.[pet?.character]?.stage;return Number.isInteger(legacy)&&legacy>=1&&legacy<=3?legacy:1}
 export function characterAtStage(character,stage=1,formId){const base=findCharacter(character),chain=evolutionChains[base.id],index=Number.isInteger(stage)&&stage>=1?Math.min(stage,chain.length)-1:0,form=base.id==='diglett'&&index>0?(diglettFormsAtStage(index+1).find(f=>f.id===formId)??chain[index]):chain[index];return {...base,...form,id:base.id,formId:form.id,stage:index+1}}
-export const evolvedCharacter=pet=>characterAtStage(pet?.character,evolutionStage(pet),pet?.enhancement?.diglettForm);
+export const evolvedCharacter=pet=>pet?.legendaryPartner?.id===pet?.character&&pet?.legendaryPartner?pet.legendaryPartner:characterAtStage(pet?.character,evolutionStage(pet),pet?.enhancement?.diglettForm);
 
 // Probability is based on the current stage: 1→2, then 2→3.
 export const enhancementChance = (stage,character) => character==='diglett'?(stage<3?100:0):stage === 1 ? 80 : stage === 2 ? 50 : 0;

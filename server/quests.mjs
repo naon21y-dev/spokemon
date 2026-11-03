@@ -36,7 +36,9 @@ export async function createQuests(service,{clock,content,releases,loadQuestions
     return {id,tier:i+1,title:i===0?'첫 퀴즈에 도전하기':`서로 다른 문제 ${target}개 맞히기`,target,progress:Math.min(target,progress),reward:claimed.get(id)??reward,claimed:claimed.has(id),ready:!locked&&progress>=target&&!claimed.has(id)};
    })};
   }));
-  return {units,balance:account.coins,ready:units.reduce((n,u)=>n+u.quests.filter(q=>q.ready).length,0)};
+  const quizRoots = [...new Set(questions.filter(q=>q.source!=='student'&&['multiple','short'].includes(q.type)&&subjects.some(s=>s.id===q.subject&&s.units.some(unit=>unit.number===unitOf(q)))).map(q=>q.originalId??q.id))];
+  const quiz = {total:quizRoots.length,attempted:quizRoots.filter(id=>evidence.has(id)).length};
+  return {units,quiz,balance:account.coins,ready:units.reduce((n,u)=>n+u.quests.filter(q=>q.ready).length,0)};
  }
  async function list(u){return db.transaction(()=>build(u))}
  async function claim(u,id){return db.transaction(async()=>{

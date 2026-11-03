@@ -428,4 +428,4 @@ export const skins = [
 ];
 export const skinMap = Object.fromEntries(skins.map(s => [s.id, s]));
 export const skinMatchesForm=(skin,pet)=>!skin?.formId||skin.formId===pet?.enhancement?.diglettForm;
-export function activeSkin(pet) { const s = skinMap[pet?.skinByCharacter?.[pet?.character]]; return s?.character === pet?.character && s.stage===evolutionStage(pet) && skinMatchesForm(s,pet) && pet?.ownedSkins?.includes(s.id) ? s : null; }
+export function activeSkin(pet) { const id = pet?.skinByCharacter?.[pet?.character]; const legendary = pet?.legendaryPartner?.skin; const s = skinMap[id] ?? (legendary?.id === id ? legendary : null); return s?.character === pet?.character && s.stage===evolutionStage(pet) && skinMatchesForm(s,pet) && pet?.ownedSkins?.includes(s.id) ? s : null; }

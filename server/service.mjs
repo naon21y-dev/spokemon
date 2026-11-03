@@ -7,6 +7,7 @@ import {characters} from '../src/data/characters.js';
 import {createQuests} from './quests.mjs';
 import {evolutionStage,enhancementCost,characterAtStage,evolvedCharacter} from '../src/data/evolutions.js';
 import {queueEnhancements,ensureEnhancement,decideEnhancement,acknowledgeEnhancement} from './evolution.mjs';
+import {legendarySkin} from './legendary.mjs';
 import { skinMap,skinMatchesForm } from '../src/data/skins.js';
 import { createAdminPoints } from './admin-points.mjs';
 import { createCurriculum } from './curriculum.mjs';
@@ -698,7 +699,7 @@ export async function createService(filename, {
           p.skinByCharacter = p.skinByCharacter && typeof p.skinByCharacter === 'object' ? p.skinByCharacter : {};
           if (item === 'default') p.skinByCharacter[p.character] = '';
           else {
-            const skin = skinMap[item];
+            const skin = skinMap[item] ?? legendarySkin(p.character,item);
             if (!skin || skin.character !== p.character) fail(400, '현재 파트너의 스킨을 선택해 주세요.');
             if(skin.stage!==evolutionStage(p)||!skinMatchesForm(skin,p))fail(403,'현재 강화 단계의 스킨만 착용할 수 있어요. 다른 단계 스킨은 잠겨 있습니다.');
             if (!p.ownedSkins.includes(item)) { cost = skin.price; p.ownedSkins.push(item); }
@@ -709,7 +710,7 @@ export async function createService(filename, {
         if(care)queueEnhancements(p,previousLevel,Math.floor(p.xp/100)+1,clock());
         await run('UPDATE users SET coins=coins-?,pet=? WHERE id=?', cost, json(p), u.id);
         if(care&&requestKey!=null)await run('INSERT INTO pet_care_requests VALUES(?,?,?,?)',u.id,requestKey,action,clock());
-        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':action==='diglett-restore'?'디그다 복구':action==='train'?'펫 훈련':'펫 돌보기', action === 'skin' ? skinMap[item].name : action==='enhance'?enhanceDetail:action==='diglett-restore'?'원래 포켓몬의 1단계로 복구':action==='train'?'훈련 경험치 +50':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:action==='diglett-restore'?'diglett-restore:'+u.id+':'+item:randomUUID(), clock());
+        if (cost) await run('INSERT INTO ledger VALUES (?,?,?,?,?,?,?)', randomUUID(), u.id, -cost, action === 'skin' ? '스킨 구매' : action==='enhance'?'파트너 강화':action==='diglett-restore'?'디그다 복구':action==='train'?'펫 훈련':'펫 돌보기', action === 'skin' ? (skinMap[item] ?? legendarySkin(p.character,item)).name : action==='enhance'?enhanceDetail:action==='diglett-restore'?'원래 포켓몬의 1단계로 복구':action==='train'?'훈련 경험치 +50':action, action === 'skin' ? 'skin:' + u.id + ':' + item : action==='enhance'?'enhancement:'+u.id+':'+item:action==='diglett-restore'?'diglett-restore:'+u.id+':'+item:randomUUID(), clock());
         return await state(u);
       });
     }
@@ -820,6 +821,8 @@ export async function createService(filename, {
             ...petDefault(),
             ...snap.pet
           };
+          delete p.legendaryPartner;
+          if (String(p.character).startsWith('legendary-')) p.character=petDefault().character;
           p.xp = Math.max(0, Number(p.xp) || 0);
           p.owned = Array.isArray(p.owned) ? p.owned.filter(x => Object.hasOwn(itemMap, x)) : [];
           await run('UPDATE users SET pet=?,game_state=? WHERE id=?', json(p), json({

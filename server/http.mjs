@@ -1,4 +1,5 @@
 import {createGameItems} from './game-items.mjs';
+import {createLegendary} from './legendary.mjs';
 import {createCollection} from './collection.mjs';
 import {createDetective} from './detective/service.mjs';
 import {createDungeon} from './dungeon/service.mjs';
@@ -33,7 +34,7 @@ export async function createHttp(service, {
     hidden = await createHiddenGame(service,{items}),
     rankings = await createGameRankings(service),
     room = await createRoom(service),
-    dungeon=await createDungeon(service,{items}),detective=await createDetective(service),
+    dungeon=await createDungeon(service,{items}),detective=await createDetective(service),legendary=await createLegendary(service),
     files=await createFiles(service,{mail,social}),sloud=await createSloud(service,files),gifts=await createDailyGift(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
@@ -128,6 +129,14 @@ export async function createHttp(service, {
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
       let match;
+      if(p==='/api/legendary'&&method==='GET')return send(200,await legendary.read(u));
+      if(p==='/api/legendary/claim'&&method==='POST')return send(200,await legendary.claim(u,body));
+      if(p==='/api/legendary/equip'&&method==='POST')return send(200,await legendary.equip(u,body.id));
+      if(method==='GET'&&(match=p.match(/^\/api\/legendary\/art\/([a-z-]+)\/(base|shiny)$/))){
+        const bytes=await readFile(await legendary.art(u,match[1],match[2]));
+        res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'});
+        return res.end(bytes);
+      }
       if(p==='/api/collection'&&method==='GET')return send(200,await collection.read(u));
       if(p==='/api/collection'&&method==='POST')return send(200,await collection.act(u,body));
       if(p==='/api/game-items'&&method==='GET')return send(200,await items.inventory(u));
