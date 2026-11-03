@@ -1,5 +1,6 @@
 import {createGameItems} from './game-items.mjs';
 import {createCollection} from './collection.mjs';
+import {createDetective} from './detective/service.mjs';
 import {createDungeon} from './dungeon/service.mjs';
 import {createFiles} from './files.mjs';
 import {createSloud} from './sloud.mjs';
@@ -32,7 +33,7 @@ export async function createHttp(service, {
     hidden = await createHiddenGame(service,{items}),
     rankings = await createGameRankings(service),
     room = await createRoom(service),
-    dungeon=await createDungeon(service,{items}),
+    dungeon=await createDungeon(service,{items}),detective=await createDetective(service),
     files=await createFiles(service,{mail,social}),sloud=await createSloud(service,files),gifts=await createDailyGift(service);
   return createServer(async (req, res) => {
     const send = (status, value) => {
@@ -229,6 +230,10 @@ export async function createHttp(service, {
         const result=await service.changePassword(u,body);setCookie('');return send(200,result);
       }
       if((match=p.match(/^\/api\/admin\/students\/([^/]+)\/password-reset$/))&&method==='POST')return send(200,await service.resetStudentPassword(u,match[1],body));
+      if(p==='/api/detective/reset'&&method==='POST')return send(200,await detective.reset(u));
+      if(p==='/api/detective/start'&&method==='POST')return send(200,await detective.start(u,body));
+      if(p==='/api/detective/history'&&method==='GET')return send(200,await detective.history(u));
+      if((match=p.match(/^\/api\/detective\/([^/]+)(?:\/(enter|answer|accuse|end|pause))?$/))){const [,id,action]=match;if(method==='GET'&&!action)return send(200,await detective.view(u,id));if(method==='POST'&&['enter','answer','accuse','end','pause'].includes(action))return send(200,await detective[action](u,id,body));}
       if(p==='/api/dungeon/reset'&&method==='POST')return send(200,await dungeon.reset(u));
       if(p==='/api/dungeon/start'&&method==='POST')return send(200,await dungeon.start(u,body));
       if(p==='/api/dungeon/history'&&method==='GET')return send(200,await dungeon.history(u));

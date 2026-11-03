@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "node scripts/check-dungeon-runtime.mjs && vite build",
     "preview": "vite preview",
+    "test:detective": "node scripts/verify-detective.mjs",
     "test:learning": "node scripts/verify-server.mjs && node scripts/verify-persistence.mjs",
     "server": "node server/index.mjs",
     "admin:create": "node server/create-admin.mjs",
