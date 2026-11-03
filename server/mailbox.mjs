@@ -143,7 +143,7 @@ export async function createPrivateMailbox(service) {
   async function recipients(u, search = '') {
     service.admin(u);
     return {
-      items: await all("SELECT u.id,u.name,u.login,c.name class_name FROM users u LEFT JOIN classes c ON c.id=u.class_id WHERE u.role='student' AND u.deleted_at IS NULL AND (u.name LIKE ? OR u.login LIKE ?) ORDER BY u.name LIMIT 100", '%' + String(search).slice(0, 100) + '%', '%' + String(search).slice(0, 100) + '%')
+      items: await all("SELECT u.id,u.name,u.login,c.name class_name FROM users u LEFT JOIN classes c ON c.id=u.class_id WHERE u.role='student' AND u.deleted_at IS NULL AND (u.name LIKE ? OR u.login LIKE ?) ORDER BY u.name,u.login", '%' + String(search).slice(0, 100) + '%', '%' + String(search).slice(0, 100) + '%')
     };
   }
   async function sendAdmin(u, b) {
@@ -152,15 +152,30 @@ export async function createPrivateMailbox(service) {
       title,
       body
     } = content(b);
-    return once(u, 'admin-message', b.requestKey, [b.studentId, title, body], async () => {
-      if (!(await get("SELECT id FROM users WHERE id=? AND role='student' AND deleted_at IS NULL", b.studentId))) fail(404, '학생을 찾을 수 없어요.');
-      const id = randomUUID(),
-        now = Date.now();
-      await run('INSERT INTO private_messages VALUES(?,?,?,?,?,?)', id, b.studentId, 'general', title, body, now);
-      await run('INSERT INTO mailbox_senders VALUES(?,?)', id, u.id);
-      await run('INSERT INTO private_replies VALUES(?,?,?,?,?,NULL)', randomUUID(), id, u.id, body, now);
-      return id;
-    });
+    const bulk = b.studentIds !== undefined;
+    const requested = bulk ? b.studentIds : [b.studentId];
+    if (!Array.isArray(requested) || !requested.length || requested.some(id => typeof id !== 'string' || !id)) {
+      fail(400, '받는 학생을 선택해 주세요.');
+    }
+    const studentIds = [...new Set(requested)].sort();
+    const receipt = await once(u, bulk ? 'admin-bulk-message' : 'admin-message', b.requestKey,
+      [bulk ? studentIds : studentIds[0], title, body], async () => {
+        const eligible = new Set((await all("SELECT id FROM users WHERE role='student' AND deleted_at IS NULL")).map(row => row.id));
+        if (studentIds.some(id => !eligible.has(id))) fail(404, '선택한 학생 중 찾을 수 없는 계정이 있어요. 다시 선택해 주세요.');
+        const ids = [];
+        const now = Date.now();
+        for (const studentId of studentIds) {
+          const id = randomUUID();
+          await run('INSERT INTO private_messages VALUES(?,?,?,?,?,?)', id, studentId, 'general', title, body, now);
+          await run('INSERT INTO mailbox_senders VALUES(?,?)', id, u.id);
+          await run('INSERT INTO private_replies VALUES(?,?,?,?,?,NULL)', randomUUID(), id, u.id, body, now);
+          ids.push(id);
+        }
+        return bulk ? JSON.stringify(ids) : ids[0];
+      });
+    if (!bulk) return receipt;
+    const ids = JSON.parse(receipt.id);
+    return {id:ids[0], ids, count:ids.length};
   }
   async function studentReply(u, id, b) {
     service.student(u);
