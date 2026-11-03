@@ -21,6 +21,7 @@ const catalog = new Map(species.map(([key,name,type]) => {
     skin:{id:id+'-shiny',character:id,stage:1,name:'이로치 '+name,price:500,image:'/api/legendary/art/'+key+'/shiny'},
   }];
 }));
+const conditionIds = ['quests','dungeon','detective','workshop','quiz','study','partners'];
 const finalId = 'legendary-arceus';
 const regularIds = [...catalog.keys()].filter(id => id !== finalId);
 export const legendarySkin = (character, id) => {
@@ -39,6 +40,13 @@ export async function createLegendary(service, {roll=randomInt}={}) {
       species TEXT NOT NULL,
       captured_at INTEGER NOT NULL,
       PRIMARY KEY(user_id,species)
+    );
+    CREATE TABLE IF NOT EXISTS legendary_conditions(
+      user_id TEXT NOT NULL REFERENCES users(id),
+      condition_id TEXT NOT NULL,
+      species TEXT NOT NULL,
+      PRIMARY KEY(user_id,condition_id),
+      UNIQUE(user_id,species)
     );
     CREATE TABLE IF NOT EXISTS legendary_claims(
       user_id TEXT NOT NULL REFERENCES users(id),
@@ -76,14 +84,28 @@ export async function createLegendary(service, {roll=randomInt}={}) {
       {id:'partners',label:'일반 포켓몬 7종 모으기',done:partners>=7,progress:Math.min(partners,7),total:7},
     ];
   }
+  async function claimedConditions(user, owned) {
+    const rows = await all('SELECT condition_id,species FROM legendary_conditions WHERE user_id=?',user.id);
+    const claimed = new Map(rows.map(row=>[row.condition_id,row.species]));
+    // Earlier draws required all seven conditions. Assign those captures to unused slots.
+    const assigned = new Set(claimed.values());
+    for (const species of owned) {
+      if (!regularIds.includes(species)||assigned.has(species)) continue;
+      const condition = conditionIds.find(id=>!claimed.has(id));
+      if (!condition) break;
+      await run('INSERT INTO legendary_conditions VALUES(?,?,?)',user.id,condition,species);
+      claimed.set(condition,species);
+    }
+    return claimed;
+  }
   async function read(u) {
     return db.transaction(async()=>{
       const user = await account(u);
       const owned = await ownership(user);
-      const checks = await requirements(user);
+      const claimed = await claimedConditions(user,owned);
+      const checks = (await requirements(user)).map(check=>({...check,claimed:claimed.has(check.id)}));
       const entries = [...owned].filter(id=>regularIds.includes(id)).map(id=>catalog.get(id));
       return {entries, total:regularIds.length, checks, current:JSON.parse(user.pet).character,
-        canDraw:entries.length<regularIds.length&&checks.every(check=>check.done),
         canClaimFinal:entries.length===regularIds.length&&!owned.has(finalId),
         final:owned.has(finalId)?catalog.get(finalId):null};
     });
@@ -92,14 +114,17 @@ export async function createLegendary(service, {roll=randomInt}={}) {
     const key = body?.requestKey;
     if (typeof key!=='string'||!/^[-\w]{8,100}$/.test(key)) fail(400,'수령 요청을 확인해 주세요.');
     if (!['draw','final'].includes(body.kind)) fail(400,'수령 종류를 확인해 주세요.');
+    if (body.kind==='draw'&&!conditionIds.includes(body.condition)) fail(400,'수령할 조건을 선택해 주세요.');
     return db.transaction(async()=>{
       const user = await account(u);
+      const owned = await ownership(user);
+      const claimed = await claimedConditions(user,owned);
       const receipt = await get('SELECT species FROM legendary_claims WHERE user_id=? AND request_key=?',user.id,key);
       if (receipt) {
         if ((receipt.species===finalId)!==(body.kind==='final')) fail(409,'수령 종류가 달라요.');
+        if (body.kind==='draw'&&claimed.get(body.condition)!==receipt.species) fail(409,'수령 조건이 달라요.');
         return {pokemon:catalog.get(receipt.species)};
       }
-      const owned = await ownership(user);
       const remaining = regularIds.filter(id=>!owned.has(id));
       let id;
       if (body.kind==='final') {
@@ -107,10 +132,12 @@ export async function createLegendary(service, {roll=randomInt}={}) {
         id = finalId;
       } else {
         if (!remaining.length) fail(409,'전설 포켓몬 7종을 모두 모았어요.');
-        if (!(await requirements(user)).every(check=>check.done)) fail(403,'수령 조건을 모두 달성해 주세요.');
+        if (claimed.has(body.condition)) fail(409,'이미 수령한 조건이에요.');
+        if (!(await requirements(user)).find(check=>check.id===body.condition)?.done) fail(403,'선택한 조건을 먼저 달성해 주세요.');
         id = remaining[roll(remaining.length)];
       }
       await run('INSERT INTO legendary_owned VALUES(?,?,?)',user.id,id,Date.now());
+      if (body.kind==='draw') await run('INSERT INTO legendary_conditions VALUES(?,?,?)',user.id,body.condition,id);
       await run('INSERT INTO legendary_claims VALUES(?,?,?)',user.id,key,id);
       return {pokemon:catalog.get(id)};
     });

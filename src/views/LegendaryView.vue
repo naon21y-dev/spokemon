@@ -28,9 +28,9 @@ async function act(task) {
   }
 }
 
-function claim(kind) {
+function claim(kind, condition) {
   return act(async () => {
-    if (pendingClaim?.kind !== kind) pendingClaim = { kind, requestKey: crypto.randomUUID() }
+    if (pendingClaim?.kind !== kind || pendingClaim?.condition !== condition) pendingClaim = { kind, condition, requestKey: crypto.randomUUID() }
     const { pokemon } = await api('/legendary/claim', { method: 'POST', body: pendingClaim })
     pendingClaim = null
     captured.value = pokemon
@@ -75,7 +75,6 @@ onMounted(() => act(refresh))
             <template v-else><span class="secret-mark" aria-hidden="true">?</span><strong>미공개</strong></template>
           </article>
         </div>
-        <button v-if="dex.entries.length<dex.total" :disabled="busy || !dex.canDraw" @click="claim('draw')">전설의 포켓몬 수령</button>
       </section>
       <section class="panel legendary-final">
         <div>
@@ -90,11 +89,14 @@ onMounted(() => act(refresh))
       </section>
       <section class="panel">
         <h2>수령 방법</h2>
-        <p>일곱 조건을 모두 달성한 뒤 수령 버튼을 누르세요. 첫 수령은 각 포켓몬이 1/7 확률로 등장하고, 다음부터는 미획득 포켓몬 중 한 마리가 같은 확률로 등장해요.</p>
+        <p>조건을 하나 달성할 때마다 해당 조건에서 전설 포켓몬 한 마리를 수령할 수 있어요. 각 조건은 한 번만 수령할 수 있어요. 첫 수령은 각 포켓몬이 1/7 확률로 등장하고, 다음부터는 미획득 포켓몬 중 한 마리가 같은 확률로 등장해요.</p>
         <ul class="legendary-checks">
           <li v-for="check in dex.checks" :key="check.id">
             <span>{{ check.done ? '✓' : '○' }} {{ check.label }}</span>
             <strong>{{ check.minutes === undefined ? check.progress + ' / ' + check.total : check.minutes + '분' }}</strong>
+            <button :disabled="busy || !check.done || check.claimed" @click="claim('draw', check.id)">
+              {{ check.claimed ? '수령 완료' : '수령' }}
+            </button>
           </li>
         </ul>
         <p>퀘스트는 목표 달성을 확인해요. 퀴즈는 공식 문제마다 한 번 이상 답안을 제출하면 돼요. 획득한 전설 포켓몬은 진화 없이 함께할 수 있고, 전용 이로치 스킨은 마이 리틀 펫의 스킨 상점에서 500P로 구매할 수 있어요.</p>
@@ -127,7 +129,7 @@ onMounted(() => act(refresh))
 .legendary-grid button{font-size:11px;padding:6px 10px}
 .secret-mark{font-size:48px;color:var(--rpg-edge)}
 .legendary-checks{list-style:none;padding:0;display:grid;gap:8px}
-.legendary-checks li{display:flex;gap:10px;justify-content:space-between;padding:10px;background:var(--rpg-soft);border-radius:6px;font-size:13px}
+.legendary-checks li{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:10px;background:var(--rpg-soft);border-radius:6px;font-size:13px}
 .legendary-checks strong{white-space:nowrap}
 .capture-dialog{width:min(420px,calc(100vw - 24px));text-align:center;background:var(--rpg-paper);color:var(--rpg-ink);border:3px solid var(--rpg-edge);border-radius:14px;padding:20px}
 .capture-dialog::backdrop{background:#152539a8}
