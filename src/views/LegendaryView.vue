@@ -117,12 +117,12 @@ onMounted(() => act(refresh))
 </template>
 
 <style scoped>
-.legendary-dex{max-width:1100px;margin:auto;min-width:0}
+.legendary-dex{width:100%;min-width:0}
 .legendary-title,.legendary-final{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .legendary-title h1{font-size:clamp(22px,4vw,34px);margin:8px 0}
 .legendary-title small{color:var(--rpg-ink)}
 .legendary-dex .panel{margin:16px 0}
-.legendary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(135px,100%),1fr));gap:12px;margin-bottom:18px}
+.legendary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(135px,calc((100% - 72px) / 7))),1fr));gap:12px;margin-bottom:18px}
 .legendary-grid article{display:grid;justify-items:center;align-content:center;gap:8px;min-height:168px;text-align:center;padding:10px;border:2px dashed var(--rpg-mid);background:var(--rpg-soft);border-radius:10px}
 .legendary-grid .discovered{border-style:solid}
 .legendary-grid img,.legendary-final img{width:105px;height:95px;object-fit:contain}
