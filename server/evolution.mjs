@@ -27,6 +27,10 @@ export function decideEnhancement(pet,offerId,accept,now,draw=()=>randomInt(100)
    const roll=draw();if(!Number.isInteger(roll)||roll<0||roll>99)throw Error('Invalid server enhancement random value');event.success=roll<event.chance;event.toStage=event.success?before+1:1;
    if(!event.success){event.diglett=true;pet.diglettRecovery={id:offerId,character:pet.character};pet.character='diglett';state.diglettForm=null}
   }
+  if(event.character!=='diglett'&&!event.character.startsWith('legendary-')){
+   pet.collection??={};
+   pet.collection[event.character]={...pet.collection[event.character],stage:event.toStage,completed:event.toStage===3};
+  }
   state.stage=event.toStage;resetSelectedSkins(pet,state);state.lastResult={...event,acknowledged:false};pet.lastEvolution=event;
  }
  state.history.push(event);

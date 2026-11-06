@@ -6,9 +6,24 @@ export async function hydrateCollection(db,u,pet){
  pet.collection??={};
  const records=await db.prepare("SELECT detail FROM ledger WHERE user_id=? AND kind='파트너 변경'").all(u.id);
  for(const row of records){for(const id of row.detail.split(' → '))if(characters.some(c=>c.id===id))pet.collection[id]??={completed:false}}
- if(pet.character!=='diglett')pet.collection[pet.character]??={completed:false};
- if(evolutionStage(pet)===3&&pet.character!=='diglett'){pet.collection[pet.character]={completed:true}}
- for(const event of pet.enhancement?.history??[])if(event.success&&event.toStage===3&&event.character!=='diglett')pet.collection[event.character]={completed:true};
+ // Restore legacy stage records from the latest accepted enhancement.
+ const historicalStages=new Map();
+ for(const event of pet.enhancement?.history??[]){
+  if(event.decision==='accept'&&typeof event.success==='boolean'&&characters.some(c=>c.id===event.character)){
+   historicalStages.set(event.character,event.success?event.toStage:1);
+  }
+ }
+ for(const [id,stage] of historicalStages){
+  pet.collection[id]??={completed:false};
+  pet.collection[id].stage??=pet.collection[id].completed?3:stage;
+ }
+ if(characters.some(c=>c.id===pet.character)){
+  const stage=evolutionStage(pet);
+  pet.collection[pet.character]={...pet.collection[pet.character],stage,completed:stage===3};
+ }
+ for(const entry of Object.values(pet.collection)){
+  entry.stage??=entry.completed?3:1;
+ }
  return pet.collection;
 }
 function canViewDiglett(pet){

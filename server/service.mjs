@@ -637,7 +637,7 @@ export async function createService(filename, {
           }
           if (!u.partner_locked || pet.character !== character) {
             const enhancement=ensureEnhancement(pet,Math.floor(pet.xp/100)+1,clock());
-            if(pet.character!==character){enhancement.stage=pet.collection[character]?.completed?3:1;enhancement.diglettForm=null;for(const offer of [enhancement.pending,...enhancement.queued].filter(Boolean))enhancement.history.push({...offer,character:pet.character,decision:'character-change',success:null,at:clock()});enhancement.pending=null;enhancement.queued=[];enhancement.lastResult=null;if(pet.skinByCharacter?.[character])pet.skinByCharacter[character]='';}
+            if(pet.character!==character){enhancement.stage=pet.collection[character]?.stage??(pet.collection[character]?.completed?3:1);enhancement.diglettForm=null;for(const offer of [enhancement.pending,...enhancement.queued].filter(Boolean))enhancement.history.push({...offer,character:pet.character,decision:'character-change',success:null,at:clock()});enhancement.pending=null;enhancement.queued=[];enhancement.lastResult=null;if(pet.skinByCharacter?.[character])pet.skinByCharacter[character]='';}
             if(pet.character!==character&&character==='mew'&&enhancement.stage<3){const enhancement=pet.enhancement;enhancement.pending={id:randomUUID(),level:Math.floor((Math.floor(pet.xp/100)+1)/10)*10,at:clock()};enhancement.lastOpportunityLevel=enhancement.pending.level}
             pet.character = character;pet.collection[character]??={completed:false};
             await run('UPDATE users SET pet=?,partner_locked=1 WHERE id=?', json(pet), u.id);
