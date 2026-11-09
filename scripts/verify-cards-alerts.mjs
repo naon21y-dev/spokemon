@@ -11,6 +11,7 @@ import {cardLevels} from '../src/data/card-levels.js';
 const service=await createService(':memory:'),password='test-only-pass';let server,browser;
 try{
  const a=await service.createUser({login:'card_user',nickname:'카드학생',password}),b=await service.createUser({login:'receiver_user',nickname:'받는학생',password}),c=await service.createUser({login:'sender_user',nickname:'보낸학생',password}),admin=await service.createUser({login:'test_admin',nickname:'관리자',password,role:'admin'});
+ await service.seeding.settings(admin,{enabled:false});
  await service.points.grant(admin,b.id,{amount:40,reason:'배포 이전 내역',requestKey:randomUUID()});
  const cards=await createCardGame(service),activity=await createActivity(service),social=await createSocial(service);
  assert.equal((await activity.list(b)).events.length,0);
@@ -28,6 +29,7 @@ try{
   assert.equal((await service.db.prepare('SELECT COUNT(*) n FROM ledger WHERE unique_key=?').get('card-clear:'+game.id)).n,1);
  }
  assert.equal((await service.state(a)).data.coins,158);assert.equal((await activity.list(a)).events.filter(e=>e.kind==='points').length,8);
+ await service.attendance.checkIn(b);
  const origins=[];server=await createHttp(service,{origins});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;origins.push(base);
  const unauth=await fetch(base+'/api/activity/notifications');assert.equal(unauth.status,401);
  browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});

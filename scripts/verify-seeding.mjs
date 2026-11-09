@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {randomUUID} from 'node:crypto';
+import {createService} from '../server/service.mjs';
+import {createHttp} from '../server/http.mjs';
+import {seedingQuestions} from '../server/questions/seeding.js';
+const file=join(mkdtempSync(join(tmpdir(),'spokemon-seeding-')),'test.sqlite');
+let now=Date.now(),s=await createService(file,{clock:()=>now}),server;
+const password=randomUUID(),admin=await s.createUser({login:'seed_admin',nickname:'관리자',password,role:'admin'}),student=await s.createUser({login:'seed_student',nickname:'도전자',password}),other=await s.createUser({login:'seed_other',nickname:'친구',password});
+const cookies={};for(const u of [admin,student,other])cookies[u.id]='spokemon_session='+(await s.newSession(u)).token;
+try{
+ server=await createHttp(s);await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
+ async function call(path,u=student,method='GET',body,status=200){const r=await fetch(base+'/api'+path,{method,headers:{Cookie:cookies[u.id],'Content-Type':'application/json','X-Spokemon-Request':'1'},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));return data}
+ assert.equal(seedingQuestions.length,92);assert.equal(new Set(seedingQuestions.map(q=>q.id)).size,92);assert(seedingQuestions.every(q=>q.explanation&&q.acceptedAnswers.length));
+ assert((await call('/seeding/settings')).enabled);
+ await call('/admin/seeding',student,'PUT',{enabled:false},403);
+ const initial=(await call('/activity/notifications')).events.filter(e=>e.kind==='seeding-open');assert.equal(initial.length,1);
+ await call('/activity/notifications/read',student,'POST',{ids:[initial[0].id]});assert.equal((await call('/activity/notifications')).events.filter(e=>e.kind==='seeding-open').length,0);
+ const [a,b]=await Promise.all([call('/seeding/start',student,'POST',{}),call('/seeding/start',student,'POST',{})]);assert.equal(a.id,b.id);assert.equal(a.questions.length,30);assert.equal(new Set(a.questions.map(q=>q.id)).size,30);assert(!JSON.stringify(a).includes('acceptedAnswers'));assert(a.questions.every(q=>!('correctAnswer' in q)&&!('explanation' in q)));
+ await call('/seeding/'+a.id+'/draft',other,'POST',{answers:{},revision:0},404);
+ await call('/seeding/'+a.id+'/submit',student,'POST',{answers:{},revision:0},400);
+ await call('/seeding/'+a.id+'/draft',student,'POST',{answers:{invalid:'x'},revision:0},400);
+ const bank=new Map(seedingQuestions.map(q=>[q.id,q])),answers=Object.fromEntries(a.questions.map(q=>[q.id,bank.get(q.id).acceptedAnswers[0].toUpperCase().split('').join(' ')]));
+ const draft=await call('/seeding/'+a.id+'/draft',student,'POST',{answers,revision:0});assert.equal(draft.revision,1);assert.deepEqual((await call('/seeding')).session.answers,answers);
+ await call('/seeding/'+a.id+'/draft',student,'POST',{answers:{},revision:0},409);
+ const beat=(seq,extra={})=>call('/study/heartbeat',student,'POST',{tabId:'seeding-test',seq,visible:true,activityAgeMs:0,context:{kind:'seeding',sessionId:a.id},...extra});
+ await beat(1);for(let i=2;i<=242;i++){now+=30000;const r=await beat(i);assert.equal(r.addedMs,30000)}
+ assert.equal((await s.db.prepare('SELECT SUM(ms) ms FROM study_days WHERE user_id=?').get(student.id)).ms,7230000);
+ assert((await call('/legendary')).checks.find(c=>c.id==='study').done);
+ const draw={kind:'draw',condition:'study',requestKey:randomUUID()};const first=await call('/legendary/claim',student,'POST',draw);assert.deepEqual(await call('/legendary/claim',student,'POST',draw),first);await call('/legendary/claim',student,'POST',{...draw,requestKey:randomUUID()},409);
+ const before=(await s.state(student)).data.coins;
+ const results=await Promise.all(Array.from({length:4},()=>call('/seeding/'+a.id+'/submit',student,'POST',{answers,revision:1})));
+ assert(results.every(r=>r.result.coins===500&&r.result.correct===30));assert.equal((await s.state(student)).data.coins,before+500);assert.equal((await s.db.prepare("SELECT COUNT(*) n FROM ledger WHERE unique_key=?").get('seeding:'+a.id)).n,1);
+ const second=await call('/seeding/start',student,'POST',{});assert.notEqual(second.id,a.id);
+ const body={title:'시험 안내',content:'첨부 자료로 공부해 주세요!',requestKey:randomUUID(),attachmentIds:[]};
+ const post=await call('/sloud',admin,'POST',body);assert.deepEqual(await call('/sloud',admin,'POST',body),post);
+ const userPost=await call('/sloud',student,'POST',{...body,requestKey:randomUUID(),title:'학생 글'});
+ assert.equal((await s.db.prepare("SELECT count(*) n FROM broadcast_notices WHERE kind='sloud-notice'").get()).n,1);
+ const list=await call('/sloud');assert.equal(list.items[0].id,post.id);assert.equal(list.items[0].role,'admin');
+ assert((await call('/activity/notifications',other)).events.some(e=>e.target===post.id));assert(!(await call('/activity/notifications',other)).events.some(e=>e.target===userPost.id));
+ assert((await call('/timeline?offset=0')).items.some(e=>e.kind==='sloud-notice'&&e.target===post.id));
+ await call('/sloud/'+post.id,admin,'DELETE');assert(!(await call('/activity/notifications',other)).events.some(e=>e.target===post.id));assert(!(await call('/timeline?offset=0')).items.some(e=>e.target===post.id));
+ await call('/admin/seeding',admin,'PUT',{enabled:false});assert.equal((await call('/seeding')).session,null);await call('/seeding/start',student,'POST',{},403);await call('/seeding/'+second.id+'/submit',student,'POST',{answers:{},revision:0},403);
+ await call('/study/heartbeat',student,'POST',{tabId:'seeding-test',seq:243,visible:true,activityAgeMs:0,context:{kind:'seeding',sessionId:second.id}},403);
+ assert(!(await call('/activity/notifications',other)).events.some(e=>e.kind==='seeding-open'));
+ now++;await call('/admin/seeding',admin,'PUT',{enabled:true});await call('/admin/seeding',admin,'PUT',{enabled:true});assert.equal((await call('/activity/notifications',other)).events.filter(e=>e.kind==='seeding-open').length,1);assert.equal((await call('/seeding')).session.id,second.id);
+ await new Promise(r=>server.close(r));server=null;await s.close();s=await createService(file,{clock:()=>now});assert((await s.seeding.settings(admin)).enabled);assert.equal((await s.seeding.read(student)).session.id,second.id);assert.equal((await s.db.prepare('SELECT count(*) n FROM seeding_sessions WHERE user_id=?').get(student.id)).n,2);
+ console.log('PASS: 92 questions, 30-at-once, draft persistence/conflict, answer privacy, ownership, concurrent 500P exactly once, study heartbeat + 2h legendary, admin settings/access, Sloud notices + deletion + deduplication, latest re-open notification, restart persistence.');
+}finally{if(server)await new Promise(r=>server.close(r));await s.close()}

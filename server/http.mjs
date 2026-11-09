@@ -131,6 +131,11 @@ export async function createHttp(service, {
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
       let match;
+      if(p==='/api/seeding/settings'&&method==='GET')return send(200,await service.seeding.settings(u));
+      if(p==='/api/admin/seeding'&&method==='PUT')return send(200,await service.seeding.settings(u,body));
+      if(p==='/api/seeding'&&method==='GET')return send(200,await service.seeding.read(u));
+      if(p==='/api/seeding/start'&&method==='POST')return send(200,await service.seeding.start(u));
+      if((match=p.match(/^\/api\/seeding\/([^/]+)\/(draft|submit)$/))&&method==='POST')return send(200,await service.seeding[match[2]](u,match[1],body));
       if(p==='/api/legendary'&&method==='GET')return send(200,await legendary.read(u));
       if(p==='/api/legendary/claim'&&method==='POST')return send(200,await legendary.claim(u,body));
       if(p==='/api/legendary/equip'&&method==='POST')return send(200,await legendary.equip(u,body.id));

@@ -6,7 +6,7 @@ import {useTimeline} from '../stores/timeline'
 const emit=defineEmits(['navigate'])
 const timeline=useTimeline()
 const items=ref([]),busy=ref(false),more=ref(false),error=ref('')
-const labels={update:'업데이트','comment-written':'남긴 댓글','comment-received':'받은 댓글',legendary:'전설의 포켓몬'}
+const labels={'sloud-notice':'Sloud 공지사항','seeding-open':"GT's seeding",update:'업데이트','comment-written':'남긴 댓글','comment-received':'받은 댓글',legendary:'전설의 포켓몬'}
 async function load(append=false,markRead=false){
   if(busy.value)return
   busy.value=true
@@ -39,8 +39,9 @@ onMounted(()=>load())
         </div>
         <h2>{{item.kind==='legendary'?item.title+'을(를) 획득했어요!':item.title}}</h2>
         <p v-if="item.kind==='comment-received'">{{item.detail}}님이 내 게시글에 댓글을 남겼어요.</p>
-        <p v-else-if="item.kind==='update'">{{item.detail}}</p>
-        <RouterLink @click="emit('navigate')" v-if="item.target" :to="{path:'/sloud',query:{post:item.target}}">게시글 보기 →</RouterLink>
+        <p v-else-if="['update','sloud-notice','seeding-open'].includes(item.kind)">{{item.detail}}</p>
+        <RouterLink @click="emit('navigate')" v-if="item.kind==='seeding-open'" to="/seeding">30문제 도전하기 →</RouterLink>
+        <RouterLink @click="emit('navigate')" v-else-if="item.target" :to="{path:'/sloud',query:{post:item.target}}">게시글 보기 →</RouterLink>
         <RouterLink @click="emit('navigate')" v-else-if="item.kind==='legendary'" to="/legendary">전설의 포켓몬 도감 →</RouterLink>
       </li>
     </ol>

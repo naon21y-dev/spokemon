@@ -1,3 +1,4 @@
+import {createSeeding} from './seeding.mjs';
 import {hydrateCollection} from './collection.mjs';
 import {lessonGuide,guidePublic,gradeGuide} from './lessons/index.mjs';
 import {petCareActions,petCondition} from '../src/data/petCare.js';
@@ -55,7 +56,7 @@ export async function createService(filename, {
   clock = () => Date.now(), evolutionRoll, diglettRoll
 } = {}) {
   const questionMap = structuredClone(officialMap);
-  let quests, workshop,
+  let seeding, quests, workshop,
     curriculum,
     questions = [...builtinQuestions],
     subjects = [...builtinSubjects],
@@ -780,6 +781,10 @@ export async function createService(filename, {
           await checkUnit(u, context.subject, Number(context.unit));
           subject = context.subject;
           permitted = true;
+        } else if (context?.kind === 'seeding') {
+          const row = await seeding.active(u, context.sessionId);
+          subject = 'deeplearning';
+          permitted = !row.result;
         } else if (context?.kind === 'quiz' || context?.kind === 'review' || context?.kind === 'community') {
           const r = await getQuiz(u, context.sessionId);
           if (r.mode !== context.kind || r.done) permitted = false;else {
@@ -1042,6 +1047,8 @@ export async function createService(filename, {
     quests = await createQuests(api,{clock,content:async()=>{await refreshContent();return {subjects,questions}},releases:releasesFor,loadQuestions,questionMap});
     api.quests = quests;
     api.attendance = await createAttendance(api,{clock});
+    seeding = await createSeeding(api,{clock});
+    api.seeding = seeding;
     return api;
   } catch (error) {
     await db.close();

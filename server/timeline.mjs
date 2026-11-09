@@ -1,3 +1,4 @@
+import {visibleNotices} from './seeding.mjs'
 import {fail} from './service.mjs'
 import {legendaryName} from './legendary.mjs'
 
@@ -16,6 +17,8 @@ export function createTimeline(service) {
     JOIN users u ON u.id=c.author JOIN users author ON author.id=p.author
     WHERE (c.author=? OR p.author=?) AND c.deleted_at IS NULL AND p.deleted_at IS NULL
       AND u.deleted_at IS NULL AND author.deleted_at IS NULL
+    UNION ALL
+    SELECT 'broadcast:'||n.id,n.kind,n.created_at,n.title,n.detail,n.target,1 FROM (${visibleNotices}) n
     UNION ALL
     SELECT 'legendary:'||species,'legendary',captured_at,species,'',NULL,1
     FROM legendary_owned WHERE user_id=?

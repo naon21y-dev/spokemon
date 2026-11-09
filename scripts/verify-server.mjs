@@ -52,11 +52,11 @@ const post = async (path, body, cookie) => await call(path, {
     cookie
   });
 try {
-  assert.equal(questions.length, 700);
-  assert.equal(new Set(questions.map(q => q.id)).size, 700);
+  assert.equal(questions.length, 750);
+  assert.equal(new Set(questions.map(q => q.id)).size, 750);
   for (const s of subjects) {
-    assert.equal(questions.filter(q => q.subject === s.id).length, 100);
-    for (let unit = 1; unit <= 5; unit++) assert.equal(questions.filter(q => q.subject === s.id && unitOf(q) === unit).length, 20);
+    assert.equal(questions.filter(q => q.subject === s.id).length, s.id==='deeplearning'?125:s.id==='fastapi'?25:100);
+    for (let unit = 1; unit <= 5; unit++) assert.equal(questions.filter(q => q.subject === s.id && unitOf(q) === unit).length, s.id==='deeplearning'?[25,25,26,25,24][unit-1]:s.id==='fastapi'?[5,6,5,5,4][unit-1]:20);
   }
   assert.equal((await post('/auth/register', {
     login: 'bad_admin',
@@ -398,7 +398,7 @@ try {
   });
   assert.equal(search.data.students.length, 1);
   assert.equal(kstDay(Date.UTC(2026, 9, 26, 15)), '2026-10-27');
-  console.log('PASS: 700 server-only questions; student/admin/CSRF/ownership guards; class+unit API locks; relock without record loss; 20 concurrent submissions award exactly once; no game awards; migration approval exactly once; progress denominator; server/KST time, hidden/5-minute idle/replay/multitab controls; teacher filters/details.');
+  console.log('PASS: 750 server-only questions; student/admin/CSRF/ownership guards; class+unit API locks; relock without record loss; 20 concurrent submissions award exactly once; no game awards; migration approval exactly once; progress denominator; server/KST time, hidden/5-minute idle/replay/multitab controls; teacher filters/details.');
 } finally {
   await new Promise(async resolve => await server.close(resolve));
   await service.close();
