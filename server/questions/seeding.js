@@ -95,7 +95,85 @@ const cnn = [
  ['CIFAR-10 고양이·개', '평가 메서드', 'test_loss,test_acc = model.____(X_test,y_test)',['evaluate']],
  ['CIFAR-10 고양이·개', '예측 메서드', "predictions = model.____(X_test[:5])\npredicted_classes = (predictions >= 0.5).astype('int32').flatten()",['predict']],
 ];
-export const seedingQuestions = [...rows, ...cnn.map(([dataset,label,code,answers])=>[
+export const seedingShortQuestions = [...rows, ...cnn.map(([dataset,label,code,answers])=>[
  `[${dataset} 실습] ${label}의 빈칸을 채우세요.`,answers,
  `${label}: ${answers[0]}. ${dataset==='MNIST'?'MNIST는 28×28 흑백, 숫자 0~9의 10개 클래스를 분류합니다.':'CIFAR-10은 32×32 RGB 이미지입니다. 고양이(3)와 개(5)를 추출하고 고양이=0, 개=1로 바꿉니다.'}`,code
-])].map(([prompt,acceptedAnswers,explanation,code],index)=>({id:`gt-seeding-${index+1}`,type:'short',prompt,acceptedAnswers,explanation,code}));
+])].map(([prompt,acceptedAnswers,explanation,code],index)=>({id:`gt-seeding-${index+1}`,type:'short',subject:index<rows.length?'numpy-pandas':'tensorflow',prompt,acceptedAnswers,explanation,code}));
+
+
+// Each document remains a separate subject, with independent short/choice variants.
+export const seedingSubjects = [
+ {id:'numpy-pandas',name:'NumPy / Pandas',description:'첫 번째 자료 · 데이터 분석, 시각화, AI·머신러닝·딥러닝 기초',count:56},
+ {id:'tensorflow',name:'TensorFlow',description:'두 번째 자료 · MNIST / CIFAR-10 CNN 실습',count:36}
+];
+const distractorRows = [
+ 'list|dict|tuple',
+ '정규화|역전파|과적합',
+ 'Series|ndarray|Index',
+ 'read_excel()|to_csv()|read_json()',
+ 'scatter()|hist()|imshow()',
+ '범례|제목|눈금 간격',
+ '히스토그램|산점도|원 그래프',
+ '산점도|선 그래프|상자 그래프',
+ '데이터베이스|컴파일러|운영체제',
+ 'DL,ML,AI|ML,AI,DL|AI,DL,ML',
+ '검증 데이터|테스트 데이터|예측 데이터',
+ '훈련 데이터|검증 데이터|전체 학습 데이터',
+ 'LogisticRegression,fit|LinearRegression,predict|LinearRegression,evaluate',
+ 'fit|score|transform',
+ 'LinearRegression|RandomForestClassifier|KMeans',
+ 'SVR|SVMClassifier|LinearRegression',
+ 'RandomForestRegressor,fit|RandomForestClassifier,predict|DecisionTreeClassifier,fit',
+ 'fit|transform|fit_transform',
+ 'XGBRegressor|XGBoostClassifier|GradientBoostingRegressor',
+ 'LGBMRegressor|LightGBMClassifier|RandomForestClassifier',
+ '역전파|정규화|드롭아웃',
+ '활성화 함수|최적화 함수|풀링 함수',
+ '배치 크기|클래스 번호|학습률',
+ '훈련|역전파|증강',
+ 'ModelCheckpoint|Dense|SequentialModel',
+ '1|8|16',
+ 'Conv2D|Flatten|Dropout',
+ '8|32|64',
+ 'softmax|relu|linear',
+ '128,64,32|32,16,8|16,32,64',
+ 'sgd,sparse_categorical_crossentropy|adam,categorical_crossentropy|relu,binary_crossentropy',
+ 'predict,20|fit,32|evaluate,20',
+ 'X_train,y_train|X_test,y_test|y_val,X_val',
+ 'predict|fit|compile',
+ 'evaluate|fit|save',
+ 'load|compile|fit',
+ 'Conv1D|MaxPooling2D|Dense',
+ '2,2|5,5|1,1',
+ 'AveragePooling2D|Conv2D|Flatten',
+ 'Dense|Rescaling|MaxPooling2D',
+ 'sigmoid|relu|tanh',
+ '32|3|128',
+ '3,3|1,1|4,4',
+ '100|256|2550',
+ 'resize|flatten|transpose',
+ 'categorical_crossentropy|binary_crossentropy|mean_squared_error',
+ '1|20|64',
+ 'predict|fit|compile',
+ 'CNN|MLP|DNN',
+ '과적합|데이터 누수|차원 축소',
+ 'CNN|MLP|GAN',
+ '입력 게이트|출력 게이트|활성화 함수',
+ 'Random Forest|Linear Regression|KNN',
+ 'max-pooling|dropout|batch normalization',
+ '분류형 AI|회귀형 AI|군집형 AI',
+ '레이블|가중치|옵티마이저'
+].map(row=>row.split('|'));
+const cnnChoices = {
+ Sequential:['ModelCheckpoint','Dense','SequentialModel'],Conv2D:['Conv1D','MaxPooling2D','Dense'],
+ load_data:['read_csv','load_model','fit'], '255.0':['100.0','256.0','2550.0'],
+ '1':['0','3','10'], '3':['1','2','5'], '2':['1','3','4'], '5':['0','3','10'],
+ Flatten:['Dense','Dropout','MaxPooling2D'],softmax:['sigmoid','relu','tanh'],
+ adam:['relu','accuracy','softmax'],sparse_categorical_crossentropy:['categorical_crossentropy','binary_crossentropy','mean_squared_error'],
+ fit:['predict','evaluate','compile'],'10':['1','20','64'],evaluate:['predict','fit','compile'],
+ predict:['evaluate','fit','save'],sigmoid:['softmax','relu','linear'],binary_crossentropy:['sparse_categorical_crossentropy','categorical_crossentropy','mean_squared_error']
+};
+export const seedingQuestions = [...seedingShortQuestions,...seedingShortQuestions.map((q,index)=>({
+ ...q,id:q.id+'-mc',type:'multiple',prompt:q.prompt.replace(' (쉼표로 구분)',' (빈칸 순서)'),
+ options:[q.acceptedAnswers[0],...(index<rows.length?distractorRows[index]:cnnChoices[q.acceptedAnswers[0]])].map((text,i)=>({id:'choice-'+i,text})),correctOptionId:'choice-0'
+}))];

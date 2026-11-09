@@ -133,8 +133,8 @@ export async function createHttp(service, {
       let match;
       if(p==='/api/seeding/settings'&&method==='GET')return send(200,await service.seeding.settings(u));
       if(p==='/api/admin/seeding'&&method==='PUT')return send(200,await service.seeding.settings(u,body));
-      if(p==='/api/seeding'&&method==='GET')return send(200,await service.seeding.read(u));
-      if(p==='/api/seeding/start'&&method==='POST')return send(200,await service.seeding.start(u));
+      if(p==='/api/seeding'&&method==='GET')return send(200,await service.seeding.read(u,Object.fromEntries(url.searchParams)));
+      if(p==='/api/seeding/start'&&method==='POST')return send(200,await service.seeding.start(u,body));
       if((match=p.match(/^\/api\/seeding\/([^/]+)\/(draft|submit)$/))&&method==='POST')return send(200,await service.seeding[match[2]](u,match[1],body));
       if(p==='/api/legendary'&&method==='GET')return send(200,await legendary.read(u));
       if(p==='/api/legendary/claim'&&method==='POST')return send(200,await legendary.claim(u,body));
