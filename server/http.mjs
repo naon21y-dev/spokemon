@@ -131,6 +131,7 @@ export async function createHttp(service, {
       if (!u) fail(401, '로그인이 필요해요.');
       if (p.startsWith('/api/admin/')) service.admin(u);
       let match;
+      if (p === '/api/seeding/study' && method === 'GET') return send(200, await service.seeding.study(u));
       if(p==='/api/seeding/settings'&&method==='GET')return send(200,await service.seeding.settings(u));
       if(p==='/api/admin/seeding'&&method==='PUT')return send(200,await service.seeding.settings(u,body));
       if(p==='/api/seeding'&&method==='GET')return send(200,await service.seeding.read(u,Object.fromEntries(url.searchParams)));

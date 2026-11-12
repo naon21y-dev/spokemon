@@ -17,7 +17,23 @@ try{
  assert((await call('/seeding/settings')).enabled);
  const config=await call('/seeding/settings');assert.equal(config.questionCount,25);assert.deepEqual(config.subjects.map(s=>s.id),['numpy-pandas','tensorflow']);
  for(const subject of config.subjects)for(const type of ['multiple','short']){const bank=seedingQuestions.filter(q=>q.subject===subject.id&&q.type===type);assert.equal(bank.length,subject.count);if(type==='multiple')for(const q of bank){assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.text)).size,4);assert(q.options.some(o=>o.id===q.correctOptionId))}}
- await call('/seeding/start',student,'POST',{subject:'unknown',type:'short'},400);
+ const study = await call('/seeding/study');
+ assert.equal(study.cards.length,92);
+ for (const subject of config.subjects) {
+  const cards = study.cards.filter(card => card.subject === subject.id);
+  assert.equal(cards.length,subject.count);
+  assert(cards.every(card => card.prompt && card.answer && card.explanation));
+ }
+ assert.equal((await fetch(base+'/api/seeding/study')).status,401);
+ await call('/seeding/study',admin,'GET',undefined,403);
+ const studyBeat = (seq,visible,subject='tensorflow',status=200) => call('/study/heartbeat',other,'POST',{
+  tabId:'seeding-cards',seq,visible,activityAgeMs:0,context:{kind:'seeding-study',subject}
+ },status);
+ await studyBeat(1,true,'unknown',400);
+ assert.equal((await studyBeat(1,true)).owner,true);
+ now += 10000;
+ assert.equal((await studyBeat(2,false)).addedMs,10000);
+  await call('/seeding/start',student,'POST',{subject:'unknown',type:'short'},400);
  await call('/seeding/start',student,'POST',{subject:'tensorflow',type:'all'},400);
  const modeIds=new Set();let otherBalance=(await s.state(other)).data.coins;
  for(const subject of config.subjects)for(const type of ['multiple','short']){
@@ -69,7 +85,7 @@ try{
  assert((await call('/activity/notifications',other)).events.some(e=>e.target===post.id));assert(!(await call('/activity/notifications',other)).events.some(e=>e.target===userPost.id));
  assert((await call('/timeline?offset=0')).items.some(e=>e.kind==='sloud-notice'&&e.target===post.id));
  await call('/sloud/'+post.id,admin,'DELETE');assert(!(await call('/activity/notifications',other)).events.some(e=>e.target===post.id));assert(!(await call('/timeline?offset=0')).items.some(e=>e.target===post.id));
- await call('/admin/seeding',admin,'PUT',{enabled:false});assert.equal((await call('/seeding')).session,null);await call('/seeding/start',student,'POST',{},403);await call('/seeding/'+second.id+'/submit',student,'POST',{answers:{},revision:0},403);
+ await call('/admin/seeding',admin,'PUT',{enabled:false});assert.equal((await call('/seeding')).session,null);await call('/seeding/study',student,'GET',undefined,403);await studyBeat(3,true,'tensorflow',403);await call('/seeding/start',student,'POST',{},403);await call('/seeding/'+second.id+'/submit',student,'POST',{answers:{},revision:0},403);
  await call('/study/heartbeat',student,'POST',{tabId:'seeding-test',seq:243,visible:true,activityAgeMs:0,context:{kind:'seeding',sessionId:second.id}},403);
  assert(!(await call('/activity/notifications',other)).events.some(e=>e.kind==='seeding-open'));
  now++;await call('/admin/seeding',admin,'PUT',{enabled:true});await call('/admin/seeding',admin,'PUT',{enabled:true});assert.equal((await call('/activity/notifications',other)).events.filter(e=>e.kind==='seeding-open').length,1);assert.equal((await call('/seeding')).session.id,second.id);

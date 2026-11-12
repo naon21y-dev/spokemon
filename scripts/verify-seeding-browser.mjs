@@ -16,6 +16,32 @@ try{
  const studentPage=await pageFor(student),adminPage=await pageFor(admin);
  await studentPage.goto(base+'/#/seeding');
  const popup=studentPage.locator('.activity-popup[open]');await popup.waitFor();assert.match(await popup.innerText(),/열심히 해서 1시드/);await popup.getByRole('button',{name:'1시드 도전하기!'}).click();await popup.waitFor({state:'hidden'});
+ await studentPage.getByRole('link',{name:/먼저 공부하기/}).click();
+ const cards = studentPage.locator('.study-card');
+ await cards.first().waitFor();
+ assert.equal(await cards.count(),56);
+ assert.match(await cards.first().innerText(),/ndarray/);
+ await studentPage.getByRole('button',{name:'정답 가리고 외우기'}).click();
+ await cards.first().locator('.study-answer').waitFor({state:'hidden'});
+ await cards.first().getByRole('button',{name:'이 카드의 정답 보기'}).click();
+ await cards.first().locator('.study-answer').waitFor({state:'visible'});
+ await cards.nth(1).locator('.study-answer').waitFor({state:'hidden'});
+ await studentPage.getByRole('button',{name:'TensorFlow · 36문제'}).click();
+ assert.equal(await cards.count(),36);
+ await studentPage.getByRole('button',{name:'정답과 해설 모두 보기'}).click();
+ await studentPage.getByRole('searchbox',{name:'공부 카드 검색'}).fill('binary_crossentropy');
+ assert(await cards.count() > 0 && await cards.count() < 36);
+ await studentPage.getByRole('searchbox',{name:'공부 카드 검색'}).fill('');
+ for (const width of [1366, 390, 320]) {
+  await studentPage.setViewportSize({width,height:900});
+  assert(await studentPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  assert(await cards.evaluateAll(items => items.every(card => card.scrollWidth <= card.clientWidth + 1)));
+ }
+ await studentPage.screenshot({path:'artifacts/seeding/study-mobile.png'});
+ await studentPage.getByRole('link',{name:'시험 선택으로'}).click();
+ await studentPage.getByRole('button',{name:'TensorFlow · 주관식 25문제 시작'}).waitFor();
+ await studentPage.setViewportSize({width:1366,height:900});
+ await studentPage.getByRole('button',{name:/^NumPy \/ Pandas/}).first().click();
  await studentPage.getByRole('button',{name:'NumPy / Pandas · 주관식 25문제 시작'}).click();await studentPage.locator('.seed-question').last().waitFor();assert.equal(await studentPage.locator('.seed-question').count(),25);assert.equal(await studentPage.locator('.seed-question input').count(),25);
  const answers=new Map(seedingQuestions.map(q=>[q.id,q.acceptedAnswers[0]]));
  const inputs=studentPage.locator('.seed-question input');const first=inputs.first();await first.fill(answers.get(await first.getAttribute('id')));

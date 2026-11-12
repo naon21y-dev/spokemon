@@ -1,7 +1,7 @@
 import {randomUUID, randomInt} from 'node:crypto';
 import {ensureSloudSchema} from './sloud.mjs';
 import {fail} from './service.mjs';
-import {seedingQuestions,seedingSubjects} from './questions/seeding.js';
+import {seedingQuestions,seedingShortQuestions,seedingSubjects} from './questions/seeding.js';
 import {isCorrect,answerText,correctText} from './questions/schema.js';
 
 export const seedingMessage = "열심히 해서 1시드를 노려보세요!!!!\n아 공부 안 하게? 안 하게? 안 하게? 안 하게? 안 하게? 4시드 가게? 4시드? 1시드 안 하게? 1시드 놓치게?";
@@ -55,5 +55,26 @@ export async function createSeeding(service,{clock=Date.now}={}) {
   await run('UPDATE users SET coins=coins+500 WHERE id=?',u.id);
   await run('UPDATE seeding_sessions SET answers=?,revision=revision+1,result=? WHERE id=?',JSON.stringify(answers),JSON.stringify(result),id);
   return view(await active(u,id));})}
- return {settings,active,read,start,draft,submit};
+ async function checkStudy(u, subject) {
+  service.student(u);
+  if (!(await settings(u)).enabled) fail(403, "GT's seeding은 지금 쉬고 있어요.");
+  if (subject !== undefined) group(subject, 'short');
+ }
+
+ async function study(u) {
+  await checkStudy(u);
+  return {
+   subjects: seedingSubjects,
+   cards: seedingShortQuestions.map(q => ({
+    id: q.id,
+    subject: q.subject,
+    prompt: q.prompt,
+    code: q.code ?? '',
+    answer: correctText(q),
+    explanation: q.explanation
+   }))
+  };
+ }
+
+ return {settings,active,read,start,draft,submit,checkStudy,study};
 }

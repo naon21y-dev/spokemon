@@ -95,9 +95,29 @@ const cnn = [
  ['CIFAR-10 고양이·개', '평가 메서드', 'test_loss,test_acc = model.____(X_test,y_test)',['evaluate']],
  ['CIFAR-10 고양이·개', '예측 메서드', "predictions = model.____(X_test[:5])\npredicted_classes = (predictions >= 0.5).astype('int32').flatten()",['predict']],
 ];
+const cnnExplanations = {
+ Sequential: 'Sequential은 앞 레이어의 출력을 바로 다음 레이어의 입력으로 넘깁니다. 이름 그대로 층을 순서대로 쌓는 모델이에요.',
+ Conv2D: 'Conv2D의 2D는 높이와 너비를 뜻합니다. 필터가 이미지를 훑으면서 가장자리나 무늬 같은 특징을 찾습니다.',
+ load_data: 'load_data()는 (학습 이미지, 학습 레이블), (테스트 이미지, 테스트 레이블) 두 묶음을 돌려줍니다.',
+ '255.0': '픽셀 값은 0~255입니다. 255.0으로 나누면 0은 0.0, 255는 1.0이 됩니다. 학습과 테스트 이미지 모두 같은 방식으로 바꿉니다.',
+ '1': '흑백은 픽셀 하나당 밝기 값 하나만 저장하므로 채널 수는 1입니다. MNIST 한 장은 (28, 28, 1) 모양이 됩니다.',
+ '2': 'pool_size=(2, 2)는 높이 2칸, 너비 2칸입니다. 최대 풀링은 그 4칸 중 가장 큰 값 하나를 남깁니다.',
+ '5': 'CIFAR-10에서 개의 원래 번호는 5입니다. 고양이와 개만 고른 뒤 레이블이 5와 같은지 비교하면 개는 1, 고양이는 0이 됩니다.',
+ '10': 'epochs는 학습 데이터 전체를 몇 바퀴 볼지 정합니다. epochs=10은 전체 데이터를 열 번 학습한다는 뜻입니다.',
+ Flatten: 'Flatten은 높이·너비·채널로 쌓인 특징을 샘플마다 한 줄로 펴서 Dense 층에 전달합니다.',
+ softmax: 'MNIST는 숫자 0~9 중 하나를 고릅니다. softmax는 출력 10개의 값을 더하면 1이 되는 확률로 바꿉니다.',
+ sigmoid: '출력 뉴런 하나에 sigmoid를 적용하면 0~1 사이 값이 됩니다. 여기서는 0.5 이상을 개(1), 그 미만을 고양이(0)로 고릅니다.',
+ adam: 'Adam은 손실을 줄이도록 학습 중에 모델의 가중치를 갱신하는 옵티마이저입니다. compile의 optimizer 자리에 넣습니다.',
+ sparse_categorical_crossentropy: '클래스가 여러 개이고 정답을 0~9 같은 정수 한 개로 저장하므로 sparse_categorical_crossentropy를 사용합니다.',
+ binary_crossentropy: '정답이 고양이(0) 또는 개(1)이고 모델이 개일 확률 하나를 내므로 binary_crossentropy를 사용합니다.',
+ fit: 'fit은 데이터와 정답을 받아 가중치를 학습합니다. evaluate는 점수를 재고, predict는 예측값을 만들어요.',
+ evaluate: 'evaluate에는 테스트 입력과 정답을 함께 넣습니다. 정답과 비교해서 손실과 정확도를 계산합니다.',
+ predict: 'predict에는 새 입력만 넣습니다. X_test[:5]라면 앞의 다섯 장을 예측합니다. 숫자 분류에서는 가장 높은 확률의 위치를 고릅니다.'
+};
+
 export const seedingShortQuestions = [...rows, ...cnn.map(([dataset,label,code,answers])=>[
  `[${dataset} 실습] ${label}의 빈칸을 채우세요.`,answers,
- `${label}: ${answers[0]}. ${dataset==='MNIST'?'MNIST는 28×28 흑백, 숫자 0~9의 10개 클래스를 분류합니다.':'CIFAR-10은 32×32 RGB 이미지입니다. 고양이(3)와 개(5)를 추출하고 고양이=0, 개=1로 바꿉니다.'}`,code
+ answers[0]==='3'?(dataset==='MNIST'?'3×3 커널은 높이와 너비가 각각 3입니다. kernel_size 튜플에 (높이, 너비) 순서로 넣습니다.':'CIFAR-10에서 고양이의 원래 번호는 3입니다. np.isin으로 3과 5에 해당하는 샘플만 고릅니다.') : cnnExplanations[answers[0]],code
 ])].map(([prompt,acceptedAnswers,explanation,code],index)=>({id:`gt-seeding-${index+1}`,type:'short',subject:index<rows.length?'numpy-pandas':'tensorflow',prompt,acceptedAnswers,explanation,code}));
 
 

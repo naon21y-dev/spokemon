@@ -781,6 +781,10 @@ export async function createService(filename, {
           await checkUnit(u, context.subject, Number(context.unit));
           subject = context.subject;
           permitted = true;
+        } else if (context?.kind === 'seeding-study') {
+          await seeding.checkStudy(u, context.subject ?? '');
+          subject = 'deeplearning';
+          permitted = true;
         } else if (context?.kind === 'seeding') {
           const row = await seeding.active(u, context.sessionId);
           subject = 'deeplearning';
